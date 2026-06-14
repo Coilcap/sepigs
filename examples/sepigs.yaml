@@ -1,0 +1,59 @@
+log:
+  level: info
+limits:
+  connectTimeoutMs: 10000
+  handshakeTimeoutMs: 10000
+  idleTimeoutMs: 120000
+  shutdownTimeoutMs: 5000
+  maxHeaderBytes: 65536
+  maxConnections: 10000
+  leakReportIntervalMs: 60000
+plugins:
+  modules: []
+  wasm: []
+workers:
+  enabled: false
+  size: 1
+  taskTimeoutMs: 30000
+transport:
+  quic:
+    enabled: false
+    handshakeTimeoutMs: 10000
+connectionPool:
+  enabled: false
+  maxIdlePerEndpoint: 8
+  idleTimeoutMs: 30000
+hotReload:
+  enabled: false
+  debounceMs: 250
+inbounds:
+  - type: http
+    tag: http-in
+    listen: 127.0.0.1
+    port: 8080
+  - type: socks5
+    tag: socks-in
+    listen: 127.0.0.1
+    port: 1080
+    udpAssociate: true
+outbounds:
+  - type: direct
+    tag: direct
+  - type: block
+    tag: block
+    reason: blocked by sepigs rule
+route:
+  defaultOutbound: auto-direct
+  ruleSetFiles:
+    - tag: local-blocklist
+      path: rules/blocklist.yaml
+      outboundTag: block
+  policies:
+    - tag: auto-direct
+      type: loadBalance
+      outbounds:
+        - direct
+      strategy: leastLatency
+      unhealthyAfterFailures: 3
+      recoverAfterMs: 30000
+  rules: []

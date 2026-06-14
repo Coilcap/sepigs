@@ -1,0 +1,37 @@
+{
+  "name": "sepigs",
+  "version": "0.1.0",
+  "description": "A modular TypeScript proxy core for personal proxying, forwarding, and learning.",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=20.11.0"
+  },
+  "scripts": {
+    "dev": "tsx src/index.ts examples/sepigs.json",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/src/index.js examples/sepigs.json",
+    "test": "npm run build && node --test \"dist/test/**/*.test.js\"",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "benchmark": "tsx bench/benchmark.ts"
+  },
+  "keywords": [
+    "proxy",
+    "socks5",
+    "http-proxy",
+    "typescript"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "@eslint/js": "^9.29.0",
+    "@types/node": "^22.15.32",
+    "eslint": "^9.29.0",
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.34.1"
+  },
+  "dependencies": {
+    "yaml": "^2.9.0"
+  }
+}

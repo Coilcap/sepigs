@@ -1,0 +1,131 @@
+{
+  "generatedAt": "2026-06-14T19:40:44.810Z",
+  "options": {
+    "levels": [
+      100,
+      500,
+      1000,
+      5000
+    ],
+    "maxActive": 128,
+    "payloadBytes": 256,
+    "timeoutMs": 2000
+  },
+  "scenarios": [
+    {
+      "targetConcurrency": 100,
+      "effectiveConcurrency": 100,
+      "totalConnections": 100,
+      "successes": 100,
+      "failures": 0,
+      "bytes": 51200,
+      "durationMs": 43.923958999999996,
+      "throughputMbps": 9.325206773824737,
+      "latencyP50Ms": 17.46475000000001,
+      "latencyP95Ms": 26.02525,
+      "latencyP99Ms": 26.158999999999992,
+      "cpuUserMs": 39.916,
+      "cpuSystemMs": 8.106,
+      "rssBeforeBytes": 97763328,
+      "rssAfterBytes": 103202816,
+      "heapUsedBeforeBytes": 9220776,
+      "heapUsedAfterBytes": 13322944
+    },
+    {
+      "targetConcurrency": 500,
+      "effectiveConcurrency": 128,
+      "totalConnections": 500,
+      "successes": 500,
+      "failures": 0,
+      "bytes": 256000,
+      "durationMs": 105.746083,
+      "throughputMbps": 19.36714762285805,
+      "latencyP50Ms": 23.388000000000005,
+      "latencyP95Ms": 25.578040999999985,
+      "latencyP99Ms": 25.946709,
+      "cpuUserMs": 122.617,
+      "cpuSystemMs": 31.629,
+      "rssBeforeBytes": 103219200,
+      "rssAfterBytes": 113541120,
+      "heapUsedBeforeBytes": 13347352,
+      "heapUsedAfterBytes": 17047544
+    },
+    {
+      "targetConcurrency": 1000,
+      "effectiveConcurrency": 128,
+      "totalConnections": 1000,
+      "successes": 1000,
+      "failures": 0,
+      "bytes": 512000,
+      "durationMs": 158.86812499999996,
+      "throughputMbps": 25.782390268658364,
+      "latencyP50Ms": 17.519749999999988,
+      "latencyP95Ms": 23.138584000000037,
+      "latencyP99Ms": 23.464583999999945,
+      "cpuUserMs": 199.949,
+      "cpuSystemMs": 58.318,
+      "rssBeforeBytes": 113541120,
+      "rssAfterBytes": 132956160,
+      "heapUsedBeforeBytes": 17103360,
+      "heapUsedAfterBytes": 29554080
+    },
+    {
+      "targetConcurrency": 5000,
+      "effectiveConcurrency": 128,
+      "totalConnections": 5000,
+      "successes": 5000,
+      "failures": 0,
+      "bytes": 2560000,
+      "durationMs": 620.8805419999999,
+      "throughputMbps": 32.98541122585221,
+      "latencyP50Ms": 15.108999999999924,
+      "latencyP95Ms": 16.867500000000064,
+      "latencyP99Ms": 25.766459000000054,
+      "cpuUserMs": 479.452,
+      "cpuSystemMs": 251.846,
+      "rssBeforeBytes": 132956160,
+      "rssAfterBytes": 151076864,
+      "heapUsedBeforeBytes": 29681848,
+      "heapUsedAfterBytes": 23509224
+    }
+  ],
+  "engineStats": {
+    "activeConnections": 0,
+    "totalConnections": 6600,
+    "failedConnections": 0,
+    "closedConnections": 6600,
+    "rejectedConnections": 0,
+    "bytesClientToRemote": 1689600,
+    "bytesRemoteToClient": 1689600,
+    "totalBytes": 3379200,
+    "averageConnectionDurationMs": 1.1866666666666668,
+    "failureRate": 0,
+    "uptimeMs": 933,
+    "udpPacketsClientToRemote": 0,
+    "udpPacketsRemoteToClient": 0,
+    "udpBytesClientToRemote": 0,
+    "udpBytesRemoteToClient": 0
+  },
+  "leakSnapshot": {
+    "activeSockets": 0,
+    "activeTimers": 0,
+    "activeListeners": 0,
+    "trackedEmitters": 0,
+    "warnings": []
+  },
+  "resourceSnapshot": {
+    "maxConnections": 5100,
+    "activeConnections": 0,
+    "rejectedConnections": 0
+  },
+  "bottlenecks": [
+    "highest p95 latency at target 100: 26.03ms",
+    "local file-descriptor safety cap limited effective concurrency for high target levels"
+  ],
+  "recommendations": [
+    "run with a higher --max-active value on hosts with a higher ulimit -n to validate true 5000 simultaneous sockets",
+    "compare rssAfterBytes and heapUsedAfterBytes over repeated runs to detect growth trends",
+    "profile with node --cpu-prof when p95 latency grows faster than throughput",
+    "current benchmark completed without failed requests"
+  ]
+}

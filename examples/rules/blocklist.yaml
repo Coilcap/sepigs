@@ -1,0 +1,12 @@
+rules:
+  - tag: blocked-domain
+    domainSuffix:
+      - blocked.example
+  - tag: blocked-private-admin
+    ipCidr:
+      - 10.0.0.0/8
+      - 172.16.0.0/12
+      - 192.168.0.0/16
+    port:
+      - 23
+      - 2323
