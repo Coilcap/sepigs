@@ -6,6 +6,7 @@ sepigs is a small TypeScript/Node.js proxy core for legal personal proxying, loc
 
 - HTTP proxy inbound with `CONNECT` and basic absolute-form HTTP forwarding.
 - SOCKS5 inbound with no-auth `CONNECT` and optional UDP ASSOCIATE relay.
+- Optional HTTP Basic Auth and SOCKS5 username/password auth.
 - `direct`, `block`, fixed-target `tcpRelay`, Shadowsocks, Trojan, and WireGuard outbounds.
 - Router rules for exact domains, domain suffixes, IP CIDR, destination ports, and default outbound selection.
 - DNS module with static hosts, cache TTL, and IP family strategy.
@@ -18,6 +19,7 @@ sepigs is a small TypeScript/Node.js proxy core for legal personal proxying, loc
 - Leak detector for tracked sockets, timers, and listeners.
 - Lifecycle management, graceful shutdown, connection counters, byte counters, timeouts, and low-copy stream piping.
 - Dynamic plugin modules under the `plugin.*` type namespace.
+- Remote plugin outbound factory RPC for isolated worker-thread and child-process plugins.
 - WASM extension loading for controlled runtime extension points.
 - Worker thread pool for CPU-oriented control-plane tasks.
 - Routing policies with round-robin, least-latency, failover health, and per-outbound latency records.
@@ -26,6 +28,8 @@ sepigs is a small TypeScript/Node.js proxy core for legal personal proxying, loc
 - QUIC transport interface with a clear runtime capability boundary.
 - Explicit zero-copy relay helper built on Node stream piping.
 - Self-contained benchmark tool that starts a local sepigs engine and echo server.
+- Resumable full soak runner with checkpoint, JSONL metrics, markdown summaries, and connection dumps.
+- Prometheus metrics plus sample alert rules and Grafana dashboard.
 
 ## Install
 
@@ -62,6 +66,7 @@ npm test
 npm run lint
 npm run typecheck
 npm run benchmark
+npm run docs:check
 ```
 
 ## Example Clients
@@ -88,11 +93,31 @@ npm run benchmark
 
 Reports are written to `bench/results/latest.json` and `bench/results/latest.md`. Use `--max-active` to raise the active socket cap on machines with a higher file descriptor limit.
 
+## Soak
+
+Short soak:
+
+```sh
+npm run soak:short
+```
+
+One-hour resumable soak:
+
+```sh
+npm run soak:1h:full
+```
+
+Resume a run:
+
+```sh
+npm run soak:resume
+```
+
 ## Not Supported Yet
 
-- Authentication.
 - TLS termination.
 - TUN mode.
-- Remote subscription parsing.
+- GUI/mobile clients are ready for manual verification but not automatically verified.
+- Remote plugin stream transforms across process boundaries.
 - Full in-process WireGuard packet tunnel transport.
 - Native QUIC/Hysteria-style transport implementation without an external plugin.

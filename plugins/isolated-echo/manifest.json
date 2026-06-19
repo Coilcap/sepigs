@@ -1,0 +1,9 @@
+{
+  "name": "isolated-echo",
+  "version": "0.1.0",
+  "type": "mixed",
+  "entry": "index.mjs",
+  "permissions": [],
+  "apiVersion": "1",
+  "description": "Minimal plugin used to verify worker-thread and child-process isolation runners."
+}

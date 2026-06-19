@@ -2,10 +2,15 @@ import type { AddressInfo } from "node:net";
 import type { InboundConfig, OutboundConfig, SepigsConfig } from "../config/types.js";
 import { SystemDnsResolver } from "../dns/resolver.js";
 import type { Inbound, InboundContext } from "../inbound/inbound.js";
+import { inboundConfigsChanged, reloadInbounds } from "../inbound/reload.js";
 import { createInboundFromRegistry, registerInboundFactory } from "../inbound/registry.js";
 import { Logger } from "../logger/logger.js";
+import { EventLoopMonitor } from "../observability/eventLoop.js";
+import { GcMonitor } from "../observability/gc.js";
+import { renderPrometheusMetrics } from "../observability/metrics.js";
+import { PrometheusMetricsServer } from "../observability/prometheus.js";
 import type { Outbound } from "../outbound/outbound.js";
-import { createOutboundFromRegistry, registerOutboundFactory } from "../outbound/registry.js";
+import { createOutboundFromRegistry, registerOutboundFactory, unregisterOutboundFactory } from "../outbound/registry.js";
 import { PluginManager } from "../plugin/plugin.js";
 import { WasmExtensionManager, type WasmExtensionSnapshot } from "../plugin/wasm.js";
 import type { ProxyRequest, TcpOutboundConnection, UdpOutboundPacket } from "../protocol/types.js";
@@ -41,6 +46,9 @@ export class Engine {
   private readonly wasmExtensions: WasmExtensionManager;
   private readonly workerPool: WorkerPool;
   private readonly pluginManager: PluginManager;
+  private readonly eventLoopMonitor = new EventLoopMonitor();
+  private readonly gcMonitor = new GcMonitor();
+  private metricsServer: PrometheusMetricsServer;
   private leakReportTimer: ManagedTimer | undefined;
   private runtimeLoaded = false;
   private componentsBuilt = false;
@@ -50,7 +58,7 @@ export class Engine {
     this.config = config;
     this.logger = logger.child("engine");
     this.router = new Router(config.route);
-    this.dnsResolver = new SystemDnsResolver(config.dns, this.logger.child("dns"));
+    this.dnsResolver = new SystemDnsResolver(config.dns, this.logger.child("dns"), this.stats);
     this.policyManager = new RoutingPolicyManager(config.route.policies);
     this.connectionPool = new TcpConnectionPool(config.connectionPool, this.logger.child("pool"));
     this.quicTransport = new UnavailableQuicTransport(config.transport.quic, this.logger.child("quic"));
@@ -70,8 +78,10 @@ export class Engine {
       workerPool: this.workerPool,
       wasmExtensions: this.wasmExtensions,
       registerInboundFactory,
-      registerOutboundFactory
-    });
+      registerOutboundFactory,
+      unregisterOutboundFactory
+    }, config.plugins.isolation);
+    this.metricsServer = this.createMetricsServer(config);
   }
 
   public async start(): Promise<void> {
@@ -88,6 +98,9 @@ export class Engine {
       for (const inbound of this.inbounds.values()) {
         await inbound.start();
       }
+      this.eventLoopMonitor.start();
+      this.gcMonitor.start();
+      await this.metricsServer.start();
       this.leakReportTimer = this.timeoutManager.setInterval("leak-report", this.config.limits.leakReportIntervalMs, () => {
         this.leakDetector.report();
       });
@@ -103,6 +116,9 @@ export class Engine {
     this.connectionManager.closeAll("engine stop");
     this.leakReportTimer?.clear();
     this.leakReportTimer = undefined;
+    await this.metricsServer.stop();
+    this.eventLoopMonitor.stop();
+    this.gcMonitor.stop();
     await this.lifecycle.stopAll(this.config.limits.shutdownTimeoutMs);
     this.connectionPool.closeAll();
     await this.quicTransport.close();
@@ -140,6 +156,10 @@ export class Engine {
     return this.inbounds.get(tag)?.address() ?? null;
   }
 
+  public getMetricsAddress(): AddressInfo | string | null {
+    return this.metricsServer.address();
+  }
+
   public getRoutingPolicies(): readonly RoutingPolicySnapshot[] {
     return this.policyManager.getPolicySnapshots();
   }
@@ -161,13 +181,45 @@ export class Engine {
   }
 
   public async reloadConfig(config: SepigsConfig): Promise<void> {
+    try {
+      await this.applyReloadConfig(config);
+      this.stats.recordHotReload(true);
+    } catch (error) {
+      this.stats.recordHotReload(false);
+      throw error;
+    }
+  }
+
+  private async applyReloadConfig(config: SepigsConfig): Promise<void> {
+    const previousConfig = this.config;
+    let reloadedInbounds: Map<string, Inbound> | undefined;
+    if (this.componentsBuilt && inboundConfigsChanged(previousConfig.inbounds, config.inbounds)) {
+      const inboundContext = this.createInboundContext(config);
+      const result = await reloadInbounds({
+        current: this.inbounds,
+        previousConfigs: previousConfig.inbounds,
+        nextConfigs: config.inbounds,
+        logger: this.logger.child("inbound-reload"),
+        createInbound: (inboundConfig) => this.createInbound(inboundConfig, inboundContext)
+      });
+      if (!result.reloaded) {
+        throw new ConfigError("inbound hot reload failed; existing listeners were kept");
+      }
+      reloadedInbounds = result.inbounds;
+    }
+
     this.config = config;
     this.router = new Router(config.route);
-    this.dnsResolver = new SystemDnsResolver(config.dns, this.logger.child("dns"));
+    this.dnsResolver = new SystemDnsResolver(config.dns, this.logger.child("dns"), this.stats);
     this.policyManager.reload(config.route.policies);
     this.connectionPool.closeAll();
     this.connectionPool = new TcpConnectionPool(config.connectionPool, this.logger.child("pool"));
     this.quicTransport = new UnavailableQuicTransport(config.transport.quic, this.logger.child("quic"));
+    await this.metricsServer.stop();
+    this.metricsServer = this.createMetricsServer(config);
+    if (this.started) {
+      await this.metricsServer.start();
+    }
 
     if (this.runtimeLoaded) {
       await this.wasmExtensions.loadAll(config.plugins.wasm);
@@ -175,6 +227,13 @@ export class Engine {
     }
     if (this.componentsBuilt) {
       await this.reloadOutbounds();
+    }
+    if (reloadedInbounds !== undefined) {
+      this.inbounds.clear();
+      for (const inbound of reloadedInbounds.values()) {
+        this.inbounds.set(inbound.tag, inbound);
+        this.lifecycle.register(inbound);
+      }
     }
 
     this.logger.info("sepigs config hot reloaded", {
@@ -186,6 +245,7 @@ export class Engine {
 
   private async openTcp(request: ProxyRequest): Promise<TcpOutboundConnection> {
     const route = this.router.match(request);
+    this.stats.recordRouteMatch();
     const selection = this.policyManager.select(route.outboundTag);
     let lastError: unknown;
 
@@ -194,6 +254,7 @@ export class Engine {
       if (outbound === undefined) {
         lastError = new ConfigError(`route selected missing outbound "${outboundTag}"`);
         this.policyManager.recordFailure(outboundTag);
+        this.stats.recordOutboundFailure();
         continue;
       }
 
@@ -216,6 +277,7 @@ export class Engine {
       } catch (error) {
         lastError = error;
         this.policyManager.recordFailure(outboundTag);
+        this.stats.recordOutboundFailure();
         this.logger.debug("outbound candidate failed", {
           connectionId: request.id,
           outboundTag,
@@ -230,6 +292,7 @@ export class Engine {
 
   private async sendUdp(request: ProxyRequest, payload: Buffer): Promise<UdpOutboundPacket | undefined> {
     const route = this.router.match(request);
+    this.stats.recordRouteMatch();
     const selection = this.policyManager.select(route.outboundTag);
     let lastError: unknown;
 
@@ -238,11 +301,13 @@ export class Engine {
       if (outbound === undefined) {
         lastError = new ConfigError(`route selected missing outbound "${outboundTag}"`);
         this.policyManager.recordFailure(outboundTag);
+        this.stats.recordOutboundFailure();
         continue;
       }
       if (outbound.sendUdp === undefined) {
         lastError = new ConfigError(`outbound "${outbound.tag}" does not support UDP`);
         this.policyManager.recordFailure(outboundTag);
+        this.stats.recordOutboundFailure();
         continue;
       }
 
@@ -263,6 +328,7 @@ export class Engine {
       } catch (error) {
         lastError = error;
         this.policyManager.recordFailure(outboundTag);
+        this.stats.recordOutboundFailure();
       }
     }
 
@@ -289,7 +355,7 @@ export class Engine {
       this.lifecycle.register(outbound);
     }
 
-    const inboundContext = this.createInboundContext();
+    const inboundContext = this.createInboundContext(this.config);
     for (const inboundConfig of this.config.inbounds) {
       const inbound = this.createInbound(inboundConfig, inboundContext);
       this.inbounds.set(inbound.tag, inbound);
@@ -312,9 +378,9 @@ export class Engine {
     }
   }
 
-  private createInboundContext(): InboundContext {
+  private createInboundContext(config: SepigsConfig): InboundContext {
     return {
-      limits: this.config.limits,
+      limits: config.limits,
       logger: this.logger,
       stats: this.stats,
       connectionManager: this.connectionManager,
@@ -333,5 +399,20 @@ export class Engine {
       logger: this.logger.child(`outbound:${config.tag}`),
       dnsResolver: this.dnsResolver
     });
+  }
+
+  private createMetricsServer(config: SepigsConfig): PrometheusMetricsServer {
+    return new PrometheusMetricsServer(
+      config.observability.metrics,
+      () =>
+        renderPrometheusMetrics({
+          stats: this.stats.snapshot(),
+          leaks: this.leakDetector.snapshot(),
+          eventLoop: this.eventLoopMonitor.snapshot(),
+          gc: this.gcMonitor.snapshot(),
+          memory: process.memoryUsage()
+        }),
+      this.logger.child("metrics")
+    );
   }
 }

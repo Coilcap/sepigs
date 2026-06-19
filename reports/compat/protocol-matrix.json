@@ -1,0 +1,106 @@
+[
+  {
+    "protocol": "shadowsocks",
+    "direction": "sepigs outbound -> local reference fixture",
+    "case": "aes-128-gcm",
+    "status": "verified-local-fixture",
+    "evidence": "test/compat/shadowsocks-compat.test.ts",
+    "reason": "Covered by local protocol fixture in npm test, not an external implementation claim."
+  },
+  {
+    "protocol": "shadowsocks",
+    "direction": "sepigs outbound -> local reference fixture",
+    "case": "aes-256-gcm",
+    "status": "verified-local-fixture",
+    "evidence": "test/compat/shadowsocks-compat.test.ts",
+    "reason": "Covered by local protocol fixture in npm test, not an external implementation claim."
+  },
+  {
+    "protocol": "shadowsocks",
+    "direction": "sepigs outbound -> local reference fixture",
+    "case": "chacha20-ietf-poly1305",
+    "status": "verified-local-fixture",
+    "evidence": "test/compat/shadowsocks-compat.test.ts",
+    "reason": "Covered by local protocol fixture in npm test, not an external implementation claim."
+  },
+  {
+    "protocol": "shadowsocks",
+    "direction": "sepigs outbound -> external reference server",
+    "case": "wrong password failure",
+    "status": "skipped-with-reason",
+    "evidence": "missing binary",
+    "reason": "No shadowsocks-rust/libev reference server binary found in PATH."
+  },
+  {
+    "protocol": "shadowsocks",
+    "direction": "sepigs outbound -> external reference server",
+    "case": "remote close",
+    "status": "skipped-with-reason",
+    "evidence": "missing binary",
+    "reason": "No shadowsocks-rust/libev reference server binary found in PATH."
+  },
+  {
+    "protocol": "shadowsocks",
+    "direction": "sepigs outbound -> external reference server",
+    "case": "large payload",
+    "status": "skipped-with-reason",
+    "evidence": "missing binary",
+    "reason": "No shadowsocks-rust/libev reference server binary found in PATH."
+  },
+  {
+    "protocol": "shadowsocks",
+    "direction": "reference client -> sepigs inbound",
+    "case": "all ciphers",
+    "status": "unsupported",
+    "evidence": "src/inbound",
+    "reason": "sepigs does not implement Shadowsocks inbound in Phase 7."
+  },
+  {
+    "protocol": "trojan",
+    "direction": "sepigs outbound -> local reference fixture",
+    "case": "plain TCP test mode",
+    "status": "verified-local-fixture",
+    "evidence": "test/compat/trojan-compat.test.ts",
+    "reason": "Covered by local protocol fixture in npm test, not a public TLS ecosystem claim."
+  },
+  {
+    "protocol": "trojan",
+    "direction": "sepigs outbound -> external reference server",
+    "case": "wrong password failure",
+    "status": "skipped-with-reason",
+    "evidence": "missing binary",
+    "reason": "No trojan-go/trojan reference binary found in PATH."
+  },
+  {
+    "protocol": "trojan",
+    "direction": "sepigs outbound -> external reference server",
+    "case": "SNI/serverName behavior",
+    "status": "skipped-with-reason",
+    "evidence": "missing binary",
+    "reason": "No trojan-go/trojan reference binary found in PATH."
+  },
+  {
+    "protocol": "trojan",
+    "direction": "sepigs outbound -> external reference server",
+    "case": "remote close",
+    "status": "skipped-with-reason",
+    "evidence": "missing binary",
+    "reason": "No trojan-go/trojan reference binary found in PATH."
+  },
+  {
+    "protocol": "trojan",
+    "direction": "sepigs outbound -> external reference server",
+    "case": "large payload",
+    "status": "skipped-with-reason",
+    "evidence": "missing binary",
+    "reason": "No trojan-go/trojan reference binary found in PATH."
+  },
+  {
+    "protocol": "trojan",
+    "direction": "reference client -> sepigs inbound",
+    "case": "all cases",
+    "status": "unsupported",
+    "evidence": "src/inbound",
+    "reason": "sepigs does not implement Trojan inbound in Phase 7."
+  }
+]

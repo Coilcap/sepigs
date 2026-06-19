@@ -1,0 +1,59 @@
+groups:
+  - name: sepigs.rules
+    rules:
+      - alert: SepigsActiveConnectionsTooHigh
+        expr: sepigs_connections_active > 9000
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: sepigs active connections are near the configured limiter
+      - alert: SepigsErrorRateTooHigh
+        expr: rate(sepigs_connections_failed_total[5m]) / clamp_min(rate(sepigs_connections_total[5m]), 1) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: sepigs connection failure rate is too high
+      - alert: SepigsDnsFailureRateTooHigh
+        expr: rate(sepigs_dns_failures_total[5m]) / clamp_min(rate(sepigs_dns_queries_total[5m]), 1) > 0.10
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: sepigs DNS failure rate is too high
+      - alert: SepigsHotReloadFailure
+        expr: increase(sepigs_hot_reload_failures_total[10m]) > 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: sepigs hot reload failed
+      - alert: SepigsEventLoopDelayTooHigh
+        expr: sepigs_event_loop_delay_ms > 100
+        for: 3m
+        labels:
+          severity: warning
+        annotations:
+          summary: sepigs event loop p95 delay is high
+      - alert: SepigsMemoryRssTooHigh
+        expr: sepigs_rss_bytes > 1073741824
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: sepigs RSS memory usage is above 1 GiB
+      - alert: SepigsOutboundFailureSpike
+        expr: increase(sepigs_outbound_failures_total[5m]) > 100
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: sepigs outbound failures spiked
+      - alert: SepigsNoMetricsScraped
+        expr: absent(sepigs_uptime_seconds)
+        for: 3m
+        labels:
+          severity: critical
+        annotations:
+          summary: no sepigs metrics are being scraped

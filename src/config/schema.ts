@@ -2,21 +2,31 @@ import type {
   BlockOutboundConfig,
   ConnectionPoolConfig,
   DnsConfig,
+  DnsRouteRuleConfig,
+  DnsUdpServerConfig,
+  DohConfig,
   DirectOutboundConfig,
   ExtensionType,
+  FakeIpConfig,
   GeoConfig,
   HotReloadConfig,
+  HttpBasicAuthConfig,
   HttpInboundConfig,
   InboundConfig,
   LimitConfig,
   LoadBalanceStrategy,
   LogConfig,
   LogLevel,
+  MetricsServerConfig,
+  ObservabilityConfig,
   OutboundConfig,
   PluginConfig,
   PluginInboundConfig,
+  PluginIsolationConfig,
+  PluginIsolationMode,
   PluginModuleConfig,
   PluginOutboundConfig,
+  ProbingConfig,
   RouteRuleConfig,
   RouteRuleSetFileConfig,
   RoutingPolicyConfig,
@@ -24,6 +34,7 @@ import type {
   RouterConfig,
   SepigsConfig,
   ShadowsocksOutboundConfig,
+  Socks5AuthConfig,
   Socks5InboundConfig,
   TcpRelayOutboundConfig,
   TransportConfig,
@@ -52,7 +63,12 @@ const DEFAULT_LIMITS: LimitConfig = {
 const DEFAULT_DNS: DnsConfig = {
   strategy: "system",
   cacheTtlMs: 60_000,
-  hosts: {}
+  hosts: {},
+  udpServers: [],
+  rules: [],
+  fallbackHosts: {},
+  fakeIp: { enabled: false, cidr: "198.18.0.0/15" },
+  doh: { enabled: false, endpoints: [], timeoutMs: 1_000 }
 };
 
 const DEFAULT_GEO: GeoConfig = {
@@ -62,7 +78,13 @@ const DEFAULT_GEO: GeoConfig = {
 
 const DEFAULT_PLUGINS: PluginConfig = {
   modules: [],
-  wasm: []
+  wasm: [],
+  isolation: {
+    mode: "in-process",
+    timeoutMs: 3_000,
+    memoryLimitMb: 64,
+    stdoutLimitBytes: 64 * 1024
+  }
 };
 
 const DEFAULT_WORKERS: WorkerConfig = {
@@ -89,8 +111,28 @@ const DEFAULT_HOT_RELOAD: HotReloadConfig = {
   debounceMs: 250
 };
 
+const DEFAULT_PROBING: ProbingConfig = {
+  enabled: false,
+  intervalMs: 30_000,
+  timeoutMs: 1_000,
+  maxConcurrency: 4,
+  budgetPerInterval: 16,
+  backoffBaseMs: 1_000,
+  backoffMaxMs: 60_000
+};
+
+const DEFAULT_OBSERVABILITY: ObservabilityConfig = {
+  metrics: {
+    enabled: false,
+    listen: "127.0.0.1",
+    port: 19090,
+    path: "/metrics"
+  }
+};
+
 const LOG_LEVELS = new Set<LogLevel>(["debug", "info", "warn", "error", "silent"]);
 const DNS_STRATEGIES = new Set<DnsConfig["strategy"]>(["system", "prefer-ipv4", "prefer-ipv6"]);
+const PLUGIN_ISOLATION_MODES = new Set<PluginIsolationMode>(["in-process", "worker-thread", "child-process"]);
 const SHADOWSOCKS_METHODS = new Set<ShadowsocksOutboundConfig["method"]>([
   "aes-128-gcm",
   "aes-256-gcm",
@@ -98,6 +140,7 @@ const SHADOWSOCKS_METHODS = new Set<ShadowsocksOutboundConfig["method"]>([
 ]);
 const ROUTING_POLICY_TYPES = new Set<RoutingPolicyType>(["loadBalance", "failover"]);
 const LOAD_BALANCE_STRATEGIES = new Set<LoadBalanceStrategy>(["roundRobin", "leastLatency", "random"]);
+const PUBLIC_LISTEN_ADDRESSES = new Set(["0.0.0.0", "::", "[::]"]);
 
 const isRecord = (value: unknown): value is Record<string, unknown> => {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -357,6 +400,65 @@ const parseLimits = (root: Record<string, unknown>, errors: string[]): LimitConf
   };
 };
 
+const parseDnsUdpServer = (value: unknown, path: string, errors: string[]): DnsUdpServerConfig | undefined => {
+  if (!isRecord(value)) {
+    errors.push(`${path} must be an object`);
+    return undefined;
+  }
+  const tag = readString(value, "tag", path, errors);
+  const address = readString(value, "address", path, errors);
+  const port = readOptionalNumber(value, "port", path, errors, 1, 65_535) ?? 53;
+  const timeoutMs = readOptionalNumber(value, "timeoutMs", path, errors, 1, 30_000) ?? 1_000;
+  if (tag === undefined || address === undefined) {
+    return undefined;
+  }
+  return { tag, address, port, timeoutMs };
+};
+
+const parseDnsRule = (value: unknown, path: string, errors: string[]): DnsRouteRuleConfig | undefined => {
+  if (!isRecord(value)) {
+    errors.push(`${path} must be an object`);
+    return undefined;
+  }
+  const domainSuffix = readStringArray(value, "domainSuffix", path, errors);
+  const serverTag = readString(value, "serverTag", path, errors);
+  if (domainSuffix === undefined || serverTag === undefined) {
+    return undefined;
+  }
+  return { domainSuffix, serverTag };
+};
+
+const parseFakeIp = (rawDns: Record<string, unknown>, errors: string[]): FakeIpConfig => {
+  const rawFakeIp = rawDns.fakeIp;
+  if (rawFakeIp === undefined) {
+    return DEFAULT_DNS.fakeIp;
+  }
+  if (!isRecord(rawFakeIp)) {
+    errors.push("dns.fakeIp must be an object when provided");
+    return DEFAULT_DNS.fakeIp;
+  }
+  return {
+    enabled: readOptionalBoolean(rawFakeIp, "enabled", "dns.fakeIp", errors) ?? DEFAULT_DNS.fakeIp.enabled,
+    cidr: readOptionalString(rawFakeIp, "cidr", "dns.fakeIp", errors) ?? DEFAULT_DNS.fakeIp.cidr
+  };
+};
+
+const parseDoh = (rawDns: Record<string, unknown>, errors: string[]): DohConfig => {
+  const rawDoh = rawDns.doh;
+  if (rawDoh === undefined) {
+    return DEFAULT_DNS.doh;
+  }
+  if (!isRecord(rawDoh)) {
+    errors.push("dns.doh must be an object when provided");
+    return DEFAULT_DNS.doh;
+  }
+  return {
+    enabled: readOptionalBoolean(rawDoh, "enabled", "dns.doh", errors) ?? DEFAULT_DNS.doh.enabled,
+    endpoints: readStringArray(rawDoh, "endpoints", "dns.doh", errors) ?? DEFAULT_DNS.doh.endpoints,
+    timeoutMs: readOptionalNumber(rawDoh, "timeoutMs", "dns.doh", errors, 1, 30_000) ?? DEFAULT_DNS.doh.timeoutMs
+  };
+};
+
 const parseDns = (root: Record<string, unknown>, errors: string[]): DnsConfig => {
   const rawDns = root.dns;
   if (rawDns === undefined) {
@@ -372,10 +474,41 @@ const parseDns = (root: Record<string, unknown>, errors: string[]): DnsConfig =>
     errors.push("dns.strategy must be one of system, prefer-ipv4, prefer-ipv6");
   }
 
+  const rawUdpServers = rawDns.udpServers;
+  const udpServers =
+    rawUdpServers === undefined
+      ? []
+      : Array.isArray(rawUdpServers)
+        ? rawUdpServers
+            .map((server, index) => parseDnsUdpServer(server, `dns.udpServers[${index}]`, errors))
+            .filter((server): server is DnsUdpServerConfig => server !== undefined)
+        : [];
+  if (rawUdpServers !== undefined && !Array.isArray(rawUdpServers)) {
+    errors.push("dns.udpServers must be an array when provided");
+  }
+
+  const rawRules = rawDns.rules;
+  const rules =
+    rawRules === undefined
+      ? []
+      : Array.isArray(rawRules)
+        ? rawRules
+            .map((rule, index) => parseDnsRule(rule, `dns.rules[${index}]`, errors))
+            .filter((rule): rule is DnsRouteRuleConfig => rule !== undefined)
+        : [];
+  if (rawRules !== undefined && !Array.isArray(rawRules)) {
+    errors.push("dns.rules must be an array when provided");
+  }
+
   return {
     strategy: typeof strategy === "string" && DNS_STRATEGIES.has(strategy as DnsConfig["strategy"]) ? (strategy as DnsConfig["strategy"]) : "system",
     cacheTtlMs: readOptionalNumber(rawDns, "cacheTtlMs", "dns", errors, 1, 3_600_000) ?? DEFAULT_DNS.cacheTtlMs,
-    hosts: readStringRecord(rawDns, "hosts", "dns", errors) ?? DEFAULT_DNS.hosts
+    hosts: readStringRecord(rawDns, "hosts", "dns", errors) ?? DEFAULT_DNS.hosts,
+    udpServers,
+    rules,
+    fallbackHosts: readStringRecord(rawDns, "fallbackHosts", "dns", errors) ?? DEFAULT_DNS.fallbackHosts,
+    fakeIp: parseFakeIp(rawDns, errors),
+    doh: parseDoh(rawDns, errors)
   };
 };
 
@@ -403,11 +536,12 @@ const parsePluginModule = (value: unknown, path: string, errors: string[]): Plug
 
   const tag = readString(value, "tag", path, errors);
   const modulePath = readString(value, "path", path, errors);
+  const manifest = readOptionalString(value, "manifest", path, errors);
   const enabled = readOptionalBoolean(value, "enabled", path, errors) ?? true;
   if (tag === undefined || modulePath === undefined) {
     return undefined;
   }
-  return { tag, path: modulePath, enabled };
+  return { tag, path: modulePath, enabled, ...(manifest === undefined ? {} : { manifest }) };
 };
 
 const parseWasmExtension = (value: unknown, path: string, errors: string[]): WasmExtensionConfig | undefined => {
@@ -461,7 +595,37 @@ const parsePlugins = (root: Record<string, unknown>, errors: string[]): PluginCo
     errors.push("plugins.wasm must be an array when provided");
   }
 
-  return { modules, wasm };
+  return { modules, wasm, isolation: parsePluginIsolation(rawPlugins, errors) };
+};
+
+const parsePluginIsolation = (rawPlugins: Record<string, unknown>, errors: string[]): PluginIsolationConfig => {
+  const rawIsolation = rawPlugins.isolation;
+  if (rawIsolation === undefined) {
+    return DEFAULT_PLUGINS.isolation;
+  }
+  if (!isRecord(rawIsolation)) {
+    errors.push("plugins.isolation must be an object when provided");
+    return DEFAULT_PLUGINS.isolation;
+  }
+
+  const rawMode = rawIsolation.mode;
+  if (rawMode !== undefined && (typeof rawMode !== "string" || !PLUGIN_ISOLATION_MODES.has(rawMode as PluginIsolationMode))) {
+    errors.push('plugins.isolation.mode must be "in-process", "worker-thread", or "child-process"');
+  }
+
+  return {
+    mode:
+      typeof rawMode === "string" && PLUGIN_ISOLATION_MODES.has(rawMode as PluginIsolationMode)
+        ? (rawMode as PluginIsolationMode)
+        : DEFAULT_PLUGINS.isolation.mode,
+    timeoutMs:
+      readOptionalNumber(rawIsolation, "timeoutMs", "plugins.isolation", errors, 1, 300_000) ?? DEFAULT_PLUGINS.isolation.timeoutMs,
+    memoryLimitMb:
+      readOptionalNumber(rawIsolation, "memoryLimitMb", "plugins.isolation", errors, 16, 4096) ?? DEFAULT_PLUGINS.isolation.memoryLimitMb,
+    stdoutLimitBytes:
+      readOptionalNumber(rawIsolation, "stdoutLimitBytes", "plugins.isolation", errors, 1024, 10 * 1024 * 1024) ??
+      DEFAULT_PLUGINS.isolation.stdoutLimitBytes
+  };
 };
 
 const parseWorkers = (root: Record<string, unknown>, errors: string[]): WorkerConfig => {
@@ -546,6 +710,103 @@ const parseHotReload = (root: Record<string, unknown>, errors: string[]): HotRel
   };
 };
 
+const parseProbing = (root: Record<string, unknown>, errors: string[]): ProbingConfig => {
+  const rawProbing = root.probing;
+  if (rawProbing === undefined) {
+    return DEFAULT_PROBING;
+  }
+  if (!isRecord(rawProbing)) {
+    errors.push("probing must be an object");
+    return DEFAULT_PROBING;
+  }
+
+  return {
+    enabled: readOptionalBoolean(rawProbing, "enabled", "probing", errors) ?? DEFAULT_PROBING.enabled,
+    intervalMs: readOptionalNumber(rawProbing, "intervalMs", "probing", errors, 100, 3_600_000) ?? DEFAULT_PROBING.intervalMs,
+    timeoutMs: readOptionalNumber(rawProbing, "timeoutMs", "probing", errors, 1, 300_000) ?? DEFAULT_PROBING.timeoutMs,
+    maxConcurrency: readOptionalNumber(rawProbing, "maxConcurrency", "probing", errors, 1, 1_000) ?? DEFAULT_PROBING.maxConcurrency,
+    budgetPerInterval:
+      readOptionalNumber(rawProbing, "budgetPerInterval", "probing", errors, 1, 1_000_000) ?? DEFAULT_PROBING.budgetPerInterval,
+    backoffBaseMs: readOptionalNumber(rawProbing, "backoffBaseMs", "probing", errors, 1, 3_600_000) ?? DEFAULT_PROBING.backoffBaseMs,
+    backoffMaxMs:
+      readOptionalNumber(rawProbing, "backoffMaxMs", "probing", errors, 1, 24 * 3_600_000) ?? DEFAULT_PROBING.backoffMaxMs
+  };
+};
+
+const parseMetricsServer = (rawObservability: Record<string, unknown>, errors: string[]): MetricsServerConfig => {
+  const rawMetrics = rawObservability.metrics;
+  if (rawMetrics === undefined) {
+    return DEFAULT_OBSERVABILITY.metrics;
+  }
+  if (!isRecord(rawMetrics)) {
+    errors.push("observability.metrics must be an object when provided");
+    return DEFAULT_OBSERVABILITY.metrics;
+  }
+
+  const metricsPath = readOptionalString(rawMetrics, "path", "observability.metrics", errors) ?? DEFAULT_OBSERVABILITY.metrics.path;
+  if (!metricsPath.startsWith("/")) {
+    errors.push("observability.metrics.path must start with /");
+  }
+
+  return {
+    enabled: readOptionalBoolean(rawMetrics, "enabled", "observability.metrics", errors) ?? DEFAULT_OBSERVABILITY.metrics.enabled,
+    listen: readOptionalString(rawMetrics, "listen", "observability.metrics", errors) ?? DEFAULT_OBSERVABILITY.metrics.listen,
+    port: readOptionalNumber(rawMetrics, "port", "observability.metrics", errors, 0, 65_535) ?? DEFAULT_OBSERVABILITY.metrics.port,
+    path: metricsPath.startsWith("/") ? metricsPath : DEFAULT_OBSERVABILITY.metrics.path
+  };
+};
+
+const parseObservability = (root: Record<string, unknown>, errors: string[]): ObservabilityConfig => {
+  const rawObservability = root.observability;
+  if (rawObservability === undefined) {
+    return DEFAULT_OBSERVABILITY;
+  }
+  if (!isRecord(rawObservability)) {
+    errors.push("observability must be an object when provided");
+    return DEFAULT_OBSERVABILITY;
+  }
+
+  return {
+    metrics: parseMetricsServer(rawObservability, errors)
+  };
+};
+
+const parseHttpAuth = (record: Record<string, unknown>, path: string, errors: string[]): HttpBasicAuthConfig | undefined => {
+  const rawAuth = record.auth;
+  if (rawAuth === undefined) {
+    return undefined;
+  }
+  if (!isRecord(rawAuth)) {
+    errors.push(`${path}.auth must be an object when provided`);
+    return undefined;
+  }
+  const enabled = readOptionalBoolean(rawAuth, "enabled", `${path}.auth`, errors) ?? true;
+  const username = readString(rawAuth, "username", `${path}.auth`, errors);
+  const password = readString(rawAuth, "password", `${path}.auth`, errors);
+  if (username === undefined || password === undefined) {
+    return undefined;
+  }
+  return { enabled, username, password };
+};
+
+const parseSocksAuth = (record: Record<string, unknown>, path: string, errors: string[]): Socks5AuthConfig | undefined => {
+  const rawAuth = record.auth;
+  if (rawAuth === undefined) {
+    return undefined;
+  }
+  if (!isRecord(rawAuth)) {
+    errors.push(`${path}.auth must be an object when provided`);
+    return undefined;
+  }
+  const enabled = readOptionalBoolean(rawAuth, "enabled", `${path}.auth`, errors) ?? true;
+  const username = readString(rawAuth, "username", `${path}.auth`, errors);
+  const password = readString(rawAuth, "password", `${path}.auth`, errors);
+  if (username === undefined || password === undefined) {
+    return undefined;
+  }
+  return { enabled, username, password };
+};
+
 const parseInbound = (value: unknown, path: string, errors: string[]): InboundConfig | undefined => {
   if (!isRecord(value)) {
     errors.push(`${path} must be an object`);
@@ -576,7 +837,8 @@ const parseInbound = (value: unknown, path: string, errors: string[]): InboundCo
   }
 
   if (type === "http") {
-    return { type, tag, listen, port, ...optional } satisfies HttpInboundConfig;
+    const auth = parseHttpAuth(value, path, errors);
+    return { type, tag, listen, port, ...optional, ...(auth === undefined ? {} : { auth }) } satisfies HttpInboundConfig;
   }
   if (type === "socks5") {
     const udpAssociate = value.udpAssociate;
@@ -588,7 +850,8 @@ const parseInbound = (value: unknown, path: string, errors: string[]): InboundCo
         socksOptional.udpAssociate = udpAssociate;
       }
     }
-    return { type, tag, listen, port, ...optional, ...socksOptional } satisfies Socks5InboundConfig;
+    const auth = parseSocksAuth(value, path, errors);
+    return { type, tag, listen, port, ...optional, ...socksOptional, ...(auth === undefined ? {} : { auth }) } satisfies Socks5InboundConfig;
   }
 
   if (isExtensionType(type)) {
@@ -988,12 +1251,37 @@ const checkOutboundReferences = (config: SepigsConfig, errors: string[]): void =
   });
 };
 
+const checkDnsReferences = (config: SepigsConfig, errors: string[]): void => {
+  const serverTags = new Set(config.dns.udpServers.map((server) => server.tag));
+  config.dns.rules.forEach((rule, index) => {
+    if (!serverTags.has(rule.serverTag)) {
+      errors.push(`dns.rules[${index}].serverTag references unknown DNS server "${rule.serverTag}"`);
+    }
+  });
+};
+
+const parseConfigVersion = (input: Record<string, unknown>, errors: string[]): 1 => {
+  const version = input.configVersion;
+  if (version === undefined) {
+    return 1;
+  }
+  if (typeof version !== "number" || !Number.isInteger(version)) {
+    errors.push("configVersion must be integer 1");
+    return 1;
+  }
+  if (version !== 1) {
+    errors.push(`configVersion ${version} is not supported by this sepigs build`);
+  }
+  return 1;
+};
+
 export const parseConfig = (input: unknown): SepigsConfig => {
   const errors: string[] = [];
   if (!isRecord(input)) {
     throw new ConfigError("config root must be an object");
   }
 
+  const configVersion = parseConfigVersion(input, errors);
   const log = parseLog(input, errors);
   const limits = parseLimits(input, errors);
   const dns = parseDns(input, errors);
@@ -1003,6 +1291,8 @@ export const parseConfig = (input: unknown): SepigsConfig => {
   const transport = parseTransport(input, errors);
   const connectionPool = parseConnectionPool(input, errors);
   const hotReload = parseHotReload(input, errors);
+  const probing = parseProbing(input, errors);
+  const observability = parseObservability(input, errors);
 
   const rawInbounds = input.inbounds;
   if (!Array.isArray(rawInbounds) || rawInbounds.length === 0) {
@@ -1026,6 +1316,7 @@ export const parseConfig = (input: unknown): SepigsConfig => {
 
   const route = parseRouter(input, errors, geo);
   const config: SepigsConfig = {
+    configVersion,
     log,
     limits,
     dns,
@@ -1035,6 +1326,8 @@ export const parseConfig = (input: unknown): SepigsConfig => {
     transport,
     connectionPool,
     hotReload,
+    probing,
+    observability,
     inbounds,
     outbounds,
     route: route ?? { defaultOutbound: "", rules: [], ruleSetFiles: [], policies: [] }
@@ -1044,7 +1337,10 @@ export const parseConfig = (input: unknown): SepigsConfig => {
   checkUniqueTags(config.outbounds, "outbounds", errors);
   checkUniqueTags(config.plugins.modules, "plugins.modules", errors);
   checkUniqueTags(config.plugins.wasm, "plugins.wasm", errors);
+  checkUniqueTags(config.dns.udpServers, "dns.udpServers", errors);
   checkUniqueTags(config.route.policies, "route.policies", errors);
+  checkDnsReferences(config, errors);
+  checkPublicExposure(config, errors);
   if (route !== undefined) {
     checkOutboundReferences(config, errors);
   }
@@ -1054,4 +1350,19 @@ export const parseConfig = (input: unknown): SepigsConfig => {
   }
 
   return config;
+};
+
+const checkPublicExposure = (config: SepigsConfig, errors: string[]): void => {
+  for (const inbound of config.inbounds) {
+    if (!PUBLIC_LISTEN_ADDRESSES.has(inbound.listen)) {
+      continue;
+    }
+    if ((inbound.type === "http" || inbound.type === "socks5") && inbound.auth?.enabled === true) {
+      continue;
+    }
+    errors.push(`inbound "${inbound.tag}" listens on ${inbound.listen}; public HTTP/SOCKS listeners must enable authentication`);
+  }
+  if (config.observability.metrics.enabled && PUBLIC_LISTEN_ADDRESSES.has(config.observability.metrics.listen)) {
+    errors.push("observability.metrics.listen must not be public; bind metrics to 127.0.0.1 or protect it behind a separate authenticated endpoint");
+  }
 };

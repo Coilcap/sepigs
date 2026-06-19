@@ -1,0 +1,9 @@
+{
+  "name": "echo-outbound",
+  "version": "0.1.0",
+  "type": "outbound",
+  "entry": "index.mjs",
+  "permissions": ["outbound:register", "network"],
+  "apiVersion": "1",
+  "description": "Example outbound plugin that opens a plain TCP connection to the requested destination."
+}

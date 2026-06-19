@@ -1,0 +1,9 @@
+{
+  "name": "remote-denied-outbound",
+  "version": "0.1.0",
+  "type": "outbound",
+  "entry": "./index.mjs",
+  "permissions": [],
+  "apiVersion": "1",
+  "description": "Negative fixture: attempts remote outbound registration without permission."
+}

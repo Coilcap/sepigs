@@ -1,7 +1,8 @@
+import { timingSafeEqual } from "node:crypto";
 import dgram from "node:dgram";
 import net from "node:net";
 import type { AddressInfo } from "node:net";
-import type { Socks5InboundConfig } from "../config/types.js";
+import type { Socks5AuthConfig, Socks5InboundConfig } from "../config/types.js";
 import type { ManagedConnection } from "../core/connectionManager.js";
 import type { Logger } from "../logger/logger.js";
 import type { Destination, ProxyRequest, SourceAddress, TcpStream } from "../protocol/types.js";
@@ -12,6 +13,7 @@ import { socketSource } from "./inbound.js";
 
 const SOCKS_VERSION = 0x05;
 const METHOD_NO_AUTH = 0x00;
+const METHOD_USERNAME_PASSWORD = 0x02;
 const METHOD_NO_ACCEPTABLE = 0xff;
 const COMMAND_CONNECT = 0x01;
 const COMMAND_UDP_ASSOCIATE = 0x03;
@@ -72,17 +74,49 @@ export class Socks5Inbound implements Inbound {
     this.server = undefined;
 
     await new Promise<void>((resolve, reject) => {
-      server.close((error?: Error) => {
-        if (error !== undefined) {
-          reject(error);
+      try {
+        server.close((error?: Error) => {
+          if (error !== undefined) {
+            if (isServerNotRunningError(error)) {
+              resolve();
+              return;
+            }
+            reject(error);
+            return;
+          }
+          resolve();
+        });
+      } catch (error) {
+        if (isServerNotRunningError(error)) {
+          resolve();
           return;
         }
-        resolve();
-      });
+        reject(error instanceof Error ? error : new Error(String(error)));
+      }
       for (const socket of this.sockets) {
         closeSocket(socket);
       }
     });
+  }
+
+  public async drain(): Promise<void> {
+    const server = this.server;
+    if (server === undefined) {
+      return;
+    }
+    this.server = undefined;
+    try {
+      server.close((error?: Error) => {
+        if (error !== undefined) {
+          this.logger.debug("socks5 inbound drain close callback failed", { tag: this.tag, error: error.message });
+        }
+      });
+    } catch (error) {
+      if (!isServerNotRunningError(error)) {
+        this.logger.debug("socks5 inbound drain failed", { tag: this.tag, error: errorMessage(error) });
+      }
+    }
+    await Promise.resolve();
   }
 
   public address(): AddressInfo | string | null {
@@ -120,7 +154,7 @@ export class Socks5Inbound implements Inbound {
       const maxHeaderBytes = this.config.maxHeaderBytes ?? this.context.limits.maxHeaderBytes;
       const reader = new BufferedSocketReader(client, timeoutMs, maxHeaderBytes);
 
-      await negotiateNoAuth(reader, client);
+      await negotiateAuth(reader, client, this.config.auth);
       const command = await readCommand(reader);
 
       if (command.command === COMMAND_UDP_ASSOCIATE) {
@@ -286,7 +320,7 @@ interface Socks5Command {
   readonly destination: Destination;
 }
 
-const negotiateNoAuth = async (reader: BufferedSocketReader, client: net.Socket): Promise<void> => {
+const negotiateAuth = async (reader: BufferedSocketReader, client: net.Socket, auth: Socks5AuthConfig | undefined): Promise<void> => {
   const head = await reader.readExact(2);
   const version = head[0];
   const methodCount = head[1];
@@ -296,12 +330,56 @@ const negotiateNoAuth = async (reader: BufferedSocketReader, client: net.Socket)
   }
 
   const methods = await reader.readExact(methodCount);
+  if (auth !== undefined && auth.enabled) {
+    if (!methods.includes(METHOD_USERNAME_PASSWORD)) {
+      await writeSocket(client, Buffer.from([SOCKS_VERSION, METHOD_NO_ACCEPTABLE]));
+      throw new ProtocolError("SOCKS5 client does not support username/password auth");
+    }
+    await writeSocket(client, Buffer.from([SOCKS_VERSION, METHOD_USERNAME_PASSWORD]));
+    await authenticateUserPass(reader, client, auth);
+    return;
+  }
+
   if (!methods.includes(METHOD_NO_AUTH)) {
     await writeSocket(client, Buffer.from([SOCKS_VERSION, METHOD_NO_ACCEPTABLE]));
     throw new ProtocolError("SOCKS5 client does not support no-auth");
   }
 
   await writeSocket(client, Buffer.from([SOCKS_VERSION, METHOD_NO_AUTH]));
+};
+
+const authenticateUserPass = async (reader: BufferedSocketReader, client: net.Socket, auth: Socks5AuthConfig): Promise<void> => {
+  const versionBuffer = await reader.readExact(2);
+  const version = versionBuffer[0];
+  const usernameLength = versionBuffer[1];
+  if (version !== 0x01 || usernameLength === undefined) {
+    throw new ProtocolError("invalid SOCKS5 username/password auth packet");
+  }
+  const username = (await reader.readExact(usernameLength)).toString("utf8");
+  const passwordLengthBuffer = await reader.readExact(1);
+  const passwordLength = passwordLengthBuffer[0];
+  if (passwordLength === undefined) {
+    throw new ProtocolError("invalid SOCKS5 password length");
+  }
+  const password = (await reader.readExact(passwordLength)).toString("utf8");
+  if (!safeEqual(username, auth.username) || !safeEqual(password, auth.password)) {
+    await writeSocket(client, Buffer.from([0x01, 0x01]));
+    throw new ProtocolError("SOCKS5 username/password auth failed");
+  }
+  await writeSocket(client, Buffer.from([0x01, 0x00]));
+};
+
+const safeEqual = (left: string, right: string): boolean => {
+  const leftBuffer = Buffer.from(left);
+  const rightBuffer = Buffer.from(right);
+  if (leftBuffer.byteLength !== rightBuffer.byteLength) {
+    return false;
+  }
+  return timingSafeEqual(leftBuffer, rightBuffer);
+};
+
+const isServerNotRunningError = (error: unknown): boolean => {
+  return error instanceof Error && "code" in error && error.code === "ERR_SERVER_NOT_RUNNING";
 };
 
 const readCommand = async (reader: BufferedSocketReader): Promise<Socks5Command> => {

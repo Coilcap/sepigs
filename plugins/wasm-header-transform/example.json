@@ -1,0 +1,8 @@
+{
+  "plugins": {
+    "modules": [
+      { "tag": "wasm-header-transform", "path": "plugins/wasm-header-transform/manifest.json" }
+    ],
+    "wasm": []
+  }
+}

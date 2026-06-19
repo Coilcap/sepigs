@@ -1,0 +1,7 @@
+{
+  "route": {
+    "ruleSetFiles": [
+      { "tag": "block-domain-rule", "path": "plugins/block-domain-rule/rules.yaml", "outboundTag": "block" }
+    ]
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "name": "remote-block-outbound",
+  "version": "0.1.0",
+  "type": "outbound",
+  "entry": "./index.mjs",
+  "permissions": ["outbound:register"],
+  "apiVersion": "1",
+  "description": "Registers a remote outbound factory that blocks connection attempts through JSON-safe RPC."
+}

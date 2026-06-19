@@ -1,0 +1,20 @@
+[
+  {
+    "client": "Mihomo",
+    "file": "examples/clients/mihomo.yaml",
+    "status": "skipped",
+    "reason": "mihomo binary not found; YAML parse succeeded"
+  },
+  {
+    "client": "Stash",
+    "file": "examples/clients/stash.yaml",
+    "status": "skipped",
+    "reason": "stash binary not found; YAML parse succeeded"
+  },
+  {
+    "client": "Surge",
+    "file": "examples/clients/surge.conf",
+    "status": "skipped",
+    "reason": "Surge CLI validator not available; static section validation passed"
+  }
+]

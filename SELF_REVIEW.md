@@ -255,3 +255,120 @@ Next:
 - Add plugin examples and a stricter plugin compatibility manifest.
 - Add a drain-and-rebind path for inbound hot reload.
 - Add native QUIC/Hysteria2 transport implementation behind the existing transport interface.
+
+## Stage 12 - Phase 5 Production Hardening
+
+Completed:
+- Audited Phase 1-4 runtime modules and documented real, experimental, and reserved boundaries in `docs/reality-check.md`.
+- Added inbound drain-and-rebind hot reload with rollback when the replacement listener fails to start.
+- Added optional HTTP Basic Auth and SOCKS5 username/password authentication with focused success/failure tests.
+- Added active outbound probing primitives with latency, jitter, failure-rate tracking, probe budget, timeout, max concurrency, and exponential backoff.
+- Strengthened DNS with UDP A-record resolution, TTL cache behavior, DNS route rules, and fallback host handling.
+- Added plugin manifests, API-version validation, permission validation, sandboxed registration APIs, and three example plugin packages.
+- Added an explicit QUIC adapter boundary with unsupported, missing-dependency, and mock-adapter test coverage.
+- Added profiling tools for CPU profiles, heap snapshots, event-loop delay, and GC observation.
+- Added a 10-minute short soak runner that exercises HTTP CONNECT, SOCKS5 CONNECT, direct outbound, block behavior, route changes, and hot reload under continuous requests.
+- Added release engineering files, security documentation, hot-reload documentation, plugin documentation, DNS documentation, policy documentation, client-compatibility notes, and profiling documentation.
+
+Found:
+- QUIC/Hysteria2 could not honestly be labeled native in the current Node.js environment without a stable QUIC dependency, so the implementation is an adapter boundary rather than a full transport.
+- The existing plugin loader needed a compatibility manifest so examples and third-party modules can be validated before executing setup code.
+- Inbound hot reload had to start the replacement listener before draining the old listener; otherwise a bad reload could take the proxy offline.
+- Authentication needed to be optional and off by default to preserve existing local development configs while allowing safe exposed deployments.
+- The first soak loop could overrun the local machine's ephemeral port/TIME_WAIT behavior; the runner now uses bounded workers, task timeouts, configurable per-worker pacing, error reason aggregation, and non-zero exit status for unexpected errors.
+- Benchmark latency measured after a long local soak can be dominated by host TCP port pressure, so benchmark interpretation must include host-condition context.
+
+Fixed:
+- Added rollback semantics for failed inbound reloads and retained active old connections during a successful drain.
+- Added clear 407 responses for HTTP proxy auth failures and SOCKS5 RFC 1929 rejection paths for invalid credentials.
+- Added final after-stop soak leak samples so a transient runner timer is not mistaken for a retained runtime timer.
+- Added an explicit short-soak worker delay so the 10-minute test validates long-running behavior instead of saturating the host ephemeral port table.
+- Added tests for DNS fallback, UDP DNS cache hits, plugin manifest validation, plugin permission denial, QUIC adapter errors, active probing, inbound reload, and proxy authentication.
+- Updated CI/release workflows to run install, lint, typecheck, test, and build before publishing.
+
+Remaining risk:
+- Native QUIC/Hysteria2 is not implemented; only the adapter and research boundary are present.
+- DoH and fake-ip remain documented DNS architecture reservations.
+- Plugin sandboxing restricts sepigs API access but plugins still execute in-process JavaScript.
+- Real GUI clients such as Chrome, Mihomo, Shadowrocket, NekoBox, and v2rayN are documented for compatibility testing but not manually verified in this environment.
+- Multi-hour and multi-week soak behavior still needs to run on the intended deployment host with tuned file-descriptor and TCP settings.
+
+Next:
+- Run the standard 1-hour soak and a 6-hour host soak before a production tag.
+- Add optional metrics export for connection, leak, DNS, and prober state.
+- Evaluate a maintained QUIC dependency before promoting the adapter into a real native transport.
+- Move untrusted plugin execution into a stronger process/worker isolation model.
+
+## Stage 13 - Phase 6 Real-World Interop + Observability + Isolation
+
+Completed:
+- Added Prometheus metrics server with graceful shutdown, event-loop delay, GC, memory, leak, connection, DNS, route, outbound, and hot-reload metrics.
+- Added DoH POST resolver support with local mock-server tests, timeout, fallback, TTL cache, multiple upstream attempts, and failure counting through stats.
+- Added config versioning with v0-to-v1 migration warnings and future-version rejection.
+- Added plugin isolation runners for in-process, worker-thread, and child-process modes.
+- Added isolated plugin fixtures for echo, crash, and timeout behavior.
+- Added real interop tooling for curl HTTP, curl SOCKS5, HTTP Basic Auth, SOCKS5 username/password, Node CONNECT, and local upstream servers.
+- Added outbound-only Shadowsocks/Trojan compatibility tests with local reference servers and explicit documentation of unverified external clients.
+- Upgraded soak commands for 1h, 6h, matrix, environment/configurable durations, resource samples, FD count, GC pressure, reload count, and failover count.
+- Added release dry-run and pack scripts with filtered artifacts, MIT license, and release artifact documentation.
+- Added safe local and public-auth-required config examples.
+
+Found:
+- The first release dry-run included compiled tests under `dist/test`; packaging now excludes those paths.
+- `soak:6h` initially hard-coded duration/concurrency in the npm script, preventing environment overrides; defaults now come from profile parsing and can be overridden.
+- The interop report initially used authenticated ports for the plain curl rows; open and authenticated inbounds are now separated.
+- The matrix hot-reload scenario accidentally changed the inbound port and correctly triggered rollback; it now tests route reload without changing inbound listeners.
+
+Fixed:
+- All Phase 6 additions are covered by automated tests or executable smoke tools.
+- DoH uses a local mock server for repeatable tests and never depends on public DNS.
+- Plugin crashes and timeouts are contained by worker/process runners and reported as errors.
+- Release dry-run excludes `node_modules`, `test`, `dist/test`, `profiles`, and `.DS_Store`.
+
+Remaining risk:
+- Isolated plugins cannot register runtime factories yet; only lifecycle and `handle(payload)` style calls are supported outside in-process mode.
+- GUI/mobile client compatibility remains not verified in this environment.
+- Shadowsocks/Trojan compatibility is outbound-only against local fixtures, not broad external ecosystem certification.
+- Full 1-hour and 6-hour soak commands are implemented, but only smoke-mode runs were executed in this session.
+
+Next:
+- Run full 1-hour and 6-hour soak on a tuned host before a production tag.
+- Add remote plugin factory RPC if untrusted third-party protocol plugins are required.
+- Add Prometheus alert rules and a richer Grafana dashboard after observing production baselines.
+- Run manual Chrome/Mihomo/Shadowrocket/NekoBox/v2rayN/Surge/Stash compatibility tests.
+
+## Stage 14 - Phase 7 Full Soak And Compatibility
+
+Completed:
+- Added resumable full soak runner with checkpoint, JSONL metrics, markdown summaries, failure samples, SIGINT handling, final connection dump, and report merge.
+- Added generated client configs for Chrome/system proxy, Mihomo, Shadowrocket, NekoBox, v2rayN, Surge, and Stash with manual verification checklists.
+- Added external protocol compatibility matrix tooling that separates local fixtures from missing external reference implementations.
+- Added Prometheus alert rules, Grafana panels, alert rule tests, and docs.
+- Implemented remote plugin outbound factory RPC for worker-thread and child-process plugins without passing socket handles.
+- Added plugin RPC examples, docs, and tests.
+- Added security regression tests for public listener rejection, auth behavior, plugin permission denial, future config rejection, and child-process crash containment.
+- Added `docs:check` for npm script references, markdown links, and example config schema validation.
+
+Found:
+- Isolated plugin setup failures could leave a worker alive because the runner was not yet in the loaded-plugin list.
+- The remote block plugin correctly maps to HTTP 403 through existing typed block behavior, not 502.
+- `tsx` requires a local IPC pipe in this desktop sandbox, so project scripts need escalated execution when the sandbox rejects pipe creation.
+
+Fixed:
+- `PluginManager.loadOne()` now stops the runner if setup fails.
+- Updated plugin RPC test expectations to match block semantics.
+- Tightened public listener validation so unauthenticated public HTTP/SOCKS inbounds and public metrics listeners are rejected.
+
+Remaining risk:
+- External Shadowsocks/Trojan implementations were not installed locally, so external compatibility remains `skipped-with-reason`.
+- GUI/mobile clients cannot be truthfully marked verified until a human imports the generated configs.
+- Remote plugin RPC is intentionally control-plane only; remote stream transforms and UDP factories remain unsupported.
+
+Next:
+- Run the full six-hour soak on the intended deployment host and complete manual/external client interoperability verification before a production-stable claim.
+
+Final verification:
+- Clean 1h full soak passed with 456,990/456,990 operations, zero errors, zero infrastructure pauses, and final sockets/timers/listeners at 0/0/0.
+- 6h profile 10-minute substitute passed with 101,849/101,849 operations and zero errors; full six-hour execution remains pending.
+- Short soak passed with 19,040/19,040 operations.
+- Lint, typecheck, 65 tests, build, benchmark, release dry-run, and docs check all passed.

@@ -1,0 +1,16 @@
+{
+  "plugins": {
+    "isolation": { "mode": "worker-thread" },
+    "modules": [
+      {
+        "tag": "remote-echo",
+        "enabled": true,
+        "path": "plugins/remote-echo-outbound/manifest.json"
+      }
+    ]
+  },
+  "outbounds": [
+    { "type": "plugin.remoteEcho", "tag": "remote-echo", "options": {} }
+  ],
+  "route": { "defaultOutbound": "remote-echo", "rules": [] }
+}

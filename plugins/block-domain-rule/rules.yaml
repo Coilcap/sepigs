@@ -1,0 +1,4 @@
+rules:
+  - tag: blocked-example
+    domainSuffix:
+      - blocked.example

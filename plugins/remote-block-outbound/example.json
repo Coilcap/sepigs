@@ -1,0 +1,16 @@
+{
+  "plugins": {
+    "isolation": { "mode": "worker-thread" },
+    "modules": [
+      {
+        "tag": "remote-block",
+        "enabled": true,
+        "path": "plugins/remote-block-outbound/manifest.json"
+      }
+    ]
+  },
+  "outbounds": [
+    { "type": "plugin.remoteBlock", "tag": "remote-block", "options": {} }
+  ],
+  "route": { "defaultOutbound": "remote-block", "rules": [] }
+}

@@ -1,6 +1,7 @@
+import { timingSafeEqual } from "node:crypto";
 import net from "node:net";
 import type { AddressInfo } from "node:net";
-import type { HttpInboundConfig } from "../config/types.js";
+import type { HttpBasicAuthConfig, HttpInboundConfig } from "../config/types.js";
 import type { ManagedConnection } from "../core/connectionManager.js";
 import type { Logger } from "../logger/logger.js";
 import type { Destination, ProxyRequest, TcpStream } from "../protocol/types.js";
@@ -77,17 +78,49 @@ export class HttpInbound implements Inbound {
     this.server = undefined;
 
     await new Promise<void>((resolve, reject) => {
-      server.close((error?: Error) => {
-        if (error !== undefined) {
-          reject(error);
+      try {
+        server.close((error?: Error) => {
+          if (error !== undefined) {
+            if (isServerNotRunningError(error)) {
+              resolve();
+              return;
+            }
+            reject(error);
+            return;
+          }
+          resolve();
+        });
+      } catch (error) {
+        if (isServerNotRunningError(error)) {
+          resolve();
           return;
         }
-        resolve();
-      });
+        reject(error instanceof Error ? error : new Error(String(error)));
+      }
       for (const socket of this.sockets) {
         closeSocket(socket);
       }
     });
+  }
+
+  public async drain(): Promise<void> {
+    const server = this.server;
+    if (server === undefined) {
+      return;
+    }
+    this.server = undefined;
+    try {
+      server.close((error?: Error) => {
+        if (error !== undefined) {
+          this.logger.debug("http inbound drain close callback failed", { tag: this.tag, error: error.message });
+        }
+      });
+    } catch (error) {
+      if (!isServerNotRunningError(error)) {
+        this.logger.debug("http inbound drain failed", { tag: this.tag, error: errorMessage(error) });
+      }
+    }
+    await Promise.resolve();
   }
 
   public address(): AddressInfo | string | null {
@@ -127,6 +160,11 @@ export class HttpInbound implements Inbound {
       const reader = new BufferedSocketReader(client, timeoutMs, maxHeaderBytes);
       const raw = await reader.readUntil((buffer) => buffer.indexOf("\r\n\r\n") >= 0);
       const parsed = parseHttpRequest(raw);
+      if (!isAuthorized(parsed, this.config.auth)) {
+        await sendHttpAuthRequired(client, this.logger);
+        connection.close(true, "http authentication failed");
+        return;
+      }
 
       if (parsed.method.toUpperCase() === "CONNECT") {
         await this.handleConnect(connection, client, parsed, reader.releaseRemainder());
@@ -298,6 +336,41 @@ const findHeader = (headers: readonly string[], name: string): string | undefine
   return headers.find((header) => header.toLowerCase().startsWith(prefix));
 };
 
+const isAuthorized = (parsed: ParsedHttpRequest, auth: HttpBasicAuthConfig | undefined): boolean => {
+  if (auth === undefined || !auth.enabled) {
+    return true;
+  }
+  const header = findHeader(parsed.headers, "proxy-authorization");
+  if (header === undefined) {
+    return false;
+  }
+  const value = header.slice(header.indexOf(":") + 1).trim();
+  if (!value.toLowerCase().startsWith("basic ")) {
+    return false;
+  }
+  const encoded = value.slice("basic ".length).trim();
+  let decoded: string;
+  try {
+    decoded = Buffer.from(encoded, "base64").toString("utf8");
+  } catch {
+    return false;
+  }
+  return safeEqual(decoded, `${auth.username}:${auth.password}`);
+};
+
+const safeEqual = (left: string, right: string): boolean => {
+  const leftBuffer = Buffer.from(left);
+  const rightBuffer = Buffer.from(right);
+  if (leftBuffer.byteLength !== rightBuffer.byteLength) {
+    return false;
+  }
+  return timingSafeEqual(leftBuffer, rightBuffer);
+};
+
+const isServerNotRunningError = (error: unknown): boolean => {
+  return error instanceof Error && "code" in error && error.code === "ERR_SERVER_NOT_RUNNING";
+};
+
 const buildForwardHttpRequest = (parsed: ParsedHttpRequest): ForwardHttpRequest => {
   let destination: Destination;
   let path: string;
@@ -341,5 +414,22 @@ const sendHttpError = async (socket: net.Socket, status: number, message: string
     await writeSocket(socket, response);
   } catch (error) {
     logger.debug("failed to write HTTP error", { error: errorMessage(error) });
+  }
+};
+
+const sendHttpAuthRequired = async (socket: net.Socket, logger: Logger): Promise<void> => {
+  const body = "Proxy authentication required\n";
+  const response = [
+    "HTTP/1.1 407 Proxy Authentication Required",
+    "Connection: close",
+    "Proxy-Authenticate: Basic realm=\"sepigs\"",
+    `Content-Length: ${Buffer.byteLength(body)}`,
+    "",
+    body
+  ].join("\r\n");
+  try {
+    await writeSocket(socket, response);
+  } catch (error) {
+    logger.debug("failed to write HTTP auth challenge", { error: errorMessage(error) });
   }
 };

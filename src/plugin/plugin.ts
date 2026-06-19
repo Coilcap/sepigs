@@ -1,63 +1,30 @@
 import { isAbsolute, resolve } from "node:path";
-import { pathToFileURL } from "node:url";
-import type { PluginModuleConfig } from "../config/types.js";
-import { registerInboundFactory } from "../inbound/registry.js";
+import type { ExtensionType, PluginIsolationConfig, PluginModuleConfig } from "../config/types.js";
 import type { Logger } from "../logger/logger.js";
-import { registerOutboundFactory } from "../outbound/registry.js";
-import { ConfigError } from "../utils/errors.js";
-import type { WasmExtensionManager } from "./wasm.js";
-import type { WorkerPool } from "../workers/workerPool.js";
-
-export interface SepigsPluginContext {
-  readonly logger: Logger;
-  readonly workerPool: WorkerPool | undefined;
-  readonly wasmExtensions: WasmExtensionManager;
-  readonly registerInboundFactory: typeof registerInboundFactory;
-  readonly registerOutboundFactory: typeof registerOutboundFactory;
-}
-
-export interface SepigsPlugin {
-  readonly name?: string;
-  setup?(context: SepigsPluginContext): unknown;
-  start?(): unknown;
-  stop?(): unknown;
-}
-
-type SepigsPluginFactory = (context: SepigsPluginContext) => SepigsPlugin | undefined | Promise<SepigsPlugin | undefined>;
+import { createRemoteOutboundFactory } from "./rpc/host.js";
+import { createLegacyManifest, loadPluginManifest, type PluginManifest } from "./manifest.js";
+import { ChildProcessPluginRunner } from "./runners/childProcessRunner.js";
+import { InProcessPluginRunner } from "./runners/inProcessRunner.js";
+import { WorkerThreadPluginRunner } from "./runners/workerThreadRunner.js";
+import type { PluginRunner, PluginRunnerEvents, SepigsPluginContext } from "./types.js";
 
 interface LoadedPlugin {
   readonly tag: string;
-  readonly plugin: SepigsPlugin;
+  readonly manifest: PluginManifest;
+  readonly runner: PluginRunner;
 }
-
-const isRecord = (value: unknown): value is Record<string, unknown> => {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-};
-
-const isPlugin = (value: unknown): value is SepigsPlugin => {
-  if (!isRecord(value)) {
-    return false;
-  }
-  const setup = value.setup;
-  const start = value.start;
-  const stop = value.stop;
-  return setup === undefined || typeof setup === "function"
-    ? (start === undefined || typeof start === "function") && (stop === undefined || typeof stop === "function")
-    : false;
-};
-
-const isPluginFactory = (value: unknown): value is SepigsPluginFactory => {
-  return typeof value === "function";
-};
 
 export class PluginManager {
   private readonly logger: Logger;
   private readonly context: SepigsPluginContext;
+  private readonly isolation: PluginIsolationConfig;
   private readonly loaded: LoadedPlugin[] = [];
+  private readonly remoteOutboundTypes = new Map<string, Set<ExtensionType>>();
   private started = false;
 
-  public constructor(logger: Logger, context: Omit<SepigsPluginContext, "logger">) {
+  public constructor(logger: Logger, context: Omit<SepigsPluginContext, "logger">, isolation: PluginIsolationConfig) {
     this.logger = logger;
+    this.isolation = isolation;
     this.context = {
       logger,
       ...context
@@ -82,7 +49,7 @@ export class PluginManager {
       return;
     }
     for (const loaded of this.loaded) {
-      await loaded.plugin.start?.();
+      await loaded.runner.start();
     }
     this.started = true;
   }
@@ -92,7 +59,7 @@ export class PluginManager {
       return;
     }
     for (const loaded of [...this.loaded].reverse()) {
-      await loaded.plugin.stop?.();
+      await loaded.runner.stop();
     }
     this.started = false;
   }
@@ -103,37 +70,75 @@ export class PluginManager {
 
   private async loadOne(config: PluginModuleConfig): Promise<void> {
     const resolvedPath = isAbsolute(config.path) ? config.path : resolve(process.cwd(), config.path);
-    const moduleUrl = pathToFileURL(resolvedPath).href;
-    const imported = (await import(moduleUrl)) as unknown;
-    const plugin = await this.instantiatePlugin(imported, config);
+    const manifest = await this.resolveManifest(config, resolvedPath);
+    const runner = this.createRunner(config, manifest);
 
-    await plugin.setup?.(this.context);
-    this.loaded.push({ tag: config.tag, plugin });
+    try {
+      await runner.setup();
+    } catch (error) {
+      await runner.stop();
+      throw error;
+    }
+    this.loaded.push({ tag: config.tag, manifest, runner });
     this.logger.info("plugin module loaded", {
       tag: config.tag,
-      name: plugin.name,
-      path: resolvedPath
+      name: manifest.name,
+      isolation: this.isolation.mode,
+      manifest: manifest.manifestPath,
+      entry: manifest.entryPath
     });
   }
 
-  private async instantiatePlugin(imported: unknown, config: PluginModuleConfig): Promise<SepigsPlugin> {
-    const namespace = isRecord(imported) ? imported : {};
-    const exported = namespace.default ?? namespace.plugin ?? imported;
-
-    if (isPluginFactory(exported)) {
-      const created = await exported(this.context);
-      if (created === undefined) {
-        return {};
+  private createRunner(config: PluginModuleConfig, manifest: PluginManifest): PluginRunner {
+    const events: PluginRunnerEvents = {
+      onRegisterOutboundFactory: (type, runner) => {
+        this.registerRemoteOutboundFactory(type, runner);
+      },
+      onRunnerClosed: (runner) => {
+        this.unregisterRemoteOutboundFactories(runner.tag);
       }
-      if (isPlugin(created)) {
-        return created;
-      }
+    };
+    if (this.isolation.mode === "worker-thread") {
+      return new WorkerThreadPluginRunner(config, manifest, this.isolation, events);
     }
-
-    if (isPlugin(exported)) {
-      return exported;
+    if (this.isolation.mode === "child-process") {
+      return new ChildProcessPluginRunner(config, manifest, this.isolation, events);
     }
+    return new InProcessPluginRunner(config, manifest, this.context);
+  }
 
-    throw new ConfigError(`plugin "${config.tag}" must export a plugin object or a plugin factory`);
+  private registerRemoteOutboundFactory(type: string, runner: PluginRunner): void {
+    if (!type.startsWith("plugin.")) {
+      this.logger.warn("remote plugin attempted to register non-plugin outbound type", { tag: runner.tag, type });
+      return;
+    }
+    const extensionType = type as ExtensionType;
+    this.context.registerOutboundFactory(extensionType, createRemoteOutboundFactory(extensionType, runner, this.isolation.timeoutMs));
+    const registered = this.remoteOutboundTypes.get(runner.tag) ?? new Set<ExtensionType>();
+    registered.add(extensionType);
+    this.remoteOutboundTypes.set(runner.tag, registered);
+    this.logger.info("remote plugin outbound factory registered", { tag: runner.tag, type });
+  }
+
+  private unregisterRemoteOutboundFactories(tag: string): void {
+    const registered = this.remoteOutboundTypes.get(tag);
+    if (registered === undefined) {
+      return;
+    }
+    for (const type of registered) {
+      this.context.unregisterOutboundFactory?.(type);
+    }
+    this.remoteOutboundTypes.delete(tag);
+    this.logger.info("remote plugin outbound factories unregistered", { tag, count: registered.size });
+  }
+
+  private async resolveManifest(config: PluginModuleConfig, resolvedPath: string): Promise<PluginManifest> {
+    const manifestPath = config.manifest === undefined ? (resolvedPath.endsWith(".json") ? resolvedPath : undefined) : config.manifest;
+    if (manifestPath === undefined) {
+      this.logger.warn("plugin loaded without manifest; legacy full permissions applied", { tag: config.tag, path: resolvedPath });
+      return createLegacyManifest(config.tag, resolvedPath);
+    }
+    const resolvedManifestPath = isAbsolute(manifestPath) ? manifestPath : resolve(process.cwd(), manifestPath);
+    return await loadPluginManifest(resolvedManifestPath);
   }
 }

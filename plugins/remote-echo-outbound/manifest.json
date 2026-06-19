@@ -1,0 +1,9 @@
+{
+  "name": "remote-echo-outbound",
+  "version": "0.1.0",
+  "type": "outbound",
+  "entry": "./index.mjs",
+  "permissions": ["outbound:register"],
+  "apiVersion": "1",
+  "description": "Registers a remote outbound factory that asks the host to direct-connect the requested destination."
+}

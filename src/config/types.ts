@@ -1,6 +1,7 @@
 export type LogLevel = "debug" | "info" | "warn" | "error" | "silent";
 
 export interface SepigsConfig {
+  readonly configVersion: 1;
   readonly log: LogConfig;
   readonly limits: LimitConfig;
   readonly dns: DnsConfig;
@@ -10,6 +11,8 @@ export interface SepigsConfig {
   readonly transport: TransportConfig;
   readonly connectionPool: ConnectionPoolConfig;
   readonly hotReload: HotReloadConfig;
+  readonly probing: ProbingConfig;
+  readonly observability: ObservabilityConfig;
   readonly inbounds: readonly InboundConfig[];
   readonly outbounds: readonly OutboundConfig[];
   readonly route: RouterConfig;
@@ -33,6 +36,34 @@ export interface DnsConfig {
   readonly strategy: "system" | "prefer-ipv4" | "prefer-ipv6";
   readonly cacheTtlMs: number;
   readonly hosts: Readonly<Record<string, string>>;
+  readonly udpServers: readonly DnsUdpServerConfig[];
+  readonly rules: readonly DnsRouteRuleConfig[];
+  readonly fallbackHosts: Readonly<Record<string, string>>;
+  readonly fakeIp: FakeIpConfig;
+  readonly doh: DohConfig;
+}
+
+export interface DnsUdpServerConfig {
+  readonly tag: string;
+  readonly address: string;
+  readonly port: number;
+  readonly timeoutMs: number;
+}
+
+export interface DnsRouteRuleConfig {
+  readonly domainSuffix: readonly string[];
+  readonly serverTag: string;
+}
+
+export interface FakeIpConfig {
+  readonly enabled: boolean;
+  readonly cidr: string;
+}
+
+export interface DohConfig {
+  readonly enabled: boolean;
+  readonly endpoints: readonly string[];
+  readonly timeoutMs: number;
 }
 
 export interface GeoConfig {
@@ -45,18 +76,29 @@ export type ExtensionType = `plugin.${string}`;
 export interface PluginConfig {
   readonly modules: readonly PluginModuleConfig[];
   readonly wasm: readonly WasmExtensionConfig[];
+  readonly isolation: PluginIsolationConfig;
 }
 
 export interface PluginModuleConfig {
   readonly tag: string;
   readonly path: string;
   readonly enabled: boolean;
+  readonly manifest?: string;
 }
 
 export interface WasmExtensionConfig {
   readonly tag: string;
   readonly path: string;
   readonly enabled: boolean;
+}
+
+export type PluginIsolationMode = "in-process" | "worker-thread" | "child-process";
+
+export interface PluginIsolationConfig {
+  readonly mode: PluginIsolationMode;
+  readonly timeoutMs: number;
+  readonly memoryLimitMb: number;
+  readonly stdoutLimitBytes: number;
 }
 
 export interface WorkerConfig {
@@ -85,6 +127,27 @@ export interface HotReloadConfig {
   readonly debounceMs: number;
 }
 
+export interface ProbingConfig {
+  readonly enabled: boolean;
+  readonly intervalMs: number;
+  readonly timeoutMs: number;
+  readonly maxConcurrency: number;
+  readonly budgetPerInterval: number;
+  readonly backoffBaseMs: number;
+  readonly backoffMaxMs: number;
+}
+
+export interface ObservabilityConfig {
+  readonly metrics: MetricsServerConfig;
+}
+
+export interface MetricsServerConfig {
+  readonly enabled: boolean;
+  readonly listen: string;
+  readonly port: number;
+  readonly path: string;
+}
+
 export type InboundConfig = HttpInboundConfig | Socks5InboundConfig | PluginInboundConfig;
 
 export interface InboundBaseConfig {
@@ -98,16 +161,30 @@ export interface InboundBaseConfig {
 
 export interface HttpInboundConfig extends InboundBaseConfig {
   readonly type: "http";
+  readonly auth?: HttpBasicAuthConfig;
 }
 
 export interface Socks5InboundConfig extends InboundBaseConfig {
   readonly type: "socks5";
   readonly udpAssociate?: boolean;
+  readonly auth?: Socks5AuthConfig;
 }
 
 export interface PluginInboundConfig extends InboundBaseConfig {
   readonly type: ExtensionType;
   readonly options: Readonly<Record<string, unknown>>;
+}
+
+export interface HttpBasicAuthConfig {
+  readonly enabled: boolean;
+  readonly username: string;
+  readonly password: string;
+}
+
+export interface Socks5AuthConfig {
+  readonly enabled: boolean;
+  readonly username: string;
+  readonly password: string;
 }
 
 export type OutboundConfig =
@@ -228,6 +305,7 @@ export interface RawSepigsConfig {
   readonly transport?: unknown;
   readonly connectionPool?: Partial<ConnectionPoolConfig>;
   readonly hotReload?: Partial<HotReloadConfig>;
+  readonly probing?: Partial<ProbingConfig>;
   readonly inbounds?: readonly unknown[];
   readonly outbounds?: readonly unknown[];
   readonly route?: unknown;

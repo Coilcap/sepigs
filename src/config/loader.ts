@@ -1,6 +1,7 @@
 import { dirname, extname, isAbsolute, resolve } from "node:path";
 import { readFile } from "node:fs/promises";
 import YAML from "yaml";
+import { migrateConfig } from "./migrate.js";
 import { parseConfig } from "./schema.js";
 import type { RouteRuleConfig, RouteRuleSetFileConfig, SepigsConfig } from "./types.js";
 import { ConfigError } from "../utils/errors.js";
@@ -8,7 +9,11 @@ import { ConfigError } from "../utils/errors.js";
 export const loadConfig = async (path: string): Promise<SepigsConfig> => {
   const raw = await readTextFile(path, "config");
   const parsed = parseStructuredData(path, raw);
-  const config = parseConfig(parsed);
+  const migration = migrateConfig(parsed);
+  for (const warning of migration.warnings) {
+    console.warn(`sepigs config warning: ${warning}`);
+  }
+  const config = parseConfig(migration.config);
   return await expandRuleSetFiles(config, dirname(resolve(path)));
 };
 

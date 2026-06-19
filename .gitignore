@@ -5,3 +5,8 @@ coverage/
 .env
 .env.*
 *.log
+profiles/
+dist-release/
+reports/soak/smoke/
+reports/soak/smoke-active-clock/
+reports/soak/**/checkpoint.json

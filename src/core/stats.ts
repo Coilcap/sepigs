@@ -14,6 +14,12 @@ export interface StatsSnapshot {
   readonly udpPacketsRemoteToClient: number;
   readonly udpBytesClientToRemote: number;
   readonly udpBytesRemoteToClient: number;
+  readonly routeMatchesTotal: number;
+  readonly outboundFailuresTotal: number;
+  readonly dnsQueriesTotal: number;
+  readonly dnsFailuresTotal: number;
+  readonly hotReloadTotal: number;
+  readonly hotReloadFailuresTotal: number;
 }
 
 export class StatsTracker {
@@ -29,6 +35,12 @@ export class StatsTracker {
   private udpPacketsRemoteToClient = 0;
   private udpBytesClientToRemote = 0;
   private udpBytesRemoteToClient = 0;
+  private routeMatchesTotal = 0;
+  private outboundFailuresTotal = 0;
+  private dnsQueriesTotal = 0;
+  private dnsFailuresTotal = 0;
+  private hotReloadTotal = 0;
+  private hotReloadFailuresTotal = 0;
   private readonly startedAt = Date.now();
 
   public startConnection(): void {
@@ -69,6 +81,29 @@ export class StatsTracker {
     this.udpBytesRemoteToClient += bytes;
   }
 
+  public recordRouteMatch(): void {
+    this.routeMatchesTotal += 1;
+  }
+
+  public recordOutboundFailure(): void {
+    this.outboundFailuresTotal += 1;
+  }
+
+  public recordDnsQuery(): void {
+    this.dnsQueriesTotal += 1;
+  }
+
+  public recordDnsFailure(): void {
+    this.dnsFailuresTotal += 1;
+  }
+
+  public recordHotReload(ok: boolean): void {
+    this.hotReloadTotal += 1;
+    if (!ok) {
+      this.hotReloadFailuresTotal += 1;
+    }
+  }
+
   public snapshot(): StatsSnapshot {
     const completed = this.closedConnections === 0 ? 1 : this.closedConnections;
     const failureBase = this.totalConnections + this.rejectedConnections;
@@ -90,7 +125,13 @@ export class StatsTracker {
       udpPacketsClientToRemote: this.udpPacketsClientToRemote,
       udpPacketsRemoteToClient: this.udpPacketsRemoteToClient,
       udpBytesClientToRemote: this.udpBytesClientToRemote,
-      udpBytesRemoteToClient: this.udpBytesRemoteToClient
+      udpBytesRemoteToClient: this.udpBytesRemoteToClient,
+      routeMatchesTotal: this.routeMatchesTotal,
+      outboundFailuresTotal: this.outboundFailuresTotal,
+      dnsQueriesTotal: this.dnsQueriesTotal,
+      dnsFailuresTotal: this.dnsFailuresTotal,
+      hotReloadTotal: this.hotReloadTotal,
+      hotReloadFailuresTotal: this.hotReloadFailuresTotal
     };
   }
 }

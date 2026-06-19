@@ -1,0 +1,60 @@
+{
+  "configVersion": 1,
+  "log": {
+    "level": "info"
+  },
+  "observability": {
+    "metrics": {
+      "enabled": true,
+      "listen": "127.0.0.1",
+      "port": 19090,
+      "path": "/metrics"
+    }
+  },
+  "plugins": {
+    "modules": [],
+    "wasm": [],
+    "isolation": {
+      "mode": "in-process",
+      "timeoutMs": 3000,
+      "memoryLimitMb": 64,
+      "stdoutLimitBytes": 65536
+    }
+  },
+  "inbounds": [
+    {
+      "type": "http",
+      "tag": "http-in",
+      "listen": "127.0.0.1",
+      "port": 8080
+    },
+    {
+      "type": "socks5",
+      "tag": "socks-in",
+      "listen": "127.0.0.1",
+      "port": 1080,
+      "udpAssociate": false
+    }
+  ],
+  "outbounds": [
+    {
+      "type": "direct",
+      "tag": "direct"
+    },
+    {
+      "type": "block",
+      "tag": "block",
+      "reason": "blocked by sepigs rule"
+    }
+  ],
+  "route": {
+    "defaultOutbound": "direct",
+    "rules": [
+      {
+        "tag": "block-telnet",
+        "port": [23, 2323],
+        "outboundTag": "block"
+      }
+    ]
+  }
+}

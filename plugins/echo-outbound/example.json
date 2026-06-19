@@ -1,0 +1,11 @@
+{
+  "plugins": {
+    "modules": [
+      { "tag": "echo-plugin", "path": "plugins/echo-outbound/manifest.json" }
+    ],
+    "wasm": []
+  },
+  "outbounds": [
+    { "type": "plugin.echoOutbound", "tag": "echo", "options": {} }
+  ]
+}

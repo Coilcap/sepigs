@@ -1,0 +1,9 @@
+{
+  "name": "wasm-header-transform",
+  "version": "0.1.0",
+  "type": "wasm",
+  "entry": "index.mjs",
+  "permissions": ["wasm"],
+  "apiVersion": "1",
+  "description": "Example plugin showing how a plugin can inspect loaded WASM extension metadata."
+}

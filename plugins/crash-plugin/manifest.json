@@ -1,0 +1,9 @@
+{
+  "name": "crash-plugin",
+  "version": "0.1.0",
+  "type": "mixed",
+  "entry": "index.mjs",
+  "permissions": [],
+  "apiVersion": "1",
+  "description": "Intentional crash plugin used to verify runner containment."
+}

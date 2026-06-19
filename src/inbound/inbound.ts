@@ -20,6 +20,7 @@ export interface Inbound {
   readonly type: InboundConfig["type"];
   start(): Promise<void>;
   stop(): Promise<void>;
+  drain?(): Promise<void>;
   address(): AddressInfo | string | null;
 }
 

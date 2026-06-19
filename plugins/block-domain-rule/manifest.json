@@ -1,0 +1,9 @@
+{
+  "name": "block-domain-rule",
+  "version": "0.1.0",
+  "type": "rule",
+  "entry": "index.mjs",
+  "permissions": [],
+  "apiVersion": "1",
+  "description": "Documentation-only example for packaging rule-set helpers as plugins."
+}

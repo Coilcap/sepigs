@@ -23,6 +23,10 @@ export const registerOutboundFactory = <T extends OutboundConfig>(type: T["type"
   factories.set(type, factory as OutboundFactory);
 };
 
+export const unregisterOutboundFactory = (type: OutboundConfig["type"]): void => {
+  factories.delete(type);
+};
+
 export const createOutboundFromRegistry = (config: OutboundConfig, context: OutboundFactoryContext): Outbound => {
   const factory = factories.get(config.type);
   if (factory === undefined) {

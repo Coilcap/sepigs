@@ -1,0 +1,76 @@
+{
+  "title": "sepigs",
+  "schemaVersion": 39,
+  "version": 1,
+  "panels": [
+    {
+      "type": "timeseries",
+      "title": "Active Connections",
+      "targets": [
+        {
+          "expr": "sepigs_connections_active"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Memory",
+      "targets": [
+        {
+          "expr": "sepigs_rss_bytes"
+        },
+        {
+          "expr": "sepigs_heap_used_bytes"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Event Loop Delay p95",
+      "targets": [
+        {
+          "expr": "sepigs_event_loop_delay_ms"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Failures",
+      "targets": [
+        {
+          "expr": "rate(sepigs_outbound_failures_total[5m])"
+        },
+        {
+          "expr": "rate(sepigs_dns_failures_total[5m])"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Hot Reload Failures",
+      "targets": [
+        {
+          "expr": "increase(sepigs_hot_reload_failures_total[10m])"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "DNS Failure Rate",
+      "targets": [
+        {
+          "expr": "rate(sepigs_dns_failures_total[5m]) / clamp_min(rate(sepigs_dns_queries_total[5m]), 1)"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Metrics Scrape",
+      "targets": [
+        {
+          "expr": "sepigs_uptime_seconds"
+        }
+      ]
+    }
+  ]
+}

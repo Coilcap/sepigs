@@ -1,4 +1,5 @@
 {
+  "configVersion": 1,
   "log": {
     "level": "info"
   },
@@ -13,7 +14,21 @@
   },
   "plugins": {
     "modules": [],
-    "wasm": []
+    "wasm": [],
+    "isolation": {
+      "mode": "in-process",
+      "timeoutMs": 3000,
+      "memoryLimitMb": 64,
+      "stdoutLimitBytes": 65536
+    }
+  },
+  "observability": {
+    "metrics": {
+      "enabled": false,
+      "listen": "127.0.0.1",
+      "port": 19090,
+      "path": "/metrics"
+    }
   },
   "workers": {
     "enabled": false,

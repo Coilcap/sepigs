@@ -1,0 +1,22 @@
+port: 7890
+socks-port: 7891
+allow-lan: false
+mode: rule
+proxies:
+  - name: sepigs-http
+    type: http
+    server: 127.0.0.1
+    port: 8080
+  - name: sepigs-socks
+    type: socks5
+    server: 127.0.0.1
+    port: 1080
+proxy-groups:
+  - name: SEPIGS
+    type: select
+    proxies:
+      - sepigs-http
+      - sepigs-socks
+      - DIRECT
+rules:
+  - MATCH,SEPIGS
