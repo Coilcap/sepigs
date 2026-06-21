@@ -71,6 +71,22 @@
           "expr": "sepigs_uptime_seconds"
         }
       ]
+    },
+    {
+      "type": "timeseries",
+      "title": "UDP Sessions and Errors",
+      "targets": [
+        { "expr": "sepigs_udp_sessions_active" },
+        { "expr": "rate(sepigs_udp_errors_total[5m])" }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Dashboard Requests",
+      "targets": [
+        { "expr": "rate(sepigs_dashboard_requests_total[5m])" },
+        { "expr": "rate(sepigs_dashboard_errors_total[5m])" }
+      ]
     }
   ]
 }

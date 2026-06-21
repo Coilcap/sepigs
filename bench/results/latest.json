@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-18T20:38:53.023Z",
+  "generatedAt": "2026-06-21T23:11:26.684Z",
   "options": {
     "levels": [
       100,
@@ -9,7 +9,10 @@
     ],
     "maxActive": 128,
     "payloadBytes": 256,
-    "timeoutMs": 2000
+    "timeoutMs": 2000,
+    "bindHost": "127.0.0.1",
+    "bindPort": 0,
+    "disableIpv6": true
   },
   "scenarios": [
     {
@@ -19,17 +22,17 @@
       "successes": 100,
       "failures": 0,
       "bytes": 51200,
-      "durationMs": 44.60216599999998,
-      "throughputMbps": 9.183410509704846,
-      "latencyP50Ms": 19.272334,
-      "latencyP95Ms": 26.865583999999984,
-      "latencyP99Ms": 27.18825000000001,
-      "cpuUserMs": 48.061,
-      "cpuSystemMs": 8.785,
-      "rssBeforeBytes": 96468992,
-      "rssAfterBytes": 104448000,
-      "heapUsedBeforeBytes": 12001880,
-      "heapUsedAfterBytes": 12358552
+      "durationMs": 48.44483300000002,
+      "throughputMbps": 8.454978057205809,
+      "latencyP50Ms": 20.229917,
+      "latencyP95Ms": 29.974541000000016,
+      "latencyP99Ms": 30.212874999999997,
+      "cpuUserMs": 52.013,
+      "cpuSystemMs": 10.215,
+      "rssBeforeBytes": 96567296,
+      "rssAfterBytes": 102547456,
+      "heapUsedBeforeBytes": 13379408,
+      "heapUsedAfterBytes": 15573288
     },
     {
       "targetConcurrency": 500,
@@ -38,17 +41,17 @@
       "successes": 500,
       "failures": 0,
       "bytes": 256000,
-      "durationMs": 96.69324999999998,
-      "throughputMbps": 21.180382291421587,
-      "latencyP50Ms": 20.878667000000007,
-      "latencyP95Ms": 23.489625000000018,
-      "latencyP99Ms": 24.32695799999999,
-      "cpuUserMs": 106.235,
-      "cpuSystemMs": 29.953,
-      "rssBeforeBytes": 104448000,
-      "rssAfterBytes": 113967104,
-      "heapUsedBeforeBytes": 12380600,
-      "heapUsedAfterBytes": 18561944
+      "durationMs": 129.63545800000003,
+      "throughputMbps": 15.798146831093074,
+      "latencyP50Ms": 23.729791000000034,
+      "latencyP95Ms": 46.520208000000025,
+      "latencyP99Ms": 47.712041,
+      "cpuUserMs": 128.608,
+      "cpuSystemMs": 38.135,
+      "rssBeforeBytes": 102563840,
+      "rssAfterBytes": 113262592,
+      "heapUsedBeforeBytes": 15598648,
+      "heapUsedAfterBytes": 21617216
     },
     {
       "targetConcurrency": 1000,
@@ -57,17 +60,17 @@
       "successes": 1000,
       "failures": 0,
       "bytes": 512000,
-      "durationMs": 151.586458,
-      "throughputMbps": 27.020883356216427,
-      "latencyP50Ms": 17.253750000000025,
-      "latencyP95Ms": 20.291458999999975,
-      "latencyP99Ms": 20.641958999999986,
-      "cpuUserMs": 198.944,
-      "cpuSystemMs": 57.112,
-      "rssBeforeBytes": 113967104,
-      "rssAfterBytes": 134004736,
-      "heapUsedBeforeBytes": 18620360,
-      "heapUsedAfterBytes": 24460624
+      "durationMs": 174.834209,
+      "throughputMbps": 23.42790935153886,
+      "latencyP50Ms": 19.834625000000017,
+      "latencyP95Ms": 26.0865,
+      "latencyP99Ms": 27.71908400000001,
+      "cpuUserMs": 220.861,
+      "cpuSystemMs": 66.255,
+      "rssBeforeBytes": 113262592,
+      "rssAfterBytes": 133513216,
+      "heapUsedBeforeBytes": 21678056,
+      "heapUsedAfterBytes": 27293256
     },
     {
       "targetConcurrency": 5000,
@@ -76,17 +79,17 @@
       "successes": 5000,
       "failures": 0,
       "bytes": 2560000,
-      "durationMs": 583.945208,
-      "throughputMbps": 35.07178365268818,
-      "latencyP50Ms": 14.12620800000002,
-      "latencyP95Ms": 17.822708000000034,
-      "latencyP99Ms": 21.1909169999999,
-      "cpuUserMs": 462.957,
-      "cpuSystemMs": 236.01,
-      "rssBeforeBytes": 134004736,
-      "rssAfterBytes": 153894912,
-      "heapUsedBeforeBytes": 24611024,
-      "heapUsedAfterBytes": 19972864
+      "durationMs": 638.775334,
+      "throughputMbps": 32.061350697051175,
+      "latencyP50Ms": 15.232834000000025,
+      "latencyP95Ms": 20.048958000000084,
+      "latencyP99Ms": 22.889458999999988,
+      "cpuUserMs": 499.207,
+      "cpuSystemMs": 263.758,
+      "rssBeforeBytes": 133513216,
+      "rssAfterBytes": 152141824,
+      "heapUsedBeforeBytes": 27427880,
+      "heapUsedAfterBytes": 21293792
     }
   ],
   "engineStats": {
@@ -98,19 +101,25 @@
     "bytesClientToRemote": 1689600,
     "bytesRemoteToClient": 1689600,
     "totalBytes": 3379200,
-    "averageConnectionDurationMs": 1.230909090909091,
+    "averageConnectionDurationMs": 1.258030303030303,
     "failureRate": 0,
-    "uptimeMs": 881,
+    "uptimeMs": 998,
     "udpPacketsClientToRemote": 0,
     "udpPacketsRemoteToClient": 0,
     "udpBytesClientToRemote": 0,
     "udpBytesRemoteToClient": 0,
+    "udpSessionsTotal": 0,
+    "udpSessionsActive": 0,
+    "udpErrorsTotal": 0,
     "routeMatchesTotal": 6600,
     "outboundFailuresTotal": 0,
     "dnsQueriesTotal": 0,
     "dnsFailuresTotal": 0,
     "hotReloadTotal": 0,
-    "hotReloadFailuresTotal": 0
+    "hotReloadFailuresTotal": 0,
+    "fakeIpAssignmentsTotal": 0,
+    "dashboardRequestsTotal": 0,
+    "dashboardErrorsTotal": 0
   },
   "leakSnapshot": {
     "activeSockets": 0,
@@ -125,7 +134,7 @@
     "rejectedConnections": 0
   },
   "bottlenecks": [
-    "highest p95 latency at target 100: 26.87ms",
+    "highest p95 latency at target 500: 46.52ms",
     "local file-descriptor safety cap limited effective concurrency for high target levels"
   ],
   "recommendations": [

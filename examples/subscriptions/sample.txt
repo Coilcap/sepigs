@@ -1,0 +1,2 @@
+ss://YWVzLTEyOC1nY206c2VjcmV0QDEyNy4wLjAuMTo4Mzg4#local-ss
+trojan://secret@127.0.0.1:443?sni=localhost#local-trojan

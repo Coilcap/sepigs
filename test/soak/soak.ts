@@ -6,6 +6,7 @@ import { parseConfig } from "../../src/config/schema.js";
 import { Engine } from "../../src/core/engine.js";
 import { Logger } from "../../src/logger/logger.js";
 import { closeSocket } from "../../src/utils/net.js";
+import { readTestNetworkConfig } from "../../src/utils/testNetwork.js";
 
 interface SoakOptions {
   readonly profile: string;
@@ -14,6 +15,8 @@ interface SoakOptions {
   readonly workerDelayMs: number;
   readonly reloadIntervalMs: number;
   readonly reportPath: string;
+  readonly bindHost: string;
+  readonly bindPort: number;
 }
 
 interface Sample {
@@ -41,13 +44,13 @@ const options = parseArgs(process.argv.slice(2));
 const logger = new Logger("silent");
 
 const main = async (): Promise<void> => {
-  const echo = await startEchoServer();
+  const echo = await startEchoServer(options.bindHost, options.bindPort);
   const config = parseConfig({
     log: { level: "silent" },
     limits: { connectTimeoutMs: 500, handshakeTimeoutMs: 500, idleTimeoutMs: 1_000, shutdownTimeoutMs: 2_000 },
     inbounds: [
-      { type: "http", tag: "http-in", listen: "127.0.0.1", port: 0 },
-      { type: "socks5", tag: "socks-in", listen: "127.0.0.1", port: 0 }
+      { type: "http", tag: "http-in", listen: options.bindHost, port: 0 },
+      { type: "socks5", tag: "socks-in", listen: options.bindHost, port: 0 }
     ],
     outbounds: [
       { type: "direct", tag: "direct" },
@@ -104,15 +107,15 @@ const main = async (): Promise<void> => {
       const mode = index % 4;
       await runMeasured(metrics, async () => {
         if (mode === 0) {
-          return await httpConnect(httpPort, echo.port, "http-soak");
+          return await httpConnect(httpPort, echo.port, "http-soak", options.bindHost);
         }
         if (mode === 1) {
-          return await socksConnect(socksPort, echo.port, "socks-soak");
+          return await socksConnect(socksPort, echo.port, "socks-soak", options.bindHost);
         }
         if (mode === 2) {
           return await httpBlocked(httpPort);
         }
-        return await httpConnect(httpPort, echo.port, "reload-soak");
+        return await httpConnect(httpPort, echo.port, "reload-soak", options.bindHost);
       });
       await sleep(options.workerDelayMs);
     }
@@ -168,10 +171,10 @@ const runMeasured = async (metrics: SoakMetrics, task: () => Promise<number>): P
   }
 };
 
-const httpConnect = async (proxyPort: number, targetPort: number, payload: string): Promise<number> => {
-  const socket = await connect(proxyPort);
+const httpConnect = async (proxyPort: number, targetPort: number, payload: string, host: string): Promise<number> => {
+  const socket = await connect(proxyPort, host);
   try {
-    socket.write(`CONNECT 127.0.0.1:${targetPort} HTTP/1.1\r\nHost: 127.0.0.1:${targetPort}\r\n\r\n`);
+    socket.write(`CONNECT ${host}:${targetPort} HTTP/1.1\r\nHost: ${host}:${targetPort}\r\n\r\n`);
     await readUntil(socket, (buffer) => buffer.includes("200 Connection Established"));
     socket.write(payload);
     const response = await readUntil(socket, (buffer) => buffer.includes(payload));
@@ -182,9 +185,9 @@ const httpConnect = async (proxyPort: number, targetPort: number, payload: strin
 };
 
 const httpBlocked = async (proxyPort: number): Promise<number> => {
-  const socket = await connect(proxyPort);
+  const socket = await connect(proxyPort, options.bindHost);
   try {
-    socket.write("CONNECT 127.0.0.1:1 HTTP/1.1\r\nHost: 127.0.0.1:1\r\n\r\n");
+    socket.write(`CONNECT ${options.bindHost}:1 HTTP/1.1\r\nHost: ${options.bindHost}:1\r\n\r\n`);
     const response = await readUntil(socket, (buffer) => buffer.includes("\r\n\r\n"));
     return response.byteLength;
   } finally {
@@ -192,13 +195,20 @@ const httpBlocked = async (proxyPort: number): Promise<number> => {
   }
 };
 
-const socksConnect = async (proxyPort: number, targetPort: number, payload: string): Promise<number> => {
-  const socket = await connect(proxyPort);
+const socksConnect = async (proxyPort: number, targetPort: number, payload: string, hostName: string): Promise<number> => {
+  const socket = await connect(proxyPort, hostName);
   try {
     socket.write(Buffer.from([0x05, 0x01, 0x00]));
     await readBytes(socket, 2);
-    const host = Buffer.from([127, 0, 0, 1]);
-    const request = Buffer.concat([Buffer.from([0x05, 0x01, 0x00, 0x01]), host, Buffer.from([(targetPort >> 8) & 0xff, targetPort & 0xff])]);
+    const host = Buffer.from(hostName, "utf8");
+    if (host.byteLength > 255) {
+      throw new Error("soak target host is too long for SOCKS5");
+    }
+    const request = Buffer.concat([
+      Buffer.from([0x05, 0x01, 0x00, 0x03, host.byteLength]),
+      host,
+      Buffer.from([(targetPort >> 8) & 0xff, targetPort & 0xff])
+    ]);
     socket.write(request);
     await readBytes(socket, 10);
     socket.write(payload);
@@ -209,9 +219,9 @@ const socksConnect = async (proxyPort: number, targetPort: number, payload: stri
   }
 };
 
-const connect = async (port: number): Promise<net.Socket> => {
+const connect = async (port: number, host: string): Promise<net.Socket> => {
   return await new Promise<net.Socket>((resolve, reject) => {
-    const socket = net.createConnection({ host: "127.0.0.1", port });
+    const socket = net.createConnection({ host, port });
     const timer = setTimeout(() => {
       cleanup();
       closeSocket(socket);
@@ -273,7 +283,7 @@ const readUntil = async (socket: net.Socket, predicate: (buffer: Buffer) => bool
   });
 };
 
-const startEchoServer = async (): Promise<{ readonly port: number; close(): Promise<void> }> => {
+const startEchoServer = async (host: string, port: number): Promise<{ readonly port: number; close(): Promise<void> }> => {
   const server = net.createServer((socket) => {
     socket.on("error", () => undefined);
     socket.pipe(socket);
@@ -283,7 +293,7 @@ const startEchoServer = async (): Promise<{ readonly port: number; close(): Prom
     server.once("listening", () => {
       resolve();
     });
-    server.listen(0, "127.0.0.1");
+    server.listen(port, host);
   });
   const address = server.address();
   if (typeof address !== "object" || address === null) {
@@ -441,6 +451,7 @@ const openFileDescriptorCount = async (): Promise<{ readonly openFileDescriptors
 };
 
 function parseArgs(args: readonly string[]): SoakOptions {
+  const network = readTestNetworkConfig();
   const value = (name: string, fallback: string): string => {
     const index = args.indexOf(name);
     return index >= 0 ? (args[index + 1] ?? fallback) : fallback;
@@ -452,7 +463,9 @@ function parseArgs(args: readonly string[]): SoakOptions {
     concurrency: Number(value("--concurrency", process.env.SEPIGS_SOAK_CONCURRENCY ?? process.env.SOAK_CONCURRENCY ?? defaultConcurrency(profile))),
     workerDelayMs: Number(value("--worker-delay-ms", process.env.SOAK_WORKER_DELAY_MS ?? defaultWorkerDelayMs(profile))),
     reloadIntervalMs: Number(value("--reload-interval-ms", process.env.SEPIGS_SOAK_RELOAD_INTERVAL ?? "5000")),
-    reportPath: value("--report", reportPathForProfile(profile))
+    reportPath: value("--report", reportPathForProfile(profile)),
+    bindHost: network.host,
+    bindPort: network.port
   };
 }
 

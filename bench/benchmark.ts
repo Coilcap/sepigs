@@ -7,12 +7,16 @@ import { parseConfig } from "../src/config/schema.js";
 import { Engine } from "../src/core/engine.js";
 import { closeSocket, connectTcp, writeSocket } from "../src/utils/net.js";
 import { Logger } from "../src/logger/logger.js";
+import { readTestNetworkConfig } from "../src/utils/testNetwork.js";
 
 interface BenchmarkOptions {
   readonly levels: readonly number[];
   readonly maxActive: number;
   readonly payloadBytes: number;
   readonly timeoutMs: number;
+  readonly bindHost: string;
+  readonly bindPort: number;
+  readonly disableIpv6: boolean;
 }
 
 interface ScenarioResult {
@@ -48,8 +52,8 @@ interface BenchmarkReport {
 
 const main = async (): Promise<void> => {
   const options = parseOptions(process.argv.slice(2));
-  const echo = await startTcpEchoServer();
-  const engine = createBenchmarkEngine(Math.max(...options.levels, options.maxActive) + 100);
+  const echo = await startTcpEchoServer(options.bindHost, options.bindPort);
+  const engine = createBenchmarkEngine(Math.max(...options.levels, options.maxActive) + 100, options.bindHost);
 
   await engine.start();
   const address = engine.getInboundAddress("http-in");
@@ -58,11 +62,15 @@ const main = async (): Promise<void> => {
 
   try {
     for (const level of options.levels) {
+      console.log(`benchmark scenario ${level} starting`);
       scenarios.push(await runScenario(level, proxyPort, echo.port, options, engine));
+      console.log(`benchmark scenario ${level} complete`);
     }
   } finally {
+    console.log("benchmark shutting down local fixtures");
     await engine.stop();
     await echo.close();
+    console.log("benchmark local fixtures stopped");
   }
 
   const report: BenchmarkReport = {
@@ -83,7 +91,7 @@ const main = async (): Promise<void> => {
   console.log(renderConsole(report));
 };
 
-const createBenchmarkEngine = (maxConnections: number): Engine => {
+const createBenchmarkEngine = (maxConnections: number, bindHost: string): Engine => {
   return new Engine(
     parseConfig({
       log: { level: "silent" },
@@ -96,7 +104,7 @@ const createBenchmarkEngine = (maxConnections: number): Engine => {
         maxConnections,
         leakReportIntervalMs: 60_000
       },
-      inbounds: [{ type: "http", tag: "http-in", listen: "127.0.0.1", port: 0 }],
+      inbounds: [{ type: "http", tag: "http-in", listen: bindHost, port: 0 }],
       outbounds: [{ type: "direct", tag: "direct" }],
       route: { defaultOutbound: "direct", rules: [] }
     }),
@@ -175,11 +183,11 @@ const runOneConnection = async (
   targetPort: number,
   options: BenchmarkOptions
 ): Promise<{ readonly bytes: number; readonly durationMs: number }> => {
-  const socket = await connectTcp("127.0.0.1", proxyPort, options.timeoutMs, new Logger("silent"));
+  const socket = await connectTcp(options.bindHost, proxyPort, options.timeoutMs, new Logger("silent"));
   const startedAt = performance.now();
 
   try {
-    await writeSocket(socket, `CONNECT 127.0.0.1:${targetPort} HTTP/1.1\r\nHost: 127.0.0.1:${targetPort}\r\n\r\n`);
+    await writeSocket(socket, `CONNECT ${options.bindHost}:${targetPort} HTTP/1.1\r\nHost: ${options.bindHost}:${targetPort}\r\n\r\n`);
     const head = await readUntil(socket, (buffer) => buffer.includes("\r\n\r\n"), options.timeoutMs);
     if (!head.toString("latin1").startsWith("HTTP/1.1 200")) {
       throw new Error("CONNECT failed");
@@ -201,7 +209,7 @@ const runOneConnection = async (
   }
 };
 
-const startTcpEchoServer = async (): Promise<{ readonly port: number; close(): Promise<void> }> => {
+const startTcpEchoServer = async (host: string, port: number): Promise<{ readonly port: number; close(): Promise<void> }> => {
   const server = net.createServer((socket) => {
     socket.on("error", () => undefined);
     socket.pipe(socket);
@@ -218,7 +226,7 @@ const startTcpEchoServer = async (): Promise<{ readonly port: number; close(): P
     };
     server.once("error", onError);
     server.once("listening", onListening);
-    server.listen(0, "127.0.0.1");
+    server.listen(port, host);
   });
 
   const address = server.address();
@@ -329,12 +337,20 @@ const parseOptions = (args: readonly string[]): BenchmarkOptions => {
     values.set(arg.slice(2), value);
     index += 1;
   }
+  const network = readTestNetworkConfig({
+    ...process.env,
+    ...(values.has("bind-host") ? { SEPIGS_TEST_HOST: values.get("bind-host") } : {}),
+    ...(values.has("bind-port") ? { SEPIGS_TEST_PORT: values.get("bind-port") } : {})
+  });
 
   return {
     levels: parseLevels(values.get("levels") ?? "100,500,1000,5000"),
     maxActive: readInteger(values, "max-active", 128, 1, 10_000),
     payloadBytes: readInteger(values, "payload-bytes", 256, 4, 1024 * 1024),
-    timeoutMs: readInteger(values, "timeout-ms", 2_000, 1, 300_000)
+    timeoutMs: readInteger(values, "timeout-ms", 2_000, 1, 300_000),
+    bindHost: network.host,
+    bindPort: network.port,
+    disableIpv6: network.disableIpv6
   };
 };
 

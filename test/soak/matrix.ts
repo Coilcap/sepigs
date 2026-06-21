@@ -3,6 +3,9 @@ import { parseConfig } from "../../src/config/schema.js";
 import { Engine } from "../../src/core/engine.js";
 import { closeSocket } from "../../src/utils/net.js";
 import { connectClient, getPort, readUntil, startTcpEchoServer, waitFor } from "../helpers.js";
+import { readTestNetworkConfig } from "../../src/utils/testNetwork.js";
+
+const TEST_NETWORK = readTestNetworkConfig();
 
 interface MatrixResult {
   readonly name: string;
@@ -52,7 +55,7 @@ const lowConcurrencyLongConnection = async (): Promise<string> => {
   await engine.start();
   const client = await connectClient(getPort(engine.getInboundAddress("http-in")));
   try {
-    client.write(`CONNECT 127.0.0.1:${echo.port} HTTP/1.1\r\nHost: 127.0.0.1:${echo.port}\r\n\r\n`);
+    client.write(`CONNECT ${TEST_NETWORK.host}:${echo.port} HTTP/1.1\r\nHost: ${TEST_NETWORK.host}:${echo.port}\r\n\r\n`);
     await readUntil(client, (buffer) => buffer.includes("200 Connection Established"));
     for (let index = 0; index < 5; index += 1) {
       const payload = `long-${index}`;
@@ -119,7 +122,7 @@ const hotReloadDuringTraffic = async (): Promise<string> => {
     await engine.reloadConfig(
       parseConfig({
         log: { level: "silent" },
-        inbounds: [{ type: "http", tag: "http-in", listen: "127.0.0.1", port: 0 }],
+        inbounds: [{ type: "http", tag: "http-in", listen: TEST_NETWORK.host, port: 0 }],
         outbounds: [
           { type: "direct", tag: "direct" },
           { type: "block", tag: "block" }
@@ -141,10 +144,10 @@ const dnsFailureFallback = async (): Promise<string> => {
     parseConfig({
       log: { level: "silent" },
       dns: {
-        udpServers: [{ tag: "broken", address: "127.0.0.1", port: 9, timeoutMs: 20 }],
-        fallbackHosts: { "fallback.matrix.test": "127.0.0.1" }
+        udpServers: [{ tag: "broken", address: TEST_NETWORK.host, port: 9, timeoutMs: 20 }],
+        fallbackHosts: { "fallback.matrix.test": TEST_NETWORK.host }
       },
-      inbounds: [{ type: "http", tag: "http-in", listen: "127.0.0.1", port: 0 }],
+      inbounds: [{ type: "http", tag: "http-in", listen: TEST_NETWORK.host, port: 0 }],
       outbounds: [{ type: "direct", tag: "direct" }],
       route: { defaultOutbound: "direct", rules: [] }
     })
@@ -164,7 +167,7 @@ const outboundFailureFailover = async (): Promise<string> => {
   const engine = new Engine(
     parseConfig({
       log: { level: "silent" },
-      inbounds: [{ type: "http", tag: "http-in", listen: "127.0.0.1", port: 0 }],
+      inbounds: [{ type: "http", tag: "http-in", listen: TEST_NETWORK.host, port: 0 }],
       outbounds: [
         { type: "block", tag: "block" },
         { type: "direct", tag: "direct" }
@@ -194,7 +197,7 @@ const authSuccessFailure = async (): Promise<string> => {
   const engine = new Engine(
     parseConfig({
       log: { level: "silent" },
-      inbounds: [{ type: "http", tag: "http-in", listen: "127.0.0.1", port: 0, auth: { username: "u", password: "p" } }],
+      inbounds: [{ type: "http", tag: "http-in", listen: TEST_NETWORK.host, port: 0, auth: { username: "u", password: "p" } }],
       outbounds: [{ type: "direct", tag: "direct" }],
       route: { defaultOutbound: "direct", rules: [] }
     })
@@ -202,11 +205,11 @@ const authSuccessFailure = async (): Promise<string> => {
   await engine.start();
   try {
     const port = getPort(engine.getInboundAddress("http-in"));
-    const missing = await httpConnectRaw(port, echo.port, "auth-missing", "127.0.0.1");
+    const missing = await httpConnectRaw(port, echo.port, "auth-missing", TEST_NETWORK.host);
     if (!missing.includes("407")) {
       throw new Error("expected missing auth to be rejected");
     }
-    const ok = await httpConnect(port, echo.port, "auth-ok", "127.0.0.1", "Basic dTpw");
+    const ok = await httpConnect(port, echo.port, "auth-ok", TEST_NETWORK.host, "Basic dTpw");
     return `auth failure rejected and success returned ${ok} bytes`;
   } finally {
     await engine.stop();
@@ -218,14 +221,14 @@ const createEngine = (outbounds: readonly object[], defaultOutbound: string): En
   return new Engine(
     parseConfig({
       log: { level: "silent" },
-      inbounds: [{ type: "http", tag: "http-in", listen: "127.0.0.1", port: 0 }],
+      inbounds: [{ type: "http", tag: "http-in", listen: TEST_NETWORK.host, port: 0 }],
       outbounds,
       route: { defaultOutbound, rules: [] }
     })
   );
 };
 
-const httpConnect = async (proxyPort: number, targetPort: number, payload: string, host = "127.0.0.1", auth?: string): Promise<number> => {
+const httpConnect = async (proxyPort: number, targetPort: number, payload: string, host = TEST_NETWORK.host, auth?: string): Promise<number> => {
   const response = await httpConnectRaw(proxyPort, targetPort, payload, host, auth);
   if (!response.includes(payload)) {
     throw new Error(`expected tunneled payload "${payload}"`);

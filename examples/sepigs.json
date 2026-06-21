@@ -11,6 +11,8 @@
     "maxHeaderBytes": 65536,
     "maxConnections": 10000,
     "leakReportIntervalMs": 60000
+    ,"maxUdpSessions": 4096
+    ,"udpIdleTimeoutMs": 60000
   },
   "plugins": {
     "modules": [],
@@ -29,6 +31,20 @@
       "port": 19090,
       "path": "/metrics"
     }
+  },
+  "dashboard": {
+    "enabled": false,
+    "listen": "127.0.0.1",
+    "port": 19091,
+    "token": "change-me",
+    "rateLimitPerMinute": 120,
+    "cors": false
+  },
+  "tun": {
+    "enabled": false,
+    "experimental": true,
+    "name": "sepigs0",
+    "mtu": 1500
   },
   "workers": {
     "enabled": false,

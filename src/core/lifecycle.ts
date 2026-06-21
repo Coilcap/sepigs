@@ -11,7 +11,18 @@ export class LifecycleManager {
   private started = false;
 
   public register(service: Stoppable): void {
-    this.services.push(service);
+    if (!this.services.includes(service)) {
+      this.services.push(service);
+    }
+  }
+
+  public unregister(service: Stoppable): boolean {
+    const index = this.services.indexOf(service);
+    if (index < 0) {
+      return false;
+    }
+    this.services.splice(index, 1);
+    return true;
   }
 
   public markStarted(): void {
@@ -27,15 +38,21 @@ export class LifecycleManager {
       await service.stop();
     });
 
+    let shutdownTimer: NodeJS.Timeout | undefined;
     await Promise.race([
       Promise.allSettled(stops),
       new Promise<never>((_resolve, reject) => {
-        setTimeout(() => {
+        shutdownTimer = setTimeout(() => {
           reject(new Error(`shutdown timeout after ${timeoutMs}ms`));
         }, timeoutMs);
       })
-    ]);
+    ]).finally(() => {
+      if (shutdownTimer !== undefined) {
+        clearTimeout(shutdownTimer);
+      }
+    });
 
     this.started = false;
+    this.services.length = 0;
   }
 }

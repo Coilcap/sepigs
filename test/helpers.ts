@@ -3,6 +3,9 @@ import net from "node:net";
 import http from "node:http";
 import type { AddressInfo } from "node:net";
 import type { TcpStream } from "../src/protocol/types.js";
+import { readTestNetworkConfig } from "../src/utils/testNetwork.js";
+
+const TEST_NETWORK = readTestNetworkConfig();
 
 export interface TestTcpServer {
   readonly server: net.Server;
@@ -28,7 +31,7 @@ export const startTcpEchoServer = async (): Promise<TestTcpServer> => {
     socket.pipe(socket);
   });
 
-  await listen(server, 0, "127.0.0.1");
+  await listen(server, TEST_NETWORK.port, TEST_NETWORK.host);
   const address = server.address();
   if (typeof address !== "object" || address === null) {
     throw new Error("test TCP server did not bind to an address");
@@ -45,7 +48,7 @@ export const startTcpEchoServer = async (): Promise<TestTcpServer> => {
 
 export const startHttpServer = async (handler: http.RequestListener): Promise<TestHttpServer> => {
   const server = http.createServer(handler);
-  await listen(server, 0, "127.0.0.1");
+  await listen(server, TEST_NETWORK.port, TEST_NETWORK.host);
   const address = server.address();
   if (typeof address !== "object" || address === null) {
     throw new Error("test HTTP server did not bind to an address");
@@ -77,7 +80,7 @@ export const startUdpEchoServer = async (): Promise<TestUdpServer> => {
     };
     server.once("error", onError);
     server.once("listening", onListening);
-    server.bind(0, "127.0.0.1");
+    server.bind(TEST_NETWORK.port, TEST_NETWORK.host);
   });
 
   const address = server.address();
@@ -94,9 +97,9 @@ export const startUdpEchoServer = async (): Promise<TestUdpServer> => {
   };
 };
 
-export const connectClient = async (port: number): Promise<net.Socket> => {
+export const connectClient = async (port: number, host = TEST_NETWORK.host): Promise<net.Socket> => {
   return await new Promise<net.Socket>((resolve, reject) => {
-    const socket = net.createConnection({ host: "127.0.0.1", port });
+    const socket = net.createConnection({ host, port });
     const onError = (error: Error): void => {
       socket.removeListener("connect", onConnect);
       reject(error);

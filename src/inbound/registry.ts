@@ -2,6 +2,8 @@ import type { InboundConfig } from "../config/types.js";
 import { HttpInbound } from "./http.js";
 import type { Inbound, InboundContext } from "./inbound.js";
 import { Socks5Inbound } from "./socks5.js";
+import { ShadowsocksInbound } from "./shadowsocks.js";
+import { TrojanInbound } from "./trojan.js";
 import type { Logger } from "../logger/logger.js";
 
 type InboundFactory<T extends InboundConfig = InboundConfig> = (config: T, context: InboundContext, logger: Logger) => Inbound;
@@ -31,4 +33,12 @@ registerInboundFactory("socks5", (config, context, logger) => {
     throw new Error(`invalid inbound config for socks5 factory: ${config.type}`);
   }
   return new Socks5Inbound(config, context, logger);
+});
+registerInboundFactory("shadowsocks", (config, context, logger) => {
+  if (config.type !== "shadowsocks") throw new Error(`invalid inbound config for shadowsocks factory: ${config.type}`);
+  return new ShadowsocksInbound(config, context, logger);
+});
+registerInboundFactory("trojan", (config, context, logger) => {
+  if (config.type !== "trojan") throw new Error(`invalid inbound config for trojan factory: ${config.type}`);
+  return new TrojanInbound(config, context, logger);
 });

@@ -14,12 +14,18 @@ export interface StatsSnapshot {
   readonly udpPacketsRemoteToClient: number;
   readonly udpBytesClientToRemote: number;
   readonly udpBytesRemoteToClient: number;
+  readonly udpSessionsTotal?: number;
+  readonly udpSessionsActive?: number;
+  readonly udpErrorsTotal?: number;
   readonly routeMatchesTotal: number;
   readonly outboundFailuresTotal: number;
   readonly dnsQueriesTotal: number;
   readonly dnsFailuresTotal: number;
   readonly hotReloadTotal: number;
   readonly hotReloadFailuresTotal: number;
+  readonly fakeIpAssignmentsTotal?: number;
+  readonly dashboardRequestsTotal?: number;
+  readonly dashboardErrorsTotal?: number;
 }
 
 export class StatsTracker {
@@ -35,12 +41,18 @@ export class StatsTracker {
   private udpPacketsRemoteToClient = 0;
   private udpBytesClientToRemote = 0;
   private udpBytesRemoteToClient = 0;
+  private udpSessionsTotal = 0;
+  private udpSessionsActive = 0;
+  private udpErrorsTotal = 0;
   private routeMatchesTotal = 0;
   private outboundFailuresTotal = 0;
   private dnsQueriesTotal = 0;
   private dnsFailuresTotal = 0;
   private hotReloadTotal = 0;
   private hotReloadFailuresTotal = 0;
+  private fakeIpAssignmentsTotal = 0;
+  private dashboardRequestsTotal = 0;
+  private dashboardErrorsTotal = 0;
   private readonly startedAt = Date.now();
 
   public startConnection(): void {
@@ -81,6 +93,19 @@ export class StatsTracker {
     this.udpBytesRemoteToClient += bytes;
   }
 
+  public openUdpSession(): void {
+    this.udpSessionsTotal += 1;
+    this.udpSessionsActive += 1;
+  }
+
+  public closeUdpSession(): void {
+    this.udpSessionsActive = Math.max(0, this.udpSessionsActive - 1);
+  }
+
+  public recordUdpError(): void {
+    this.udpErrorsTotal += 1;
+  }
+
   public recordRouteMatch(): void {
     this.routeMatchesTotal += 1;
   }
@@ -104,6 +129,9 @@ export class StatsTracker {
     }
   }
 
+  public recordFakeIpAssignment(): void { this.fakeIpAssignmentsTotal += 1; }
+  public recordDashboardRequest(ok: boolean): void { this.dashboardRequestsTotal += 1; if (!ok) this.dashboardErrorsTotal += 1; }
+
   public snapshot(): StatsSnapshot {
     const completed = this.closedConnections === 0 ? 1 : this.closedConnections;
     const failureBase = this.totalConnections + this.rejectedConnections;
@@ -126,12 +154,18 @@ export class StatsTracker {
       udpPacketsRemoteToClient: this.udpPacketsRemoteToClient,
       udpBytesClientToRemote: this.udpBytesClientToRemote,
       udpBytesRemoteToClient: this.udpBytesRemoteToClient,
+      udpSessionsTotal: this.udpSessionsTotal,
+      udpSessionsActive: this.udpSessionsActive,
+      udpErrorsTotal: this.udpErrorsTotal,
       routeMatchesTotal: this.routeMatchesTotal,
       outboundFailuresTotal: this.outboundFailuresTotal,
       dnsQueriesTotal: this.dnsQueriesTotal,
       dnsFailuresTotal: this.dnsFailuresTotal,
       hotReloadTotal: this.hotReloadTotal,
       hotReloadFailuresTotal: this.hotReloadFailuresTotal
+      ,fakeIpAssignmentsTotal: this.fakeIpAssignmentsTotal
+      ,dashboardRequestsTotal: this.dashboardRequestsTotal
+      ,dashboardErrorsTotal: this.dashboardErrorsTotal
     };
   }
 }

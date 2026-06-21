@@ -1,6 +1,7 @@
 import type { AddressInfo } from "node:net";
 import type { InboundConfig, OutboundConfig, SepigsConfig } from "../config/types.js";
 import { SystemDnsResolver } from "../dns/resolver.js";
+import { DashboardServer } from "../dashboard/server.js";
 import type { Inbound, InboundContext } from "../inbound/inbound.js";
 import { inboundConfigsChanged, reloadInbounds } from "../inbound/reload.js";
 import { createInboundFromRegistry, registerInboundFactory } from "../inbound/registry.js";
@@ -26,6 +27,7 @@ import { LifecycleManager } from "./lifecycle.js";
 import { ResourceLimiter, type ResourceLimiterSnapshot } from "./resourceLimiter.js";
 import { StatsTracker, type StatsSnapshot } from "./stats.js";
 import { TimeoutManager, type ManagedTimer } from "./timeout.js";
+import { UdpSessionManager } from "./udpSessionManager.js";
 
 export class Engine {
   private config: SepigsConfig;
@@ -43,12 +45,15 @@ export class Engine {
   private readonly timeoutManager: TimeoutManager;
   private readonly resourceLimiter: ResourceLimiter;
   private readonly connectionManager: ConnectionManager;
+  private readonly udpSessionManager: UdpSessionManager;
   private readonly wasmExtensions: WasmExtensionManager;
   private readonly workerPool: WorkerPool;
   private readonly pluginManager: PluginManager;
   private readonly eventLoopMonitor = new EventLoopMonitor();
   private readonly gcMonitor = new GcMonitor();
   private metricsServer: PrometheusMetricsServer;
+  private dashboardServer: DashboardServer;
+  private configReloader: (() => Promise<void>) | undefined;
   private leakReportTimer: ManagedTimer | undefined;
   private runtimeLoaded = false;
   private componentsBuilt = false;
@@ -72,6 +77,13 @@ export class Engine {
       this.timeoutManager,
       this.logger.child("connections")
     );
+    this.udpSessionManager = new UdpSessionManager(
+      config.limits.maxUdpSessions ?? 4_096,
+      config.limits.udpIdleTimeoutMs ?? 60_000,
+      this.stats,
+      this.logger.child("udp-sessions")
+    );
+    this.lifecycle.register(this.udpSessionManager);
     this.wasmExtensions = new WasmExtensionManager(this.logger.child("wasm"));
     this.workerPool = new WorkerPool(config.workers, this.logger.child("workers"));
     this.pluginManager = new PluginManager(this.logger.child("plugins"), {
@@ -82,6 +94,7 @@ export class Engine {
       unregisterOutboundFactory
     }, config.plugins.isolation);
     this.metricsServer = this.createMetricsServer(config);
+    this.dashboardServer = this.createDashboardServer(config);
   }
 
   public async start(): Promise<void> {
@@ -101,6 +114,7 @@ export class Engine {
       this.eventLoopMonitor.start();
       this.gcMonitor.start();
       await this.metricsServer.start();
+      await this.dashboardServer.start();
       this.leakReportTimer = this.timeoutManager.setInterval("leak-report", this.config.limits.leakReportIntervalMs, () => {
         this.leakDetector.report();
       });
@@ -114,8 +128,10 @@ export class Engine {
 
   public async stop(): Promise<void> {
     this.connectionManager.closeAll("engine stop");
+    this.udpSessionManager.closeAll();
     this.leakReportTimer?.clear();
     this.leakReportTimer = undefined;
+    await this.dashboardServer.stop();
     await this.metricsServer.stop();
     this.eventLoopMonitor.stop();
     this.gcMonitor.stop();
@@ -158,6 +174,18 @@ export class Engine {
 
   public getMetricsAddress(): AddressInfo | string | null {
     return this.metricsServer.address();
+  }
+
+  public getDashboardAddress(): AddressInfo | string | null {
+    return this.dashboardServer.address();
+  }
+
+  public async allocateFakeIp(domain: string): Promise<string> {
+    return await this.dnsResolver.resolveForClient(domain);
+  }
+
+  public setConfigReloader(reloader: () => Promise<void>): void {
+    this.configReloader = reloader;
   }
 
   public getRoutingPolicies(): readonly RoutingPolicySnapshot[] {
@@ -220,6 +248,11 @@ export class Engine {
     if (this.started) {
       await this.metricsServer.start();
     }
+    await this.dashboardServer.stop();
+    this.dashboardServer = this.createDashboardServer(config);
+    if (this.started) {
+      await this.dashboardServer.start();
+    }
 
     if (this.runtimeLoaded) {
       await this.wasmExtensions.loadAll(config.plugins.wasm);
@@ -229,6 +262,9 @@ export class Engine {
       await this.reloadOutbounds();
     }
     if (reloadedInbounds !== undefined) {
+      for (const inbound of this.inbounds.values()) {
+        this.lifecycle.unregister(inbound);
+      }
       this.inbounds.clear();
       for (const inbound of reloadedInbounds.values()) {
         this.inbounds.set(inbound.tag, inbound);
@@ -244,7 +280,8 @@ export class Engine {
   }
 
   private async openTcp(request: ProxyRequest): Promise<TcpOutboundConnection> {
-    const route = this.router.match(request);
+    const routedRequest = this.restoreFakeIpDestination(request);
+    const route = this.router.match(routedRequest);
     this.stats.recordRouteMatch();
     const selection = this.policyManager.select(route.outboundTag);
     let lastError: unknown;
@@ -260,7 +297,7 @@ export class Engine {
 
       try {
         const startedAt = performance.now();
-        const established = await outbound.connect(request);
+        const established = await outbound.connect(routedRequest);
         const latencyMs = performance.now() - startedAt;
         this.policyManager.recordSuccess(outboundTag, latencyMs);
         this.logger.debug("route selected", {
@@ -291,7 +328,8 @@ export class Engine {
   }
 
   private async sendUdp(request: ProxyRequest, payload: Buffer): Promise<UdpOutboundPacket | undefined> {
-    const route = this.router.match(request);
+    const routedRequest = this.restoreFakeIpDestination(request);
+    const route = this.router.match(routedRequest);
     this.stats.recordRouteMatch();
     const selection = this.policyManager.select(route.outboundTag);
     let lastError: unknown;
@@ -313,7 +351,7 @@ export class Engine {
 
       const startedAt = performance.now();
       try {
-        const response = await outbound.sendUdp(request, payload);
+        const response = await outbound.sendUdp(routedRequest, payload);
         this.policyManager.recordSuccess(outboundTag, performance.now() - startedAt);
         this.logger.debug("udp route selected", {
           connectionId: request.id,
@@ -368,6 +406,7 @@ export class Engine {
     await Promise.all(
       [...this.outbounds.values()].map(async (outbound) => {
         await outbound.stop();
+        this.lifecycle.unregister(outbound);
       })
     );
     this.outbounds.clear();
@@ -384,8 +423,20 @@ export class Engine {
       logger: this.logger,
       stats: this.stats,
       connectionManager: this.connectionManager,
+      udpSessionManager: this.udpSessionManager,
       openTcp: async (request) => await this.openTcp(request),
       sendUdp: async (request, payload) => await this.sendUdp(request, payload)
+    };
+  }
+
+  private restoreFakeIpDestination(request: ProxyRequest): ProxyRequest {
+    const domain = this.dnsResolver.reverseFakeIp(request.destination.host);
+    if (domain === undefined) {
+      return request;
+    }
+    return {
+      ...request,
+      destination: { host: domain, port: request.destination.port, addressType: "domain" }
     };
   }
 
@@ -413,6 +464,43 @@ export class Engine {
           memory: process.memoryUsage()
         }),
       this.logger.child("metrics")
+    );
+  }
+
+  private metricsText(): string {
+    return renderPrometheusMetrics({
+      stats: this.stats.snapshot(),
+      leaks: this.leakDetector.snapshot(),
+      eventLoop: this.eventLoopMonitor.snapshot(),
+      gc: this.gcMonitor.snapshot(),
+      memory: process.memoryUsage()
+    });
+  }
+
+  private createDashboardServer(config: SepigsConfig): DashboardServer {
+    return new DashboardServer(
+      config.dashboard,
+      {
+        stats: () => this.stats.snapshot(),
+        resources: () => this.resourceLimiter.snapshot(),
+        leaks: () => this.leakDetector.snapshot(),
+        connections: () => this.connectionManager.listActive(),
+        closeConnection: (id) => this.connectionManager.closeConnection(id, "dashboard request"),
+        metrics: () => this.metricsText(),
+        outbounds: () => ({ policies: this.policyManager.getPolicySnapshots(), health: this.policyManager.getHealthSnapshots() }),
+        config: () => this.config,
+        logs: () => this.logger.records(),
+        reload: async () => {
+          if (this.configReloader === undefined) {
+            throw new ConfigError("dashboard reload is unavailable without a config file loader");
+          }
+          await this.configReloader();
+        },
+        recordRequest: (ok) => {
+          this.stats.recordDashboardRequest(ok);
+        }
+      },
+      this.logger.child("dashboard")
     );
   }
 }

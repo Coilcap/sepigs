@@ -12,6 +12,7 @@ interface LoadedPlugin {
   readonly tag: string;
   readonly manifest: PluginManifest;
   readonly runner: PluginRunner;
+  readonly configKey: string;
 }
 
 export class PluginManager {
@@ -32,6 +33,14 @@ export class PluginManager {
   }
 
   public async loadAll(configs: readonly PluginModuleConfig[]): Promise<void> {
+    const desired = new Map(configs.filter((config) => config.enabled).map((config) => [config.tag, configKey(config)]));
+    for (const loaded of [...this.loaded]) {
+      if (desired.get(loaded.tag) !== loaded.configKey) {
+        await loaded.runner.stop();
+        this.unregisterRemoteOutboundFactories(loaded.tag);
+        this.loaded.splice(this.loaded.indexOf(loaded), 1);
+      }
+    }
     for (const config of configs) {
       if (!config.enabled) {
         this.logger.debug("plugin module disabled", { tag: config.tag, path: config.path });
@@ -60,7 +69,9 @@ export class PluginManager {
     }
     for (const loaded of [...this.loaded].reverse()) {
       await loaded.runner.stop();
+      this.unregisterRemoteOutboundFactories(loaded.tag);
     }
+    this.loaded.length = 0;
     this.started = false;
   }
 
@@ -79,7 +90,10 @@ export class PluginManager {
       await runner.stop();
       throw error;
     }
-    this.loaded.push({ tag: config.tag, manifest, runner });
+    this.loaded.push({ tag: config.tag, manifest, runner, configKey: configKey(config) });
+    if (this.started) {
+      await runner.start();
+    }
     this.logger.info("plugin module loaded", {
       tag: config.tag,
       name: manifest.name,
@@ -104,7 +118,13 @@ export class PluginManager {
     if (this.isolation.mode === "child-process") {
       return new ChildProcessPluginRunner(config, manifest, this.isolation, events);
     }
-    return new InProcessPluginRunner(config, manifest, this.context);
+    const registerOwnedOutboundFactory: typeof this.context.registerOutboundFactory = (type, factory) => {
+      this.context.registerOutboundFactory(type, factory, config.tag);
+      const registered = this.remoteOutboundTypes.get(config.tag) ?? new Set<ExtensionType>();
+      registered.add(type as ExtensionType);
+      this.remoteOutboundTypes.set(config.tag, registered);
+    };
+    return new InProcessPluginRunner(config, manifest, { ...this.context, registerOutboundFactory: registerOwnedOutboundFactory });
   }
 
   private registerRemoteOutboundFactory(type: string, runner: PluginRunner): void {
@@ -113,7 +133,7 @@ export class PluginManager {
       return;
     }
     const extensionType = type as ExtensionType;
-    this.context.registerOutboundFactory(extensionType, createRemoteOutboundFactory(extensionType, runner, this.isolation.timeoutMs));
+    this.context.registerOutboundFactory(extensionType, createRemoteOutboundFactory(extensionType, runner, this.isolation.timeoutMs), runner.tag);
     const registered = this.remoteOutboundTypes.get(runner.tag) ?? new Set<ExtensionType>();
     registered.add(extensionType);
     this.remoteOutboundTypes.set(runner.tag, registered);
@@ -126,7 +146,7 @@ export class PluginManager {
       return;
     }
     for (const type of registered) {
-      this.context.unregisterOutboundFactory?.(type);
+      this.context.unregisterOutboundFactory?.(type, tag);
     }
     this.remoteOutboundTypes.delete(tag);
     this.logger.info("remote plugin outbound factories unregistered", { tag, count: registered.size });
@@ -142,3 +162,5 @@ export class PluginManager {
     return await loadPluginManifest(resolvedManifestPath);
   }
 }
+
+const configKey = (config: PluginModuleConfig): string => JSON.stringify({ path: config.path, manifest: config.manifest, enabled: config.enabled });

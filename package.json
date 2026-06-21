@@ -1,6 +1,6 @@
 {
   "name": "sepigs",
-  "version": "0.1.0-alpha",
+  "version": "0.2.0-alpha.0",
   "description": "A modular TypeScript proxy core for personal proxying, forwarding, and learning.",
   "type": "module",
   "private": true,
@@ -23,6 +23,7 @@
     "soak:long": "npm run soak:6h",
     "soak:1h:full": "tsx tools/soak/full-soak.ts --profile 1h",
     "soak:6h:full": "tsx tools/soak/full-soak.ts --profile 6h",
+    "soak:24h": "tsx tools/soak/full-soak.ts --profile 24h",
     "soak:resume": "tsx tools/soak/full-soak.ts --resume",
     "soak:report": "tsx tools/soak/report-soak.ts",
     "profile:cpu": "tsx tools/profiler/cpu.ts",
@@ -34,10 +35,15 @@
     "compat:shadowsocks": "tsx tools/compat/run-shadowsocks-ref.ts",
     "compat:trojan": "tsx tools/compat/run-trojan-ref.ts",
     "compat:matrix": "tsx tools/compat/compat-matrix.ts",
-    "docs:check": "tsx tools/docs/check.ts",
+    "docs:check": "node --import tsx tools/docs/check.ts",
     "pack:tar": "tsx scripts/pack.ts tar",
     "pack:zip": "tsx scripts/pack.ts zip",
-    "release:dry-run": "tsx scripts/pack.ts dry-run"
+    "release:dry-run": "node --import tsx scripts/pack.ts dry-run",
+    "sub:parse": "node --import tsx tools/subscription/cli.ts",
+    "sub:dry-run": "node --import tsx tools/subscription/cli.ts --dry-run examples/subscriptions/sample.txt",
+    "web:build": "node web/build.mjs"
+    ,"validation:bind": "node --import tsx tools/network/bind-probe.ts"
+    ,"validation:no-listen": "node --import tsx tools/network/no-listen-smoke.ts"
   },
   "keywords": [
     "proxy",

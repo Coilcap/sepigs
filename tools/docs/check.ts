@@ -13,6 +13,7 @@ const scripts = new Set(Object.keys(packageJson.scripts ?? {}));
 const files = await listFiles(".");
 const docFiles = files.filter((file) => isDocFile(file));
 
+checkRequiredFiles(files);
 await checkNpmScripts(docFiles, scripts);
 await checkMarkdownLinks(docFiles);
 await checkExampleConfigs(files);
@@ -92,7 +93,45 @@ async function listFiles(root: string): Promise<readonly string[]> {
 }
 
 function isDocFile(file: string): boolean {
-  return file.endsWith(".md") && (file.startsWith("docs/") || file.startsWith("examples/") || ["README.md", "RELEASE.md", "CHANGELOG.md", "CONTRIBUTING.md"].includes(file));
+  return (
+    file.endsWith(".md") &&
+    (file.startsWith("docs/") ||
+      file.startsWith("examples/") ||
+      file.startsWith("verification/") ||
+      ["README.md", "RELEASE.md", "CHANGELOG.md", "CONTRIBUTING.md", "release-notes.md"].includes(file))
+  );
+}
+
+function checkRequiredFiles(allFiles: readonly string[]): void {
+  const available = new Set(allFiles);
+  const required = [
+    "docs/beta-readiness.md",
+    "docs/technical-debt.md",
+    "docs/reality-check-v2.md",
+    "docs/soak-24h-report.md",
+    "docs/udp.md",
+    "docs/fake-ip.md",
+    "docs/subscription.md",
+    "docs/dashboard-api.md",
+    "docs/dashboard.md",
+    "docs/tun.md",
+    "docs/quic-hysteria2-evaluation.md",
+    "docs/wireguard-evaluation.md",
+    "docs/phase8-reality-check.md",
+    "docs/phase8-validation.md",
+    "release-notes.md",
+    "verification/mihomo.md",
+    "verification/shadowrocket.md",
+    "verification/surge.md",
+    "verification/stash.md",
+    "verification/nekobox.md",
+    "verification/v2rayn.md"
+  ];
+  for (const file of required) {
+    if (!available.has(file)) {
+      failures.push(`required beta/RC1 document is missing: ${file}`);
+    }
+  }
 }
 
 function shouldSkipLink(link: string): boolean {

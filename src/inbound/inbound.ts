@@ -5,12 +5,14 @@ import type { Logger } from "../logger/logger.js";
 import type { ProxyRequest, SourceAddress, TcpOutboundConnection, UdpOutboundPacket } from "../protocol/types.js";
 import type { StatsTracker } from "../core/stats.js";
 import type { ConnectionManager } from "../core/connectionManager.js";
+import type { UdpSessionManager } from "../core/udpSessionManager.js";
 
 export interface InboundContext {
   readonly limits: LimitConfig;
   readonly logger: Logger;
   readonly stats: StatsTracker;
   readonly connectionManager: ConnectionManager;
+  readonly udpSessionManager: UdpSessionManager;
   openTcp(request: ProxyRequest): Promise<TcpOutboundConnection>;
   sendUdp(request: ProxyRequest, payload: Buffer): Promise<UdpOutboundPacket | undefined>;
 }

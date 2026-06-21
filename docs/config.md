@@ -13,6 +13,8 @@ sepigs supports JSON and YAML config.
     "maxHeaderBytes": 65536,
     "maxConnections": 10000,
     "leakReportIntervalMs": 60000
+    ,"maxUdpSessions": 4096
+    ,"udpIdleTimeoutMs": 60000
   },
   "dns": {
     "strategy": "system",
@@ -85,6 +87,22 @@ sepigs supports JSON and YAML config.
 - `maxHeaderBytes`: maximum bytes for HTTP headers and SOCKS5 handshake data.
 - `maxConnections`: maximum active managed connections before new connections are rejected.
 - `leakReportIntervalMs`: interval for leak detector status logging.
+- `maxUdpSessions`: maximum active UDP associations.
+- `udpIdleTimeoutMs`: idle reclaim timeout for UDP associations.
+
+## Phase 8 Optional Systems
+
+`dns.cacheMaxEntries` bounds positive and negative cache entries; `dns.negativeTtlMs` controls failure caching. Fake-IP options are documented in [fake-ip.md](fake-ip.md).
+
+`dashboard` and `tun` are disabled by default. Dashboard requires a local address and a token of at least 16 characters. TUN must remain marked experimental. Shadowsocks and Trojan TCP inbound examples:
+
+```json
+{"type":"shadowsocks","tag":"ss-in","listen":"127.0.0.1","port":8388,"method":"aes-128-gcm","password":"change-me","udp":false}
+```
+
+```json
+{"type":"trojan","tag":"trojan-in","listen":"127.0.0.1","port":8443,"password":"change-me","tls":{"enabled":true,"certPath":"cert.pem","keyPath":"key.pem"}}
+```
 
 ## Inbounds
 

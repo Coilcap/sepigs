@@ -1,5 +1,6 @@
 import type {
   BlockOutboundConfig,
+  DashboardConfig,
   ConnectionPoolConfig,
   DnsConfig,
   DnsRouteRuleConfig,
@@ -33,14 +34,18 @@ import type {
   RoutingPolicyType,
   RouterConfig,
   SepigsConfig,
+  ShadowsocksCipher,
   ShadowsocksOutboundConfig,
+  ShadowsocksInboundConfig,
   Socks5AuthConfig,
   Socks5InboundConfig,
   TcpRelayOutboundConfig,
   TransportConfig,
+  TrojanInboundConfig,
   TrojanOutboundConfig,
   WasmExtensionConfig,
   WorkerConfig,
+  TunConfig,
   WireGuardOutboundConfig
 } from "./types.js";
 import { isValidCidr } from "../router/matcher.js";
@@ -57,17 +62,21 @@ const DEFAULT_LIMITS: LimitConfig = {
   shutdownTimeoutMs: 5_000,
   maxHeaderBytes: 64 * 1024,
   maxConnections: 10_000,
-  leakReportIntervalMs: 60_000
+  leakReportIntervalMs: 60_000,
+  maxUdpSessions: 4_096,
+  udpIdleTimeoutMs: 60_000
 };
 
 const DEFAULT_DNS: DnsConfig = {
   strategy: "system",
   cacheTtlMs: 60_000,
+  cacheMaxEntries: 4_096,
+  negativeTtlMs: 5_000,
   hosts: {},
   udpServers: [],
   rules: [],
   fallbackHosts: {},
-  fakeIp: { enabled: false, cidr: "198.18.0.0/15" },
+  fakeIp: { enabled: false, range: "198.18.0.0/15", size: 65_536, ttlSeconds: 600 },
   doh: { enabled: false, endpoints: [], timeoutMs: 1_000 }
 };
 
@@ -128,6 +137,22 @@ const DEFAULT_OBSERVABILITY: ObservabilityConfig = {
     port: 19090,
     path: "/metrics"
   }
+};
+
+const DEFAULT_DASHBOARD: DashboardConfig = {
+  enabled: false,
+  listen: "127.0.0.1",
+  port: 19091,
+  token: "change-me",
+  rateLimitPerMinute: 120,
+  cors: false
+};
+
+const DEFAULT_TUN: TunConfig = {
+  enabled: false,
+  experimental: true,
+  name: "sepigs0",
+  mtu: 1500
 };
 
 const LOG_LEVELS = new Set<LogLevel>(["debug", "info", "warn", "error", "silent"]);
@@ -396,7 +421,11 @@ const parseLimits = (root: Record<string, unknown>, errors: string[]): LimitConf
     maxConnections:
       readOptionalNumber(rawLimits, "maxConnections", "limits", errors, 1, 1_000_000) ?? DEFAULT_LIMITS.maxConnections,
     leakReportIntervalMs:
-      readOptionalNumber(rawLimits, "leakReportIntervalMs", "limits", errors, 1_000, 3_600_000) ?? DEFAULT_LIMITS.leakReportIntervalMs
+      readOptionalNumber(rawLimits, "leakReportIntervalMs", "limits", errors, 1_000, 3_600_000) ?? DEFAULT_LIMITS.leakReportIntervalMs,
+    maxUdpSessions:
+      readOptionalNumber(rawLimits, "maxUdpSessions", "limits", errors, 1, 1_000_000) ?? DEFAULT_LIMITS.maxUdpSessions ?? 4_096,
+    udpIdleTimeoutMs:
+      readOptionalNumber(rawLimits, "udpIdleTimeoutMs", "limits", errors, 100, 3_600_000) ?? DEFAULT_LIMITS.udpIdleTimeoutMs ?? 60_000
   };
 };
 
@@ -439,7 +468,16 @@ const parseFakeIp = (rawDns: Record<string, unknown>, errors: string[]): FakeIpC
   }
   return {
     enabled: readOptionalBoolean(rawFakeIp, "enabled", "dns.fakeIp", errors) ?? DEFAULT_DNS.fakeIp.enabled,
-    cidr: readOptionalString(rawFakeIp, "cidr", "dns.fakeIp", errors) ?? DEFAULT_DNS.fakeIp.cidr
+    range:
+      readOptionalString(rawFakeIp, "range", "dns.fakeIp", errors) ??
+      readOptionalString(rawFakeIp, "cidr", "dns.fakeIp", errors) ??
+      DEFAULT_DNS.fakeIp.range ?? "198.18.0.0/15",
+    size: readOptionalNumber(rawFakeIp, "size", "dns.fakeIp", errors, 1, 131_070) ?? DEFAULT_DNS.fakeIp.size ?? 65_536,
+    ttlSeconds: readOptionalNumber(rawFakeIp, "ttlSeconds", "dns.fakeIp", errors, 1, 86_400) ?? DEFAULT_DNS.fakeIp.ttlSeconds ?? 600,
+    ...(() => {
+      const persistPath = readOptionalString(rawFakeIp, "persistPath", "dns.fakeIp", errors);
+      return persistPath === undefined ? {} : { persistPath };
+    })()
   };
 };
 
@@ -503,6 +541,9 @@ const parseDns = (root: Record<string, unknown>, errors: string[]): DnsConfig =>
   return {
     strategy: typeof strategy === "string" && DNS_STRATEGIES.has(strategy as DnsConfig["strategy"]) ? (strategy as DnsConfig["strategy"]) : "system",
     cacheTtlMs: readOptionalNumber(rawDns, "cacheTtlMs", "dns", errors, 1, 3_600_000) ?? DEFAULT_DNS.cacheTtlMs,
+    cacheMaxEntries:
+      readOptionalNumber(rawDns, "cacheMaxEntries", "dns", errors, 1, 1_000_000) ?? DEFAULT_DNS.cacheMaxEntries ?? 4_096,
+    negativeTtlMs: readOptionalNumber(rawDns, "negativeTtlMs", "dns", errors, 0, 300_000) ?? DEFAULT_DNS.negativeTtlMs ?? 5_000,
     hosts: readStringRecord(rawDns, "hosts", "dns", errors) ?? DEFAULT_DNS.hosts,
     udpServers,
     rules,
@@ -771,6 +812,43 @@ const parseObservability = (root: Record<string, unknown>, errors: string[]): Ob
   };
 };
 
+const parseDashboard = (root: Record<string, unknown>, errors: string[]): DashboardConfig => {
+  const raw = root.dashboard;
+  if (raw === undefined) {
+    return DEFAULT_DASHBOARD;
+  }
+  if (!isRecord(raw)) {
+    errors.push("dashboard must be an object when provided");
+    return DEFAULT_DASHBOARD;
+  }
+  return {
+    enabled: readOptionalBoolean(raw, "enabled", "dashboard", errors) ?? DEFAULT_DASHBOARD.enabled,
+    listen: readOptionalString(raw, "listen", "dashboard", errors) ?? DEFAULT_DASHBOARD.listen,
+    port: readOptionalNumber(raw, "port", "dashboard", errors, 0, 65_535) ?? DEFAULT_DASHBOARD.port,
+    token: readOptionalString(raw, "token", "dashboard", errors) ?? DEFAULT_DASHBOARD.token,
+    rateLimitPerMinute:
+      readOptionalNumber(raw, "rateLimitPerMinute", "dashboard", errors, 1, 100_000) ?? DEFAULT_DASHBOARD.rateLimitPerMinute,
+    cors: readOptionalBoolean(raw, "cors", "dashboard", errors) ?? DEFAULT_DASHBOARD.cors
+  };
+};
+
+const parseTun = (root: Record<string, unknown>, errors: string[]): TunConfig => {
+  const raw = root.tun;
+  if (raw === undefined) {
+    return DEFAULT_TUN;
+  }
+  if (!isRecord(raw)) {
+    errors.push("tun must be an object when provided");
+    return DEFAULT_TUN;
+  }
+  return {
+    enabled: readOptionalBoolean(raw, "enabled", "tun", errors) ?? DEFAULT_TUN.enabled,
+    experimental: readOptionalBoolean(raw, "experimental", "tun", errors) ?? DEFAULT_TUN.experimental,
+    name: readOptionalString(raw, "name", "tun", errors) ?? DEFAULT_TUN.name,
+    mtu: readOptionalNumber(raw, "mtu", "tun", errors, 576, 65_535) ?? DEFAULT_TUN.mtu
+  };
+};
+
 const parseHttpAuth = (record: Record<string, unknown>, path: string, errors: string[]): HttpBasicAuthConfig | undefined => {
   const rawAuth = record.auth;
   if (rawAuth === undefined) {
@@ -853,12 +931,46 @@ const parseInbound = (value: unknown, path: string, errors: string[]): InboundCo
     const auth = parseSocksAuth(value, path, errors);
     return { type, tag, listen, port, ...optional, ...socksOptional, ...(auth === undefined ? {} : { auth }) } satisfies Socks5InboundConfig;
   }
+  if (type === "shadowsocks") {
+    const method = readString(value, "method", path, errors);
+    const password = readString(value, "password", path, errors);
+    const udp = readOptionalBoolean(value, "udp", path, errors) ?? false;
+    if (method !== undefined && !SHADOWSOCKS_METHODS.has(method as ShadowsocksCipher)) {
+      errors.push(`${path}.method must be one of aes-128-gcm, aes-256-gcm, chacha20-ietf-poly1305`);
+    }
+    if (method === undefined || password === undefined) {
+      return undefined;
+    }
+    return { type, tag, listen, port, method: method as ShadowsocksCipher, password, udp, ...optional } satisfies ShadowsocksInboundConfig;
+  }
+  if (type === "trojan") {
+    const password = readString(value, "password", path, errors);
+    const rawTls = value.tls;
+    let tlsConfig: TrojanInboundConfig["tls"] = { enabled: false };
+    if (rawTls !== undefined) {
+      if (!isRecord(rawTls)) {
+        errors.push(`${path}.tls must be an object when provided`);
+      } else {
+        const enabled = readOptionalBoolean(rawTls, "enabled", `${path}.tls`, errors) ?? false;
+        const certPath = readOptionalString(rawTls, "certPath", `${path}.tls`, errors);
+        const keyPath = readOptionalString(rawTls, "keyPath", `${path}.tls`, errors);
+        tlsConfig = { enabled, ...(certPath === undefined ? {} : { certPath }), ...(keyPath === undefined ? {} : { keyPath }) };
+        if (enabled && (certPath === undefined || keyPath === undefined)) {
+          errors.push(`${path}.tls certPath and keyPath are required when TLS is enabled`);
+        }
+      }
+    }
+    if (password === undefined) {
+      return undefined;
+    }
+    return { type, tag, listen, port, password, tls: tlsConfig, ...optional } satisfies TrojanInboundConfig;
+  }
 
   if (isExtensionType(type)) {
     return { type, tag, listen, port, options: readOptionsRecord(value, "options", path, errors), ...optional } satisfies PluginInboundConfig;
   }
 
-  errors.push(`${path}.type must be "http", "socks5", or start with "plugin."`);
+  errors.push(`${path}.type must be "http", "socks5", "shadowsocks", "trojan", or start with "plugin."`);
   return undefined;
 };
 
@@ -1293,6 +1405,8 @@ export const parseConfig = (input: unknown): SepigsConfig => {
   const hotReload = parseHotReload(input, errors);
   const probing = parseProbing(input, errors);
   const observability = parseObservability(input, errors);
+  const dashboard = parseDashboard(input, errors);
+  const tun = parseTun(input, errors);
 
   const rawInbounds = input.inbounds;
   if (!Array.isArray(rawInbounds) || rawInbounds.length === 0) {
@@ -1328,6 +1442,8 @@ export const parseConfig = (input: unknown): SepigsConfig => {
     hotReload,
     probing,
     observability,
+    dashboard,
+    tun,
     inbounds,
     outbounds,
     route: route ?? { defaultOutbound: "", rules: [], ruleSetFiles: [], policies: [] }
@@ -1364,5 +1480,13 @@ const checkPublicExposure = (config: SepigsConfig, errors: string[]): void => {
   }
   if (config.observability.metrics.enabled && PUBLIC_LISTEN_ADDRESSES.has(config.observability.metrics.listen)) {
     errors.push("observability.metrics.listen must not be public; bind metrics to 127.0.0.1 or protect it behind a separate authenticated endpoint");
+  }
+  if (config.dashboard.enabled) {
+    if (PUBLIC_LISTEN_ADDRESSES.has(config.dashboard.listen)) {
+      errors.push("dashboard.listen must not be public");
+    }
+    if (config.dashboard.token === "change-me" || config.dashboard.token.length < 16) {
+      errors.push("dashboard.token must be changed and contain at least 16 characters when dashboard is enabled");
+    }
   }
 };

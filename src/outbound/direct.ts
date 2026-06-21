@@ -3,7 +3,7 @@ import type { DnsResolver } from "../dns/resolver.js";
 import type { Logger } from "../logger/logger.js";
 import type { ProxyRequest, TcpOutboundConnection, UdpOutboundPacket } from "../protocol/types.js";
 import { connectTcp } from "../utils/net.js";
-import { sendUdpDatagram } from "../transport/udp.js";
+import { UdpDirectSender } from "./udpDirect.js";
 import type { Outbound } from "./outbound.js";
 
 export class DirectOutbound implements Outbound {
@@ -31,7 +31,7 @@ export class DirectOutbound implements Outbound {
 
   public async sendUdp(request: ProxyRequest, payload: Buffer): Promise<UdpOutboundPacket | undefined> {
     const timeoutMs = this.config.connectTimeoutMs ?? this.limits.connectTimeoutMs;
-    const response = await sendUdpDatagram(request.destination, payload, timeoutMs, this.logger);
+    const response = await new UdpDirectSender(timeoutMs, this.logger).send(request.destination, payload);
     if (response === undefined) {
       return undefined;
     }

@@ -13,6 +13,8 @@ export interface SepigsConfig {
   readonly hotReload: HotReloadConfig;
   readonly probing: ProbingConfig;
   readonly observability: ObservabilityConfig;
+  readonly dashboard: DashboardConfig;
+  readonly tun: TunConfig;
   readonly inbounds: readonly InboundConfig[];
   readonly outbounds: readonly OutboundConfig[];
   readonly route: RouterConfig;
@@ -30,11 +32,15 @@ export interface LimitConfig {
   readonly maxHeaderBytes: number;
   readonly maxConnections: number;
   readonly leakReportIntervalMs: number;
+  readonly maxUdpSessions?: number;
+  readonly udpIdleTimeoutMs?: number;
 }
 
 export interface DnsConfig {
   readonly strategy: "system" | "prefer-ipv4" | "prefer-ipv6";
   readonly cacheTtlMs: number;
+  readonly cacheMaxEntries?: number;
+  readonly negativeTtlMs?: number;
   readonly hosts: Readonly<Record<string, string>>;
   readonly udpServers: readonly DnsUdpServerConfig[];
   readonly rules: readonly DnsRouteRuleConfig[];
@@ -57,7 +63,27 @@ export interface DnsRouteRuleConfig {
 
 export interface FakeIpConfig {
   readonly enabled: boolean;
-  readonly cidr: string;
+  readonly range?: string;
+  readonly cidr?: string;
+  readonly size?: number;
+  readonly ttlSeconds?: number;
+  readonly persistPath?: string;
+}
+
+export interface DashboardConfig {
+  readonly enabled: boolean;
+  readonly listen: string;
+  readonly port: number;
+  readonly token: string;
+  readonly rateLimitPerMinute: number;
+  readonly cors: boolean;
+}
+
+export interface TunConfig {
+  readonly enabled: boolean;
+  readonly experimental: boolean;
+  readonly name: string;
+  readonly mtu: number;
 }
 
 export interface DohConfig {
@@ -148,7 +174,7 @@ export interface MetricsServerConfig {
   readonly path: string;
 }
 
-export type InboundConfig = HttpInboundConfig | Socks5InboundConfig | PluginInboundConfig;
+export type InboundConfig = HttpInboundConfig | Socks5InboundConfig | ShadowsocksInboundConfig | TrojanInboundConfig | PluginInboundConfig;
 
 export interface InboundBaseConfig {
   readonly tag: string;
@@ -168,6 +194,23 @@ export interface Socks5InboundConfig extends InboundBaseConfig {
   readonly type: "socks5";
   readonly udpAssociate?: boolean;
   readonly auth?: Socks5AuthConfig;
+}
+
+export interface ShadowsocksInboundConfig extends InboundBaseConfig {
+  readonly type: "shadowsocks";
+  readonly method: ShadowsocksCipher;
+  readonly password: string;
+  readonly udp: boolean;
+}
+
+export interface TrojanInboundConfig extends InboundBaseConfig {
+  readonly type: "trojan";
+  readonly password: string;
+  readonly tls: {
+    readonly enabled: boolean;
+    readonly certPath?: string;
+    readonly keyPath?: string;
+  };
 }
 
 export interface PluginInboundConfig extends InboundBaseConfig {

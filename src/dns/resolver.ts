@@ -4,10 +4,12 @@ import net from "node:net";
 import type { DnsConfig, DnsUdpServerConfig } from "../config/types.js";
 import type { Logger } from "../logger/logger.js";
 import { queryDohA } from "./doh.js";
+import { FakeIpService } from "./fakeIp.js";
 import { NetworkError, TimeoutError } from "../utils/errors.js";
 
 interface CacheEntry {
-  readonly address: string;
+  readonly address?: string;
+  readonly error?: Error;
   readonly expiresAt: number;
 }
 
@@ -18,11 +20,13 @@ export interface DnsAResult {
 
 export interface DnsResolver {
   resolve(host: string): Promise<string>;
+  reverseFakeIp?(address: string): string | undefined;
 }
 
 export interface DnsMetricsRecorder {
   recordDnsQuery(): void;
   recordDnsFailure(): void;
+  recordFakeIpAssignment?(): void;
 }
 
 export class SystemDnsResolver implements DnsResolver {
@@ -30,11 +34,25 @@ export class SystemDnsResolver implements DnsResolver {
   private readonly logger: Logger;
   private readonly metrics: DnsMetricsRecorder | undefined;
   private readonly cache = new Map<string, CacheEntry>();
+  private readonly inFlight = new Map<string, Promise<string>>();
+  private readonly fakeIp: FakeIpService | undefined;
 
   public constructor(config: DnsConfig, logger: Logger, metrics?: DnsMetricsRecorder) {
     this.config = config;
     this.logger = logger;
     this.metrics = metrics;
+    this.fakeIp = config.fakeIp.enabled ? new FakeIpService(config.fakeIp, () => this.metrics?.recordFakeIpAssignment?.()) : undefined;
+  }
+
+  public resolveForClient(host: string): Promise<string> {
+    if (net.isIP(host) !== 0 || this.fakeIp === undefined) {
+      return this.resolve(host);
+    }
+    return Promise.resolve(this.fakeIp.assign(host));
+  }
+
+  public reverseFakeIp(address: string): string | undefined {
+    return this.fakeIp?.reverse(address);
   }
 
   public async resolve(host: string): Promise<string> {
@@ -50,14 +68,36 @@ export class SystemDnsResolver implements DnsResolver {
 
     const cached = this.cache.get(normalizedHost);
     if (cached !== undefined && cached.expiresAt > Date.now()) {
-      return cached.address;
+      this.touchCache(normalizedHost, cached);
+      if (cached.error !== undefined) {
+        throw cached.error;
+      }
+      if (cached.address !== undefined) {
+        return cached.address;
+      }
     }
+
+    const existing = this.inFlight.get(normalizedHost);
+    if (existing !== undefined) {
+      return await existing;
+    }
+
+    const pending = this.resolveUncached(host, normalizedHost);
+    this.inFlight.set(normalizedHost, pending);
+    try {
+      return await pending;
+    } finally {
+      this.inFlight.delete(normalizedHost);
+    }
+  }
+
+  private async resolveUncached(host: string, normalizedHost: string): Promise<string> {
 
     this.metrics?.recordDnsQuery();
     try {
       if (this.config.doh.enabled && this.config.doh.endpoints.length > 0 && this.config.strategy !== "prefer-ipv6") {
         const result = await queryDohA(host, this.config.doh, this.logger);
-        this.cache.set(normalizedHost, {
+        this.setCache(normalizedHost, {
           address: result.address,
           expiresAt: Date.now() + Math.min(result.ttlMs, this.config.cacheTtlMs)
         });
@@ -68,7 +108,7 @@ export class SystemDnsResolver implements DnsResolver {
       const udpServer = this.selectUdpServer(normalizedHost);
       if (udpServer !== undefined && this.config.strategy !== "prefer-ipv6") {
         const result = await queryUdpA(host, udpServer);
-        this.cache.set(normalizedHost, {
+        this.setCache(normalizedHost, {
           address: result.address,
           expiresAt: Date.now() + Math.min(result.ttlMs, this.config.cacheTtlMs)
         });
@@ -78,7 +118,7 @@ export class SystemDnsResolver implements DnsResolver {
 
       const family = this.config.strategy === "prefer-ipv4" ? 4 : this.config.strategy === "prefer-ipv6" ? 6 : 0;
       const result = await dns.lookup(host, { family });
-      this.cache.set(normalizedHost, {
+      this.setCache(normalizedHost, {
         address: result.address,
         expiresAt: Date.now() + this.config.cacheTtlMs
       });
@@ -95,8 +135,30 @@ export class SystemDnsResolver implements DnsResolver {
         });
         return fallback;
       }
-      throw error;
+      const failure = error instanceof Error ? error : new NetworkError(String(error));
+      const negativeTtlMs = this.config.negativeTtlMs ?? 5_000;
+      if (negativeTtlMs > 0) {
+        this.setCache(normalizedHost, { error: failure, expiresAt: Date.now() + negativeTtlMs });
+      }
+      throw failure;
     }
+  }
+
+  private setCache(host: string, entry: CacheEntry): void {
+    this.cache.delete(host);
+    this.cache.set(host, entry);
+    while (this.cache.size > (this.config.cacheMaxEntries ?? 4_096)) {
+      const oldest = this.cache.keys().next().value;
+      if (oldest === undefined) {
+        break;
+      }
+      this.cache.delete(oldest);
+    }
+  }
+
+  private touchCache(host: string, entry: CacheEntry): void {
+    this.cache.delete(host);
+    this.cache.set(host, entry);
   }
 
   private selectUdpServer(host: string): DnsUdpServerConfig | undefined {

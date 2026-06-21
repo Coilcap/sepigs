@@ -9,6 +9,8 @@ import type { Destination, ProxyRequest, SourceAddress, TcpStream } from "../pro
 import { errorMessage, ProtocolError } from "../utils/errors.js";
 import { BufferedSocketReader, closeSocket, makeDestination, pipeSockets, writeSocket } from "../utils/net.js";
 import type { Inbound, InboundContext } from "./inbound.js";
+import type { UdpSession } from "../transport/udpSession.js";
+import { encodeSocksUdpPacket, parseSocksUdpPacket } from "./socks5Udp.js";
 import { socketSource } from "./inbound.js";
 
 const SOCKS_VERSION = 0x05;
@@ -237,12 +239,22 @@ export class Socks5Inbound implements Inbound {
       udpServer.close();
     };
 
+    const source = socketSource(client) ?? { host: "unknown", port: 0 };
+    const session = this.context.udpSessionManager.open(connection.id, source, closeUdpServer);
+    if (session === undefined) {
+      await writeSocket(client, createReply(REPLY_GENERAL_FAILURE));
+      connection.close(true, "udp session limit reached");
+      return;
+    }
+
     udpServer.on("message", (message, rinfo) => {
       connection.touch();
-      void this.handleUdpDatagram(connection.id, udpServer, message, rinfo);
+      this.context.udpSessionManager.touch(connection.id);
+      void this.handleUdpDatagram(connection.id, udpServer, message, rinfo, session);
     });
     udpServer.on("error", (error) => {
       this.logger.debug("socks5 udp relay error", { connectionId: connection.id, error: error.message });
+      this.context.udpSessionManager.recordError();
     });
 
     try {
@@ -256,10 +268,12 @@ export class Socks5Inbound implements Inbound {
       connection.markEstablished();
       await waitForControlSocketClose(client, this.config.idleTimeoutMs ?? this.context.limits.idleTimeoutMs);
       closeUdpServer();
+      this.context.udpSessionManager.release(connection.id);
       connection.close(false, "socks5 udp control closed");
     } catch (error) {
       this.logger.debug("socks5 udp associate failed", { connectionId: connection.id, error: errorMessage(error) });
       closeUdpServer();
+      this.context.udpSessionManager.release(connection.id);
       connection.close(true, "socks5 udp associate failed");
     }
   }
@@ -268,7 +282,8 @@ export class Socks5Inbound implements Inbound {
     connectionId: string,
     udpServer: dgram.Socket,
     message: Buffer,
-    rinfo: dgram.RemoteInfo
+    rinfo: dgram.RemoteInfo,
+    session: UdpSession
   ): Promise<void> {
     try {
       const packet = parseSocksUdpPacket(message);
@@ -277,6 +292,7 @@ export class Socks5Inbound implements Inbound {
         port: rinfo.port
       };
       const request = this.createUdpRequest(connectionId, packet.destination, source);
+      session.upload(packet.destination, packet.payload.byteLength);
       this.context.stats.addUdpClientToRemoteBytes(packet.payload.byteLength);
 
       const response = await this.context.sendUdp(request, packet.payload);
@@ -291,7 +307,9 @@ export class Socks5Inbound implements Inbound {
         }
       });
       this.context.stats.addUdpRemoteToClientBytes(response.payload.byteLength);
+      session.download(response.payload.byteLength);
     } catch (error) {
+      this.context.udpSessionManager.recordError();
       this.logger.debug("socks5 udp packet dropped", { connectionId, error: errorMessage(error) });
     }
   }
@@ -435,101 +453,6 @@ const readSocksAddress = async (reader: BufferedSocketReader, addressType: numbe
   }
 
   throw new ProtocolError(`unsupported SOCKS5 address type ${addressType}`);
-};
-
-interface SocksUdpPacket {
-  readonly destination: Destination;
-  readonly payload: Buffer;
-}
-
-const parseSocksUdpPacket = (message: Buffer): SocksUdpPacket => {
-  if (message.byteLength < 10) {
-    throw new ProtocolError("SOCKS5 UDP packet is too short");
-  }
-  if (message[0] !== 0x00 || message[1] !== 0x00) {
-    throw new ProtocolError("SOCKS5 UDP packet has invalid reserved bytes");
-  }
-  if (message[2] !== 0x00) {
-    throw new ProtocolError("SOCKS5 UDP fragmentation is not supported");
-  }
-
-  const addressType = message[3];
-  if (addressType === undefined) {
-    throw new ProtocolError("SOCKS5 UDP packet missing address type");
-  }
-
-  const parsed = readSocksAddressFromBuffer(message, 4, addressType);
-  const high = message[parsed.offset];
-  const low = message[parsed.offset + 1];
-  if (high === undefined || low === undefined) {
-    throw new ProtocolError("SOCKS5 UDP packet missing destination port");
-  }
-  const port = (high << 8) + low;
-  const payloadOffset = parsed.offset + 2;
-  if (payloadOffset > message.byteLength) {
-    throw new ProtocolError("SOCKS5 UDP packet missing payload");
-  }
-
-  return {
-    destination: makeDestination(parsed.host, port),
-    payload: message.subarray(payloadOffset)
-  };
-};
-
-const readSocksAddressFromBuffer = (
-  buffer: Buffer,
-  offset: number,
-  addressType: number
-): { readonly host: string; readonly offset: number } => {
-  if (addressType === 0x01) {
-    const end = offset + 4;
-    if (end > buffer.byteLength) {
-      throw new ProtocolError("SOCKS5 UDP IPv4 address is truncated");
-    }
-    return {
-      host: Array.from(buffer.subarray(offset, end)).join("."),
-      offset: end
-    };
-  }
-
-  if (addressType === 0x03) {
-    const length = buffer[offset];
-    if (length === undefined || length === 0) {
-      throw new ProtocolError("SOCKS5 UDP domain length is invalid");
-    }
-    const start = offset + 1;
-    const end = start + length;
-    if (end > buffer.byteLength) {
-      throw new ProtocolError("SOCKS5 UDP domain is truncated");
-    }
-    return {
-      host: buffer.subarray(start, end).toString("utf8"),
-      offset: end
-    };
-  }
-
-  if (addressType === 0x04) {
-    const end = offset + 16;
-    if (end > buffer.byteLength) {
-      throw new ProtocolError("SOCKS5 UDP IPv6 address is truncated");
-    }
-    const groups: string[] = [];
-    for (let index = offset; index < end; index += 2) {
-      const high = buffer[index] ?? 0;
-      const low = buffer[index + 1] ?? 0;
-      groups.push(((high << 8) + low).toString(16));
-    }
-    return {
-      host: groups.join(":"),
-      offset: end
-    };
-  }
-
-  throw new ProtocolError(`unsupported SOCKS5 UDP address type ${addressType}`);
-};
-
-const encodeSocksUdpPacket = (source: Destination, payload: Buffer): Buffer => {
-  return Buffer.concat([Buffer.from([0x00, 0x00, 0x00]), encodeSocksAddress(source), payload]);
 };
 
 const createReply = (replyCode: number, bound?: Destination): Buffer => {

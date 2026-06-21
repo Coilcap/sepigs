@@ -1,5 +1,13 @@
 # Security
 
+## Phase 8 Additions
+
+- Dashboard is off by default, rejects public binds, requires a long Bearer token, rate limits requests, disables CORS, and redacts secrets.
+- Fake-IP persistence uses mode `0600`; operators remain responsible for parent-directory permissions and stale state cleanup.
+- Subscription input is parsed as data and never executed. Command output can contain credentials and should be redirected only to protected files.
+- TUN, QUIC, and WireGuard adapters are experimental and disabled. Native privilege boundaries are not implemented.
+- Shadowsocks and Trojan secrets remain plaintext in config. Trojan production deployment must enable TLS with protected key files.
+
 - Defaults listen on `127.0.0.1`.
 - HTTP/SOCKS listeners bound to `0.0.0.0`, `::`, or `[::]` are rejected unless authentication is enabled.
 - HTTP proxy supports optional Basic Auth.

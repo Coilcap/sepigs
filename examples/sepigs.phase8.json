@@ -1,0 +1,14 @@
+{
+  "configVersion": 1,
+  "log": { "level": "info" },
+  "limits": { "maxUdpSessions": 4096, "udpIdleTimeoutMs": 60000 },
+  "dns": { "cacheMaxEntries": 4096, "negativeTtlMs": 5000, "fakeIp": { "enabled": false, "range": "198.18.0.0/15", "size": 65536, "ttlSeconds": 600 } },
+  "dashboard": { "enabled": false, "listen": "127.0.0.1", "port": 19091, "token": "change-me", "rateLimitPerMinute": 120, "cors": false },
+  "tun": { "enabled": false, "experimental": true, "name": "sepigs0", "mtu": 1500 },
+  "inbounds": [
+    { "type": "http", "tag": "http-in", "listen": "127.0.0.1", "port": 8080 },
+    { "type": "socks5", "tag": "socks-in", "listen": "127.0.0.1", "port": 1080, "udpAssociate": true }
+  ],
+  "outbounds": [{ "type": "direct", "tag": "direct" }, { "type": "block", "tag": "block" }],
+  "route": { "defaultOutbound": "direct", "ruleSetFiles": [], "policies": [], "rules": [] }
+}

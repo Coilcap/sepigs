@@ -15,16 +15,26 @@ export interface OutboundFactoryContext {
   readonly dnsResolver: DnsResolver;
 }
 
-type OutboundFactory<T extends OutboundConfig = OutboundConfig> = (config: T, context: OutboundFactoryContext) => Outbound;
+export type OutboundFactory<T extends OutboundConfig = OutboundConfig> = (config: T, context: OutboundFactoryContext) => Outbound;
 
 const factories = new Map<string, OutboundFactory>();
+const owners = new Map<string, string>();
 
-export const registerOutboundFactory = <T extends OutboundConfig>(type: T["type"], factory: OutboundFactory<T>): void => {
+export const registerOutboundFactory = <T extends OutboundConfig>(type: T["type"], factory: OutboundFactory<T>, owner = "core"): void => {
+  const existingOwner = owners.get(type);
+  if (existingOwner !== undefined && existingOwner !== owner) {
+    throw new Error(`outbound factory "${type}" is owned by "${existingOwner}" and cannot be replaced by "${owner}"`);
+  }
   factories.set(type, factory as OutboundFactory);
+  owners.set(type, owner);
 };
 
-export const unregisterOutboundFactory = (type: OutboundConfig["type"]): void => {
+export const unregisterOutboundFactory = (type: OutboundConfig["type"], owner?: string): void => {
+  if (owner !== undefined && owners.get(type) !== owner) {
+    return;
+  }
   factories.delete(type);
+  owners.delete(type);
 };
 
 export const createOutboundFromRegistry = (config: OutboundConfig, context: OutboundFactoryContext): Outbound => {

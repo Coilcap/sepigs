@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { getSoakProfileDefaults } from "../src/soak/profiles.js";
 import { createActiveSoakClock, isSoakCheckpointCompleteFor } from "../src/soak/runner.js";
 
 void test("active soak clock excludes host/event-loop suspension from effective duration", async () => {
@@ -46,6 +47,14 @@ void test("completed short checkpoint can resume into a longer requested soak", 
 
   assert.equal(isSoakCheckpointCompleteFor(checkpoint, 600_000), true);
   assert.equal(isSoakCheckpointCompleteFor(checkpoint, 21_600_000), false);
+});
+
+void test("24h soak profile uses resumable long-run paths and duration", () => {
+  const profile = getSoakProfileDefaults("24h");
+  assert.equal(profile.durationMs, 86_400_000);
+  assert.equal(profile.concurrency, 128);
+  assert.equal(profile.runDir, "reports/soak/24h");
+  assert.equal(profile.docsReportPath, "docs/soak-24h-report.md");
 });
 
 const sleep = async (timeoutMs: number): Promise<void> => {

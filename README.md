@@ -1,6 +1,10 @@
 # sepigs
 
+Current development line: `v0.2.0-alpha.0` (Phase 8). All new packet/management/protocol features are disabled by default.
+
 sepigs is a small TypeScript/Node.js proxy core for legal personal proxying, local forwarding, learning, and self-hosted services. The first version focuses on a stable architecture instead of many protocols.
+
+Current candidate: `v0.1.0-rc1`. See `release-notes.md` and `docs/beta-readiness.md`.
 
 ## Features
 
@@ -67,7 +71,17 @@ npm run lint
 npm run typecheck
 npm run benchmark
 npm run docs:check
+npm run sub:dry-run
+npm run web:build
 ```
+
+Restricted CI or sandbox environments can pin all validation listeners to IPv4 loopback and request ephemeral ports:
+
+```bash
+SEPIGS_TEST_HOST=127.0.0.1 SEPIGS_TEST_PORT=0 SEPIGS_DISABLE_IPV6=1 npm run benchmark
+```
+
+The same variables apply to soak commands. `npm run validation:bind` diagnoses listen permission; `npm run validation:no-listen` exercises pure logic only and does not replace network validation.
 
 ## Example Clients
 
@@ -112,6 +126,14 @@ Resume a run:
 ```sh
 npm run soak:resume
 ```
+
+Prepare a resumable 24-hour run:
+
+```sh
+npm run soak:24h
+```
+
+Real-client sign-off worksheets are under `verification/`. Unsigned worksheets are not compatibility claims.
 
 ## Not Supported Yet
 

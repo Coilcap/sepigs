@@ -3,6 +3,7 @@ import { Duplex } from "node:stream";
 import type net from "node:net";
 import type { ShadowsocksCipher } from "../config/types.js";
 import { ProtocolError } from "../utils/errors.js";
+import { BufferQueue } from "../utils/bufferQueue.js";
 
 interface CipherSpec {
   readonly keyLength: number;
@@ -59,7 +60,7 @@ export class ShadowsocksTcpStream extends Duplex {
   private readonly prefix: Buffer;
   private encryptNonce = Buffer.alloc(12);
   private decryptNonce = Buffer.alloc(12);
-  private decryptBuffer = Buffer.alloc(0);
+  private readonly decryptBuffer = new BufferQueue();
   private decryptKey: Buffer | undefined;
   private prefixSent = false;
   private pendingPayloadLength: number | undefined;
@@ -116,39 +117,36 @@ export class ShadowsocksTcpStream extends Duplex {
 
   private handleEncryptedData(chunk: Buffer): void {
     try {
-      this.decryptBuffer = Buffer.concat([this.decryptBuffer, chunk], this.decryptBuffer.byteLength + chunk.byteLength);
+      this.decryptBuffer.push(chunk);
       if (this.decryptKey === undefined) {
-        if (this.decryptBuffer.byteLength < this.decryptSaltLength) {
+        if (this.decryptBuffer.length < this.decryptSaltLength) {
           return;
         }
-        const salt = this.decryptBuffer.subarray(0, this.decryptSaltLength);
-        this.decryptBuffer = this.decryptBuffer.subarray(this.decryptSaltLength);
+        const salt = this.decryptBuffer.read(this.decryptSaltLength);
         this.decryptKey = deriveSubkey(this.context.masterKey, salt, this.context.spec.keyLength);
       }
 
       for (;;) {
         if (this.pendingPayloadLength === undefined) {
           const lengthCipherBytes = 2 + this.context.spec.authTagLength;
-          if (this.decryptBuffer.byteLength < lengthCipherBytes) {
+          if (this.decryptBuffer.length < lengthCipherBytes) {
             return;
           }
           const lengthPlain = aeadDecrypt(
             this.context,
             this.decryptKey,
             this.nextDecryptNonce(),
-            this.decryptBuffer.subarray(0, lengthCipherBytes)
+            this.decryptBuffer.read(lengthCipherBytes)
           );
-          this.decryptBuffer = this.decryptBuffer.subarray(lengthCipherBytes);
           this.pendingPayloadLength = lengthPlain.readUInt16BE(0);
         }
 
         const payloadCipherBytes = this.pendingPayloadLength + this.context.spec.authTagLength;
-        if (this.decryptBuffer.byteLength < payloadCipherBytes) {
+        if (this.decryptBuffer.length < payloadCipherBytes) {
           return;
         }
 
-        const payload = aeadDecrypt(this.context, this.decryptKey, this.nextDecryptNonce(), this.decryptBuffer.subarray(0, payloadCipherBytes));
-        this.decryptBuffer = this.decryptBuffer.subarray(payloadCipherBytes);
+        const payload = aeadDecrypt(this.context, this.decryptKey, this.nextDecryptNonce(), this.decryptBuffer.read(payloadCipherBytes));
         this.pendingPayloadLength = undefined;
         if (payload.byteLength > 0) {
           this.push(payload);

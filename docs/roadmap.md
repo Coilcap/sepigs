@@ -1,6 +1,6 @@
 # Roadmap
 
-## v0.1 Current
+## v0.2.0-alpha.0 Current
 
 - TypeScript ESM project skeleton.
 - JSON/YAML config with validation.
@@ -23,18 +23,17 @@
 - Routing policies for load balancing, least-latency selection, and automatic failover.
 - Config and rule-set hot reload.
 
-## Next Stage
+Phase 8 additionally includes bounded UDP sessions, fake-IP core, local Dashboard API, minimal Web UI, expanded subscription parsing, Shadowsocks/Trojan TCP inbounds, and explicit TUN/QUIC/WireGuard experimental adapters. See `docs/phase8-reality-check.md` for capability boundaries.
 
-- Full WireGuard packet tunnel transport.
-- VLESS-like architecture reservation.
-- Native QUIC/Hysteria2 transport implementation or plugin adapter.
-- Background active latency probes with configurable intervals.
-- Web dashboard.
-- Subscription-to-config generation CLI.
-- TUN mode.
-- UDP relay improvements, including association reuse and broader IPv6 coverage.
-- Benchmark scenarios for SOCKS5, UDP, policy routing, and hot reload.
-- Long-running soak mode with heap/CPU trend reports.
+## Phase 9 Recommendation
+
+- First complete external Shadowsocks/Trojan client sign-off and the blocked benchmark/soak gates.
+- Add a standalone DNS listener so fake-IP has a verified client-facing consumer.
+- Harden Dashboard API session/auth rotation and serve signed static assets locally.
+- Implement a platform TUN adapter only after choosing a maintained user-space TCP/IP stack.
+- Evaluate a maintained native QUIC dependency behind the existing adapter; keep Hysteria2 separate.
+- Integrate WireGuard through a privilege-separated system/userspace backend, not a TypeScript crypto stack.
+- Add fuzzing for DNS, SOCKS5 UDP, Shadowsocks/Trojan handshakes, and subscription dialects.
 
 ## Engineering Notes
 

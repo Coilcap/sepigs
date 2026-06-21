@@ -1,5 +1,9 @@
 # Reality Check
 
+Phase 8 status is maintained in [phase8-reality-check.md](phase8-reality-check.md).
+
+Superseded for RC1 by `docs/reality-check-v2.md`.
+
 Updated for Phase 7.
 
 ## Really Usable

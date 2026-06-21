@@ -13,6 +13,8 @@
 11. Review `docs/soak-report.md`, `docs/soak-full-report.md`, `bench/results/latest.md`, `reports/compat/protocol-matrix.md`, and profiling outputs if generated.
 12. Update `CHANGELOG.md`.
 
+For RC1, also review `docs/beta-readiness.md`, `release-notes.md`, and all acceptance rows under `verification/`.
+
 Do not publish a release if socket/timer/listener counts fail to return to zero after stop.
 
 If a 6h soak cannot be completed in the release environment, run:

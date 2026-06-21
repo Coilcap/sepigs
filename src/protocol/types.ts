@@ -1,7 +1,7 @@
 import type { Duplex } from "node:stream";
 
 export type Network = "tcp" | "udp";
-export type InboundProtocol = "http" | "socks5" | `plugin.${string}`;
+export type InboundProtocol = "http" | "socks5" | "shadowsocks" | "trojan" | `plugin.${string}`;
 export type AddressType = "domain" | "ipv4" | "ipv6";
 
 export interface Destination {

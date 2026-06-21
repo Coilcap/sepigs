@@ -6,7 +6,21 @@ import { dirname, join } from "node:path";
 const ROOT = process.cwd();
 const STAGE = join(ROOT, "dist-release", "sepigs");
 
-const INCLUDE = ["dist", "package.json", "package-lock.json", "README.md", "LICENSE", "examples", "docs", "CHANGELOG.md", "RELEASE.md"];
+const INCLUDE = [
+  "dist",
+  "package.json",
+  "package-lock.json",
+  "README.md",
+  "LICENSE",
+  "examples",
+  "docs",
+  "verification",
+  "web",
+  "CHANGELOG.md",
+  "RELEASE.md",
+  "CONTRIBUTING.md",
+  "release-notes.md"
+];
 
 const main = async (): Promise<void> => {
   const mode = process.argv[2] ?? "dry-run";

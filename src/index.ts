@@ -11,6 +11,9 @@ const main = async (): Promise<void> => {
   const config = await loadConfig(configPath);
   const logger = new Logger(config.log.level);
   const engine = new Engine(config, logger);
+  engine.setConfigReloader(async () => {
+    await engine.reloadConfig(await loadConfig(configPath));
+  });
   const hotReload =
     config.hotReload.enabled ?
       new HotReloadManager({

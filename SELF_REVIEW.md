@@ -1,5 +1,23 @@
 # SELF REVIEW
 
+## Phase 8.5 - Validation Gap Closure
+
+Completed: added loopback-only test host/port parsing, IPv4 forcing, a bind probe, and a no-listen fallback. Benchmark completed 6,600/6,600 connections, soak matrix verified 7/7 scenarios, and the ten-minute soak completed 19,064/19,064 requests with zero errors and final tracked resources at zero.
+
+Found: restricted execution denied even `127.0.0.1:0` with `EPERM`, while the identical out-of-sandbox probe succeeded. The failure was sandbox policy, not port range, address family, public binding, reuse, or sepigs configuration.
+
+Fixed: benchmark, legacy/full soak, matrix helpers, and test fixtures now honor `SEPIGS_TEST_HOST`, `SEPIGS_TEST_PORT`, and `SEPIGS_DISABLE_IPV6`. Temporary 24h artifacts are ignored and a historical absolute workspace path was redacted.
+
+Remaining risk: benchmark caps effective concurrency at 128; full 24-hour soak and external protocol/client sign-off remain pending.
+
+## Phase 8 - Feature Expansion
+
+Completed: bounded UDP lifecycle and metrics; fake-IP reverse routing; bounded DNS cache; subscription formats; authenticated Dashboard API; minimal Web build; Shadowsocks/Trojan TCP inbounds; and explicit TUN/QUIC/WireGuard experimental boundaries.
+
+Found and fixed: full fake-IP pools could not reuse an LRU address; required new config fields broke RC1 fixtures; reload retained lifecycle/plugin registrations. Defaults are now backward-compatible, full pools evict before reuse, shutdown timers are cleared, and plugin factories are owner-scoped and unloaded.
+
+Remaining risk: external Shadowsocks/Trojan sign-off, native packet transports, fragmented Shadowsocks buffer-copy cost, and a full 24-hour soak.
+
 ## Stage 1 - Project Skeleton
 
 Completed:
@@ -372,3 +390,30 @@ Final verification:
 - 6h profile 10-minute substitute passed with 101,849/101,849 operations and zero errors; full six-hour execution remains pending.
 - Short soak passed with 19,040/19,040 operations.
 - Lint, typecheck, 65 tests, build, benchmark, release dry-run, and docs check all passed.
+
+## Stage 15 - Beta And RC1 Readiness
+
+Completed:
+- Added six real-client acceptance worksheets with reproducible config/import/test/rollback steps and unsigned acceptance tables.
+- Added beta readiness, RC1 release notes, technical debt audit, and Reality Check v2.
+- Added a tested 24-hour soak profile using the existing checkpoint/resume/report infrastructure without executing a 24-hour run.
+- Promoted package metadata to `0.1.0-rc1` without adding protocols or data-plane capabilities.
+
+Found:
+- Documentation checks did not originally scan `verification/` or require the beta/RC1 documents.
+- Release packaging omitted `release-notes.md`, `CONTRIBUTING.md`, and client verification worksheets.
+- `tsx` CLI IPC can fail in restricted environments even for read-only release checks.
+
+Fixed:
+- Expanded docs checks to cover 49 markdown files and require all beta/RC1 artifacts.
+- Added RC1 notes and verification worksheets to release packaging; dry-run now includes 325 files.
+- Moved docs and release dry-run scripts to `node --import tsx` to avoid CLI IPC.
+
+Remaining risk:
+- Real GUI/mobile acceptance rows are unsigned.
+- The full 24-hour soak and external Shadowsocks/Trojan reference tests are not executed.
+- High-priority lifecycle, plugin ownership, DNS cache, and buffer-copy debts remain documented rather than refactored.
+
+Final verification:
+- Lint, typecheck, 66 tests, build, docs check, client config validation, 24h-profile smoke, and RC1 release dry-run passed.
+- Development stops at RC1 readiness; Phase 8 is not started.
