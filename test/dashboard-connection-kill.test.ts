@@ -1,0 +1,7 @@
+import assert from "node:assert/strict";
+import test from "node:test";
+import { closeSocket } from "../src/utils/net.js";
+import { connectClient, getPort, readUntil, startTcpEchoServer, waitFor, waitForSocketClose } from "./helpers.js";
+import { createDashboardEngine, dashboardRequest } from "./dashboard-test-helpers.js";
+
+void test("Dashboard kill closes only the selected connection", async () => { const echo = await startTcpEchoServer(); const engine = createDashboardEngine(); await engine.start(); const proxyPort = getPort(engine.getInboundAddress("http")); const first = await connectClient(proxyPort); const second = await connectClient(proxyPort); try { for (const client of [first, second]) { client.write(`CONNECT 127.0.0.1:${echo.port} HTTP/1.1\r\nHost: 127.0.0.1:${echo.port}\r\n\r\n`); await readUntil(client, (buffer) => buffer.includes("200 Connection Established")); } await waitFor(() => engine.getActiveConnections().length === 2); const target = engine.getActiveConnections()[0]; assert.ok(target); assert.equal((await dashboardRequest(engine, `/api/connections/${target.id}`, "DELETE")).status, 200); await waitForSocketClose(first, 1_000); await waitFor(() => engine.getActiveConnections().length === 1); second.write("still-open"); assert.match((await readUntil(second, (buffer) => buffer.includes("still-open"))).toString(), /still-open/u); } finally { closeSocket(first); closeSocket(second); await engine.stop(); await echo.close(); } });

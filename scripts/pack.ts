@@ -1,5 +1,5 @@
 #!/usr/bin/env tsx
-import { cp, mkdir, readdir, rm, stat, writeFile } from "node:fs/promises";
+import { cp, mkdir, readFile, readdir, rm, stat, writeFile } from "node:fs/promises";
 import { spawn } from "node:child_process";
 import { dirname, join } from "node:path";
 
@@ -7,7 +7,8 @@ const ROOT = process.cwd();
 const STAGE = join(ROOT, "dist-release", "sepigs");
 
 const INCLUDE = [
-  "dist",
+  "dist/src",
+  "dist/dashboard",
   "package.json",
   "package-lock.json",
   "README.md",
@@ -19,7 +20,8 @@ const INCLUDE = [
   "CHANGELOG.md",
   "RELEASE.md",
   "CONTRIBUTING.md",
-  "release-notes.md"
+  "release-notes.md",
+  "release-notes-v0.2.0-beta.md"
 ];
 
 const main = async (): Promise<void> => {
@@ -27,6 +29,15 @@ const main = async (): Promise<void> => {
   const files = await collectReleaseFiles();
   if (mode === "dry-run") {
     console.log(renderDryRun(files));
+    return;
+  }
+  if (mode === "beta-dry-run") {
+    const findings = await auditBetaFiles(files);
+    const passed = findings.length === 0;
+    const report = ["# v0.2.0-beta Release Artifacts", "", `- Status: ${passed ? "passed" : "failed"}`, `- Files: ${files.length}`, "- Included runtime: `dist/src`, `dist/dashboard`", "- Excluded: tests, node_modules, profiles, temporary reports, subscription fixtures, local paths, and unrelated dist output", "", "## Findings", "", ...(passed ? ["- None"] : findings.map((finding) => `- ${finding}`)), ""].join("\n");
+    await writeFile("docs/release-v0.2.0-beta-artifacts.md", report, "utf8");
+    console.log(`release beta dry-run ${passed ? "passed" : "failed"}: ${files.length} files`);
+    if (!passed) process.exitCode = 1;
     return;
   }
 
@@ -64,9 +75,24 @@ const collectReleaseFiles = async (): Promise<readonly string[]> => {
         !path.includes("node_modules/") &&
         !path.startsWith("test/") &&
         !path.startsWith("dist/test/") &&
-        !path.startsWith("profiles/")
+        !path.startsWith("profiles/") &&
+        !path.startsWith("examples/subscriptions/")
     )
     .sort();
+};
+
+const auditBetaFiles = async (files: readonly string[]): Promise<readonly string[]> => {
+  const findings: string[] = [];
+  for (const file of files) {
+    if (/^(node_modules|test|profiles|reports)\//u.test(file) || file.startsWith("dist/test/") || file.startsWith("examples/subscriptions/")) findings.push(`forbidden path included: ${file}`);
+    const info = await stat(file);
+    if (info.size > 5 * 1024 * 1024) findings.push(`file exceeds 5 MiB: ${file}`);
+    if (!/\.(md|json|ya?ml|conf|js|mjs|txt)$/u.test(file)) continue;
+    const text = await readFile(file, "utf8");
+    if (/\/Users\/[A-Za-z0-9._-]+\//u.test(text)) findings.push(`local absolute path in ${file}`);
+    if (/BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY/u.test(text)) findings.push(`private key material in ${file}`);
+  }
+  return findings;
 };
 
 const stageRelease = async (files: readonly string[]): Promise<void> => {

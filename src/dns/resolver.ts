@@ -37,11 +37,22 @@ export class SystemDnsResolver implements DnsResolver {
   private readonly inFlight = new Map<string, Promise<string>>();
   private readonly fakeIp: FakeIpService | undefined;
 
-  public constructor(config: DnsConfig, logger: Logger, metrics?: DnsMetricsRecorder) {
+  public constructor(config: DnsConfig, logger: Logger, metrics?: DnsMetricsRecorder, reusableFakeIp?: FakeIpService) {
     this.config = config;
     this.logger = logger;
     this.metrics = metrics;
-    this.fakeIp = config.fakeIp.enabled ? new FakeIpService(config.fakeIp, () => this.metrics?.recordFakeIpAssignment?.()) : undefined;
+    this.fakeIp = config.fakeIp.enabled
+      ? reusableFakeIp ?? new FakeIpService(config.fakeIp, () => this.metrics?.recordFakeIpAssignment?.())
+      : undefined;
+  }
+
+  public fakeIpForReload(nextConfig: DnsConfig): FakeIpService | undefined {
+    if (!nextConfig.fakeIp.enabled || !this.config.fakeIp.enabled) return undefined;
+    const current = this.config.fakeIp;
+    const next = nextConfig.fakeIp;
+    return current.range === next.range && current.cidr === next.cidr && current.size === next.size && current.ttlSeconds === next.ttlSeconds && current.persistPath === next.persistPath
+      ? this.fakeIp
+      : undefined;
   }
 
   public resolveForClient(host: string): Promise<string> {

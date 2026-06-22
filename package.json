@@ -1,6 +1,6 @@
 {
   "name": "sepigs",
-  "version": "0.2.0-alpha.0",
+  "version": "0.2.0-beta",
   "description": "A modular TypeScript proxy core for personal proxying, forwarding, and learning.",
   "type": "module",
   "private": true,
@@ -15,6 +15,8 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "benchmark": "tsx bench/benchmark.ts",
+    "benchmark:udp": "tsx bench/udpBenchmark.ts",
+    "benchmark:gate": "node --import tsx bench/gate.ts",
     "soak:short": "tsx test/soak/soak.ts --profile short --duration-ms 600000 --concurrency 16 --worker-delay-ms 500",
     "soak:1h": "tsx test/soak/soak.ts --profile 1h",
     "soak:6h": "tsx test/soak/soak.ts --profile 6h",
@@ -24,6 +26,8 @@
     "soak:1h:full": "tsx tools/soak/full-soak.ts --profile 1h",
     "soak:6h:full": "tsx tools/soak/full-soak.ts --profile 6h",
     "soak:24h": "tsx tools/soak/full-soak.ts --profile 24h",
+    "soak:2h": "tsx tools/soak/beta-gate.ts --duration-ms 7200000",
+    "soak:gate": "tsx tools/soak/beta-gate.ts",
     "soak:resume": "tsx tools/soak/full-soak.ts --resume",
     "soak:report": "tsx tools/soak/report-soak.ts",
     "profile:cpu": "tsx tools/profiler/cpu.ts",
@@ -35,15 +39,19 @@
     "compat:shadowsocks": "tsx tools/compat/run-shadowsocks-ref.ts",
     "compat:trojan": "tsx tools/compat/run-trojan-ref.ts",
     "compat:matrix": "tsx tools/compat/compat-matrix.ts",
+    "compat:external": "node --import tsx tools/compat/external-v020.ts",
     "docs:check": "node --import tsx tools/docs/check.ts",
     "pack:tar": "tsx scripts/pack.ts tar",
     "pack:zip": "tsx scripts/pack.ts zip",
     "release:dry-run": "node --import tsx scripts/pack.ts dry-run",
     "sub:parse": "node --import tsx tools/subscription/cli.ts",
     "sub:dry-run": "node --import tsx tools/subscription/cli.ts --dry-run examples/subscriptions/sample.txt",
-    "web:build": "node web/build.mjs"
-    ,"validation:bind": "node --import tsx tools/network/bind-probe.ts"
-    ,"validation:no-listen": "node --import tsx tools/network/no-listen-smoke.ts"
+    "web:build": "node web/build.mjs",
+    "validation:bind": "node --import tsx tools/network/bind-probe.ts",
+    "validation:no-listen": "node --import tsx tools/network/no-listen-smoke.ts",
+    "verification:pack": "node --import tsx tools/verification/pack.ts",
+    "security:check": "node --import tsx tools/security/check.ts",
+    "release:beta-dry-run": "node --import tsx scripts/pack.ts beta-dry-run"
   },
   "keywords": [
     "proxy",

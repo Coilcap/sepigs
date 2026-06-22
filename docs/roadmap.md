@@ -1,6 +1,6 @@
 # Roadmap
 
-## v0.2.0-alpha.0 Current
+## v0.2.0-beta Current
 
 - TypeScript ESM project skeleton.
 - JSON/YAML config with validation.
@@ -25,15 +25,15 @@
 
 Phase 8 additionally includes bounded UDP sessions, fake-IP core, local Dashboard API, minimal Web UI, expanded subscription parsing, Shadowsocks/Trojan TCP inbounds, and explicit TUN/QUIC/WireGuard experimental adapters. See `docs/phase8-reality-check.md` for capability boundaries.
 
-## Phase 9 Recommendation
+Phase 9 adds regression, UDP performance, mixed soak, secret scanning, external-binary detection, and release artifact gates without adding protocols. See `docs/phase9-regression-matrix.md` for status and evidence.
 
-- First complete external Shadowsocks/Trojan client sign-off and the blocked benchmark/soak gates.
-- Add a standalone DNS listener so fake-IP has a verified client-facing consumer.
-- Harden Dashboard API session/auth rotation and serve signed static assets locally.
-- Implement a platform TUN adapter only after choosing a maintained user-space TCP/IP stack.
-- Evaluate a maintained native QUIC dependency behind the existing adapter; keep Hysteria2 separate.
-- Integrate WireGuard through a privilege-separated system/userspace backend, not a TypeScript crypto stack.
-- Add fuzzing for DNS, SOCKS5 UDP, Shadowsocks/Trojan handshakes, and subscription dialects.
+## Phase 10 Recommendation
+
+- Complete signed GUI/mobile worksheets and external Shadowsocks/Trojan reference-client runs.
+- Run the existing resumable 24-hour profile on the intended deployment host.
+- Make config reload transactional across metrics, Dashboard, plugins, and outbound replacement.
+- Add parser fuzzing for DNS, SOCKS5 UDP, Shadowsocks/Trojan handshakes, and subscription dialects.
+- Establish cross-platform CI and signed artifact provenance before a stable release.
 
 ## Engineering Notes
 

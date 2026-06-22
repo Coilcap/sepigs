@@ -1,17 +1,17 @@
 # sepigs
 
-Current development line: `v0.2.0-alpha.0` (Phase 8). All new packet/management/protocol features are disabled by default.
+Current development line: `v0.2.0-beta` (Phase 9 hardening). Experimental packet, management, and transport features remain disabled by default.
 
 sepigs is a small TypeScript/Node.js proxy core for legal personal proxying, local forwarding, learning, and self-hosted services. The first version focuses on a stable architecture instead of many protocols.
 
-Current candidate: `v0.1.0-rc1`. See `release-notes.md` and `docs/beta-readiness.md`.
+See `release-notes-v0.2.0-beta.md`, `docs/v0.2.0-beta-readiness.md`, and `docs/phase9-regression-matrix.md` for the release boundary.
 
 ## Features
 
 - HTTP proxy inbound with `CONNECT` and basic absolute-form HTTP forwarding.
 - SOCKS5 inbound with no-auth `CONNECT` and optional UDP ASSOCIATE relay.
 - Optional HTTP Basic Auth and SOCKS5 username/password auth.
-- `direct`, `block`, fixed-target `tcpRelay`, Shadowsocks, Trojan, and WireGuard outbounds.
+- `direct`, `block`, fixed-target `tcpRelay`, Shadowsocks, and Trojan outbounds, plus an experimental WireGuard adapter boundary.
 - Router rules for exact domains, domain suffixes, IP CIDR, destination ports, and default outbound selection.
 - DNS module with static hosts, cache TTL, and IP family strategy.
 - GeoIP/GeoSite expansion into existing router rules without changing router matching logic.
@@ -70,9 +70,12 @@ npm test
 npm run lint
 npm run typecheck
 npm run benchmark
+npm run benchmark:udp
+npm run benchmark:gate
 npm run docs:check
 npm run sub:dry-run
 npm run web:build
+npm run security:check
 ```
 
 Restricted CI or sandbox environments can pin all validation listeners to IPv4 loopback and request ephemeral ports:
@@ -107,6 +110,8 @@ npm run benchmark
 
 Reports are written to `bench/results/latest.json` and `bench/results/latest.md`. Use `--max-active` to raise the active socket cap on machines with a higher file descriptor limit.
 
+The UDP benchmark writes `bench/results/udp-latest.*`; `npm run benchmark:gate` compares both transports against the checked-in beta thresholds.
+
 ## Soak
 
 Short soak:
@@ -133,12 +138,19 @@ Prepare a resumable 24-hour run:
 npm run soak:24h
 ```
 
+The beta mixed-workload gate runs for 30 minutes:
+
+```sh
+npm run soak:gate
+```
+
 Real-client sign-off worksheets are under `verification/`. Unsigned worksheets are not compatibility claims.
 
 ## Not Supported Yet
 
 - TLS termination.
 - TUN mode.
+- Native WireGuard forwarding.
 - GUI/mobile clients are ready for manual verification but not automatically verified.
 - Remote plugin stream transforms across process boundaries.
 - Full in-process WireGuard packet tunnel transport.

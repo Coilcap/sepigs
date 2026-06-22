@@ -1,0 +1,24 @@
+# Replace SEPIGS_* values, import this file in Mihomo/Clash Verge, select SEPIGS, then enable system proxy.
+# Test URL: https://example.com/
+# Success: page loads through sepigs and a matching Dashboard connection appears.
+# Failure checks: local ports 7890/1080, competing system proxy, listener, and core logs.
+# Rollback: disable system proxy and remove this profile.
+#
+# | Tester | App/core version | Date | Request | Rollback | Result | Notes |
+# | --- | --- | --- | --- | --- | --- | --- |
+# |  |  |  | pending | pending | pending |  |
+mixed-port: 7890
+mode: global
+proxies:
+  - name: sepigs-socks
+    type: socks5
+    server: SEPIGS_HOST
+    port: 1080
+    username: SEPIGS_USERNAME
+    password: SEPIGS_PASSWORD
+proxy-groups:
+  - name: SEPIGS
+    type: select
+    proxies: [sepigs-socks]
+rules:
+  - MATCH,SEPIGS

@@ -417,3 +417,34 @@ Remaining risk:
 Final verification:
 - Lint, typecheck, 66 tests, build, docs check, client config validation, 24h-profile smoke, and RC1 release dry-run passed.
 - Development stops at RC1 readiness; Phase 8 is not started.
+
+## Stage 16 - Phase 9 v0.2.0 Beta Hardening
+
+Completed:
+- Added UDP load, timeout, limit, block, reload, fake-IP, metrics, benchmark, and cleanup coverage.
+- Added fake-IP lifecycle, persistence, cache-isolation, router, TCP/UDP, and compatible-reload validation.
+- Added Dashboard rate-limit, redaction, reload containment, and targeted connection-kill regression tests.
+- Added subscription malformed-input, de-duplication, mixed-format, and reusable redaction coverage.
+- Added external reference binary detection, a self-validating manual client pack, performance/soak/security/release gates, and beta release documents.
+
+Found:
+- Direct UDP bypassed the configured DNS resolver, breaking fake-IP UDP destinations.
+- Compatible route reloads recreated fake-IP state and restarted unchanged Dashboard/metrics listeners.
+- The original two-second soak probe timeout produced false failures under sustained local scheduling pressure.
+- The 30-minute mixed gate still concentrated 239 recoverable read timeouts in fake-IP CONNECT during reload pressure.
+- GitHub publication is blocked because HTTPS credentials lack workflow scope and SSH has no accepted key.
+
+Fixed:
+- Direct UDP now resolves through the configured resolver; compatible fake-IP mappings survive reload.
+- Route-only reloads keep unchanged Dashboard and metrics listeners bound.
+- The soak probe window is separated from the runtime idle timeout and errors are labeled by request path.
+- README, Roadmap, RELEASE, technical debt, manual verification, and docs gates now describe the beta boundary consistently.
+
+Remaining risk:
+- External Shadowsocks/Trojan reference runs and GUI/mobile sign-off remain unverified.
+- Full 24-hour host soak is not executed; fake-IP reload pressure needs longer profiling.
+- Cross-component config reload is not one atomic transaction.
+- Web Dashboard, Shadowsocks/Trojan inbounds, TUN mock, QUIC boundary, and WireGuard adapter remain experimental; native packet transports remain unsupported.
+
+Next:
+- Restore repository publication credentials, run the existing 24-hour soak, complete signed client/reference compatibility, and make cross-component reload transactional before a stable release.

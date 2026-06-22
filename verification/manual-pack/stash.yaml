@@ -1,0 +1,23 @@
+# Replace SEPIGS_* values, import in Stash, select SEPIGS, and enable the profile.
+# Test URL: https://example.com/
+# Success: page loads through sepigs and a matching Dashboard connection appears.
+# Failure checks: trusted-LAN reachability, credentials, firewall, port 1080, and Stash logs.
+# Rollback: stop and remove the profile.
+#
+# | Tester | App version | Date | Request | Rollback | Result | Notes |
+# | --- | --- | --- | --- | --- | --- | --- |
+# |  |  |  | pending | pending | pending |  |
+mode: global
+proxies:
+  - name: sepigs-socks
+    type: socks5
+    server: SEPIGS_HOST
+    port: 1080
+    username: SEPIGS_USERNAME
+    password: SEPIGS_PASSWORD
+proxy-groups:
+  - name: SEPIGS
+    type: select
+    proxies: [sepigs-socks]
+rules:
+  - MATCH,SEPIGS

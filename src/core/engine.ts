@@ -220,6 +220,8 @@ export class Engine {
 
   private async applyReloadConfig(config: SepigsConfig): Promise<void> {
     const previousConfig = this.config;
+    const metricsChanged = JSON.stringify(previousConfig.observability.metrics) !== JSON.stringify(config.observability.metrics);
+    const dashboardChanged = JSON.stringify(previousConfig.dashboard) !== JSON.stringify(config.dashboard);
     let reloadedInbounds: Map<string, Inbound> | undefined;
     if (this.componentsBuilt && inboundConfigsChanged(previousConfig.inbounds, config.inbounds)) {
       const inboundContext = this.createInboundContext(config);
@@ -238,20 +240,25 @@ export class Engine {
 
     this.config = config;
     this.router = new Router(config.route);
-    this.dnsResolver = new SystemDnsResolver(config.dns, this.logger.child("dns"), this.stats);
+    this.dnsResolver = new SystemDnsResolver(
+      config.dns,
+      this.logger.child("dns"),
+      this.stats,
+      this.dnsResolver.fakeIpForReload(config.dns)
+    );
     this.policyManager.reload(config.route.policies);
     this.connectionPool.closeAll();
     this.connectionPool = new TcpConnectionPool(config.connectionPool, this.logger.child("pool"));
     this.quicTransport = new UnavailableQuicTransport(config.transport.quic, this.logger.child("quic"));
-    await this.metricsServer.stop();
-    this.metricsServer = this.createMetricsServer(config);
-    if (this.started) {
-      await this.metricsServer.start();
+    if (metricsChanged) {
+      await this.metricsServer.stop();
+      this.metricsServer = this.createMetricsServer(config);
+      if (this.started) await this.metricsServer.start();
     }
-    await this.dashboardServer.stop();
-    this.dashboardServer = this.createDashboardServer(config);
-    if (this.started) {
-      await this.dashboardServer.start();
+    if (dashboardChanged) {
+      await this.dashboardServer.stop();
+      this.dashboardServer = this.createDashboardServer(config);
+      if (this.started) await this.dashboardServer.start();
     }
 
     if (this.runtimeLoaded) {

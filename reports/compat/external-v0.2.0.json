@@ -1,0 +1,177 @@
+{
+  "generatedAt": "2026-06-22T22:24:41.583Z",
+  "binaries": [
+    {
+      "name": "shadowsocks-rust",
+      "candidates": [
+        "sslocal",
+        "ssserver"
+      ]
+    },
+    {
+      "name": "shadowsocks-libev",
+      "candidates": [
+        "ss-local",
+        "ss-server"
+      ]
+    },
+    {
+      "name": "trojan-go",
+      "candidates": [
+        "trojan-go"
+      ]
+    },
+    {
+      "name": "sing-box",
+      "candidates": [
+        "sing-box"
+      ]
+    },
+    {
+      "name": "xray",
+      "candidates": [
+        "xray"
+      ]
+    }
+  ],
+  "cases": [
+    {
+      "protocol": "shadowsocks",
+      "case": "reference client -> sepigs inbound aes-128-gcm",
+      "status": "skipped-with-reason",
+      "reason": "Skipped: no supported external reference binary found. Checked sslocal, ssserver, ss-local, ss-server, sing-box.",
+      "candidates": [
+        "sslocal",
+        "ssserver",
+        "ss-local",
+        "ss-server",
+        "sing-box"
+      ]
+    },
+    {
+      "protocol": "shadowsocks",
+      "case": "reference client -> sepigs inbound aes-256-gcm",
+      "status": "skipped-with-reason",
+      "reason": "Skipped: no supported external reference binary found. Checked sslocal, ssserver, ss-local, ss-server, sing-box.",
+      "candidates": [
+        "sslocal",
+        "ssserver",
+        "ss-local",
+        "ss-server",
+        "sing-box"
+      ]
+    },
+    {
+      "protocol": "shadowsocks",
+      "case": "reference client -> sepigs inbound chacha20-ietf-poly1305",
+      "status": "skipped-with-reason",
+      "reason": "Skipped: no supported external reference binary found. Checked sslocal, ssserver, ss-local, ss-server, sing-box.",
+      "candidates": [
+        "sslocal",
+        "ssserver",
+        "ss-local",
+        "ss-server",
+        "sing-box"
+      ]
+    },
+    {
+      "protocol": "shadowsocks",
+      "case": "wrong password",
+      "status": "skipped-with-reason",
+      "reason": "Skipped: no supported external reference binary found. Checked sslocal, ssserver, ss-local, ss-server, sing-box.",
+      "candidates": [
+        "sslocal",
+        "ssserver",
+        "ss-local",
+        "ss-server",
+        "sing-box"
+      ]
+    },
+    {
+      "protocol": "shadowsocks",
+      "case": "large payload",
+      "status": "skipped-with-reason",
+      "reason": "Skipped: no supported external reference binary found. Checked sslocal, ssserver, ss-local, ss-server, sing-box.",
+      "candidates": [
+        "sslocal",
+        "ssserver",
+        "ss-local",
+        "ss-server",
+        "sing-box"
+      ]
+    },
+    {
+      "protocol": "shadowsocks",
+      "case": "remote close",
+      "status": "skipped-with-reason",
+      "reason": "Skipped: no supported external reference binary found. Checked sslocal, ssserver, ss-local, ss-server, sing-box.",
+      "candidates": [
+        "sslocal",
+        "ssserver",
+        "ss-local",
+        "ss-server",
+        "sing-box"
+      ]
+    },
+    {
+      "protocol": "trojan",
+      "case": "reference client -> sepigs inbound",
+      "status": "skipped-with-reason",
+      "reason": "Skipped: no supported external reference binary found. Checked trojan-go, sing-box, xray.",
+      "candidates": [
+        "trojan-go",
+        "sing-box",
+        "xray"
+      ]
+    },
+    {
+      "protocol": "trojan",
+      "case": "wrong password",
+      "status": "skipped-with-reason",
+      "reason": "Skipped: no supported external reference binary found. Checked trojan-go, sing-box, xray.",
+      "candidates": [
+        "trojan-go",
+        "sing-box",
+        "xray"
+      ]
+    },
+    {
+      "protocol": "trojan",
+      "case": "large payload",
+      "status": "skipped-with-reason",
+      "reason": "Skipped: no supported external reference binary found. Checked trojan-go, sing-box, xray.",
+      "candidates": [
+        "trojan-go",
+        "sing-box",
+        "xray"
+      ]
+    },
+    {
+      "protocol": "trojan",
+      "case": "remote close",
+      "status": "skipped-with-reason",
+      "reason": "Skipped: no supported external reference binary found. Checked trojan-go, sing-box, xray.",
+      "candidates": [
+        "trojan-go",
+        "sing-box",
+        "xray"
+      ]
+    },
+    {
+      "protocol": "trojan",
+      "case": "TLS termination and SNI",
+      "status": "skipped-with-reason",
+      "reason": "Skipped: no supported external reference binary found. Checked trojan-go, sing-box, xray.",
+      "candidates": [
+        "trojan-go",
+        "sing-box",
+        "xray"
+      ]
+    }
+  ],
+  "summary": {
+    "verified": 0,
+    "skipped": 11,
+    "failed": 0
+  }
+}

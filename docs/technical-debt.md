@@ -1,6 +1,6 @@
 # Technical Debt Audit
 
-Scope updated for Phase 8 (`v0.2.0-alpha.0`).
+Scope updated for Phase 9 (`v0.2.0-beta`).
 
 ## Resolved In Phase 8
 
@@ -8,6 +8,8 @@ Scope updated for Phase 8 (`v0.2.0-alpha.0`).
 - Owner-scoped plugin outbound registration and unregister on unload/crash/config replacement.
 - DNS bounded LRU, negative cache, and single-flight queries.
 - SOCKS5 UDP parsing moved to a dedicated module; UDP lifecycle is centrally bounded.
+- Direct UDP now uses the configured DNS resolver, and compatible fake-IP state survives route reloads.
+- Unchanged metrics and Dashboard listeners remain bound during route-only reloads.
 
 ## High Priority
 
@@ -16,6 +18,7 @@ Scope updated for Phase 8 (`v0.2.0-alpha.0`).
 | Plugin RPC tests | Registration and runner crash containment are tested separately, not as one post-registration crash scenario. | A regression could leave a remote factory registered after its runner exits. | Add an integration test that registers, crashes, verifies unregister, and confirms core continuity. |
 | Plugin reload | `PluginManager.loadAll` skips an existing tag but does not unload removed or changed modules. | Hot reload may keep obsolete plugin code and permissions active. | Diff desired/loaded manifests and perform bounded stop/unregister/reload. |
 | External compatibility | Shadowsocks/Trojan tests use local fixtures only. | Real clients may expose framing, TLS, close, and large-payload differences. | Run pinned external reference implementations in isolated CI jobs. |
+| Cross-component reload | Metrics, Dashboard, plugin, and outbound replacement do not share one transaction/rollback boundary. | A later replacement failure can leave earlier components on the new configuration. | Stage replacements, commit only after all starts succeed, and rollback the complete component set on failure. |
 
 ## Refactoring Candidates
 
@@ -51,16 +54,15 @@ Scope updated for Phase 8 (`v0.2.0-alpha.0`).
 ## Test And Operations Gaps
 
 - Full 24-hour soak is not executed.
-- The six GUI/mobile client acceptance packets are unsigned.
+- The seven GUI/mobile/desktop client acceptance packets are unsigned.
 - Full six-hour soak is not executed; only a 10-minute 6h-profile validation exists.
 - IPv6, DNS malformed-packet fuzzing, slowloris-style fragmented headers, and high-cardinality DNS cache pressure need broader fixtures.
 - CPU/heap profiling tools exist, but profiles are not generated as a release gate.
 
 ## Recommended Order
 
-1. Fix lifecycle timer cleanup and unregister ownership.
-2. Add plugin factory ownership and module unload/reload semantics.
-3. Bound and de-duplicate DNS cache/query work.
+1. Make cross-component config reload transactional.
+2. Add plugin module unload/reload semantics.
+3. Complete real-client and external reference sign-off.
 4. Reduce incremental buffer copies in measured hot paths.
-5. Complete real-client and external reference sign-off.
-6. Execute 24-hour soak and higher-file-descriptor benchmark before production-stable status.
+5. Execute 24-hour soak and higher-file-descriptor benchmark before production-stable status.

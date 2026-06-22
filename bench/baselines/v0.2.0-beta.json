@@ -1,0 +1,12 @@
+{
+  "source": "Phase 8.5 benchmark 2026-06-22",
+  "throughputMinRatio": 0.85,
+  "p95MaxRatio": 1.25,
+  "rssMaxRatio": 1.25,
+  "scenarios": [
+    { "targetConcurrency": 100, "throughputMbps": 8.4549780572, "latencyP95Ms": 29.974541, "rssAfterBytes": 102547456 },
+    { "targetConcurrency": 500, "throughputMbps": 15.7981468311, "latencyP95Ms": 46.520208, "rssAfterBytes": 113262592 },
+    { "targetConcurrency": 1000, "throughputMbps": 23.4279093515, "latencyP95Ms": 26.0865, "rssAfterBytes": 133513216 },
+    { "targetConcurrency": 5000, "throughputMbps": 32.0613506971, "latencyP95Ms": 20.048958, "rssAfterBytes": 152141824 }
+  ]
+}

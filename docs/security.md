@@ -1,5 +1,7 @@
 # Security
 
+The v0.2.0 beta review and residual-risk decision are documented in [v0.2.0-security-review.md](v0.2.0-security-review.md). Run `npm run security:check` before packaging.
+
 ## Phase 8 Additions
 
 - Dashboard is off by default, rejects public binds, requires a long Bearer token, rate limits requests, disables CORS, and redacts secrets.

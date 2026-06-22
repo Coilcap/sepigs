@@ -98,7 +98,8 @@ function isDocFile(file: string): boolean {
     (file.startsWith("docs/") ||
       file.startsWith("examples/") ||
       file.startsWith("verification/") ||
-      ["README.md", "RELEASE.md", "CHANGELOG.md", "CONTRIBUTING.md", "release-notes.md"].includes(file))
+      ["README.md", "RELEASE.md", "CHANGELOG.md", "CONTRIBUTING.md"].includes(file) ||
+      file.startsWith("release-notes"))
   );
 }
 
@@ -119,7 +120,17 @@ function checkRequiredFiles(allFiles: readonly string[]): void {
     "docs/wireguard-evaluation.md",
     "docs/phase8-reality-check.md",
     "docs/phase8-validation.md",
+    "docs/phase9-regression-matrix.md",
+    "docs/udp-benchmark.md",
+    "docs/fake-ip-validation.md",
+    "docs/dashboard-security.md",
+    "docs/subscription-compat.md",
+    "docs/v0.2.0-security-review.md",
+    "docs/v0.2.0-beta-readiness.md",
+    "docs/soak-v0.2.0-beta-report.md",
+    "docs/release-v0.2.0-beta-artifacts.md",
     "release-notes.md",
+    "release-notes-v0.2.0-beta.md",
     "verification/mihomo.md",
     "verification/shadowrocket.md",
     "verification/surge.md",

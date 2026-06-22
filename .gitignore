@@ -11,3 +11,4 @@ reports/soak/smoke/
 reports/soak/smoke-active-clock/
 reports/soak/**/checkpoint.json
 reports/soak/24h/
+artifacts/
