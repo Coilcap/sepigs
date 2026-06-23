@@ -1,6 +1,6 @@
 {
   "name": "sepigs",
-  "version": "0.2.0-beta",
+  "version": "0.2.0-beta.0",
   "description": "A modular TypeScript proxy core for personal proxying, forwarding, and learning.",
   "type": "module",
   "private": true,

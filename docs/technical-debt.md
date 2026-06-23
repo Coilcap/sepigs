@@ -1,6 +1,6 @@
 # Technical Debt Audit
 
-Scope updated for Phase 9 (`v0.2.0-beta`).
+Scope updated for Phase 10 (`v0.2.0-beta.0`).
 
 ## Resolved In Phase 8
 

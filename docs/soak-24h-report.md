@@ -10,4 +10,4 @@ npm run soak:resume -- --run-dir reports/soak/24h
 npm run soak:report -- --run-dir reports/soak/24h
 ```
 
-Expected artifacts are under `reports/soak/24h/`.
+Expected artifacts are under `reports/soak/24h/`. Phase 10 writes the release-specific status to [soak-24h-v0.2.0-beta-report.md](soak-24h-v0.2.0-beta-report.md).

@@ -1,6 +1,6 @@
 # Shadowrocket Acceptance
 
-Status: ready for manual sign-off. Not yet verified on an iOS device.
+Status: `not tested`. Sign-off readiness: `ready-for-human-signoff`. No iOS/Shadowrocket device was available to the agent.
 
 ## Configuration
 
@@ -24,6 +24,12 @@ Status: ready for manual sign-off. Not yet verified on an iOS device.
 ## Expected Result
 
 The URL loads, Shadowrocket shows traffic on the sepigs node, and sepigs metrics record the connection without authentication or outbound failures.
+
+## Execution Record
+
+| Device | OS version | Client version | Config | Tester/time | Result | Failure log or screenshot |
+| --- | --- | --- | --- | --- | --- | --- |
+| Pending iPhone/iPad | Pending | Pending | `verification/manual-pack/shadowrocket.md` | Pending | not tested | Pending |
 
 ## Acceptance
 

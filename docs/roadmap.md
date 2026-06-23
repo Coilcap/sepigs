@@ -1,6 +1,6 @@
 # Roadmap
 
-## v0.2.0-beta Current
+## v0.2.0-beta.0 Current
 
 - TypeScript ESM project skeleton.
 - JSON/YAML config with validation.

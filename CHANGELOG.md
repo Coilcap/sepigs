@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.2.0-beta
+## 0.2.0-beta.0
 
 - Added UDP load/timeout/limit/full-chain regression coverage and a 2,000-packet benchmark gate.
 - Fixed Direct UDP to use the configured DNS resolver and preserved compatible fake-IP mappings across route reloads.
@@ -8,6 +8,7 @@
 - Added subscription failure/redaction/compatibility regression tests.
 - Added mixed soak, external compatibility detection, security scan, manual client verification pack, and beta release artifact audit.
 - Passed the 30-minute mixed gate below 0.1% errors and the ten-minute short soak with zero errors and zero final resources.
+- Added the beta release closure checklist, transactional reload design, security summary, resumable 24-hour report path, and human client sign-off records.
 
 ## 0.2.0-alpha.0
 

@@ -13,7 +13,7 @@ export const getSoakProfileDefaults = (profile: string): SoakProfileDefaults => 
       concurrency: 128,
       workerDelayMs: 750,
       runDir: "reports/soak/24h",
-      docsReportPath: "docs/soak-24h-report.md"
+      docsReportPath: "docs/soak-24h-v0.2.0-beta-report.md"
     };
   }
   if (profile === "6h") {

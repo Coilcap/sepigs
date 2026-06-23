@@ -1,13 +1,13 @@
 # sepigs Benchmark Report
 
-Generated: 2026-06-22T22:11:08.826Z
+Generated: 2026-06-23T12:07:02.732Z
 
 | Target | Effective | Success | Mbps | p50 ms | p95 ms | p99 ms | RSS | Heap Used | CPU ms |
 | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| 100 | 100 | 100/100 | 9.52 | 17.47 | 25.12 | 25.30 | 97.05 MiB | 15.25 MiB | 54.02 |
-| 500 | 128 | 500/500 | 17.82 | 23.08 | 34.37 | 34.53 | 110.63 MiB | 17.26 MiB | 163.51 |
-| 1000 | 128 | 1000/1000 | 23.44 | 20.51 | 24.67 | 25.18 | 127.64 MiB | 21.99 MiB | 295.88 |
-| 5000 | 128 | 5000/5000 | 34.65 | 14.37 | 16.96 | 22.22 | 145.33 MiB | 27.98 MiB | 707.67 |
+| 100 | 100 | 100/100 | 8.08 | 22.27 | 31.84 | 32.08 | 101.55 MiB | 17.39 MiB | 62.77 |
+| 500 | 128 | 500/500 | 17.00 | 25.53 | 30.16 | 30.70 | 112.03 MiB | 17.90 MiB | 168.14 |
+| 1000 | 128 | 1000/1000 | 23.48 | 19.84 | 23.77 | 23.92 | 130.11 MiB | 24.72 MiB | 295.29 |
+| 5000 | 128 | 5000/5000 | 31.38 | 15.77 | 19.50 | 21.57 | 149.83 MiB | 15.80 MiB | 771.36 |
 
 ## Connection Data
 
@@ -15,7 +15,7 @@ Generated: 2026-06-22T22:11:08.826Z
 - Active connections after stop: 0
 - Failed connections: 0
 - Rejected connections: 0
-- Average connection duration: 1.43ms
+- Average connection duration: 1.26ms
 
 ## Leak Snapshot
 
@@ -25,7 +25,7 @@ Generated: 2026-06-22T22:11:08.826Z
 
 ## Bottlenecks
 
-- highest p95 latency at target 500: 34.37ms
+- highest p95 latency at target 100: 31.84ms
 - local file-descriptor safety cap limited effective concurrency for high target levels
 
 ## Recommendations

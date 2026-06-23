@@ -1,6 +1,6 @@
 # Surge Acceptance
 
-Status: ready for manual sign-off. Static section validation passed; real Surge execution is pending.
+Status: `not tested`. Sign-off readiness: `ready-for-human-signoff`. Static section validation passed; real Surge execution is pending.
 
 ## Configuration
 
@@ -32,6 +32,12 @@ Canonical file: `examples/clients/surge.conf`.
 ## Expected Result
 
 Both proxy selections load the URL and produce successful connections in Surge and sepigs metrics.
+
+## Execution Record
+
+| Device | OS version | Client version | Config | Tester/time | Result | Failure log or screenshot |
+| --- | --- | --- | --- | --- | --- | --- |
+| Pending | Pending | Pending | `verification/manual-pack/surge.conf` | Pending | not tested | Pending |
 
 ## Acceptance
 

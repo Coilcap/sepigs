@@ -448,3 +448,30 @@ Remaining risk:
 
 Next:
 - Restore repository publication credentials, run the existing 24-hour soak, complete signed client/reference compatibility, and make cross-component reload transactional before a stable release.
+
+## Stage 17 - Phase 10 v0.2.0-beta Release Closure
+
+Completed:
+- Bumped package metadata to `0.2.0-beta.0` without adding protocols or data-plane features.
+- Added release-closure checklist, beta security summary, transactional reload design notes, a beta-specific 24-hour soak status report, and client sign-off worksheets for Chrome/system proxy and Clash Verge.
+- Ran a two-hour checkpointed segment of the `24h` soak profile with 1,220,350/1,220,350 successes, zero errors, 1,440 reloads, and final sockets/timers/listeners at 0/0/0.
+- Re-ran the Phase 10 local validation matrix: lint, typecheck, 105 tests, build, Web build, subscription dry-run, TCP/UDP benchmarks, benchmark gate, short soak, 30-minute soak gate, docs check, security check, verification pack, external compatibility detector, and release dry-runs.
+
+Found:
+- Publishing remains blocked by repository credentials: HTTPS OAuth lacks `workflow` scope for workflow files, and SSH authentication fails with `Permission denied (publickey)`.
+- The 30-minute mixed gate still concentrates recoverable failures in fake-IP CONNECT during reload pressure and recorded one Dashboard metrics `ECONNRESET`.
+- GUI/mobile client rows and external Shadowsocks/Trojan reference tests remain unsigned or skipped with explicit missing-binary reasons.
+
+Fixed:
+- Updated beta readiness, release notes, and release checklist with the current Phase 10 gate data instead of stale Phase 9 figures.
+- Release dry-run now documents that workflow files are repository-only automation and excluded from runtime artifacts.
+- External compatibility output now writes beta-specific reports while keeping skipped reference results separate from local fixture coverage.
+
+Remaining risk:
+- Full 24-hour soak is still pending; only a two-hour segment of the 24-hour profile has been executed.
+- Public beta publication and tag creation are blocked until `main` can be pushed to `origin`.
+- Cross-component reload is not transactional yet; the design is documented for a later phase but not implemented here.
+
+Next:
+- Repair GitHub credentials, push `main`, then create/push the beta tag only after confirming `origin/main` contains this release-closure commit.
+- Complete human client sign-off and external reference implementation compatibility before making a production-stable claim.

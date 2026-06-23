@@ -1,6 +1,6 @@
 # NekoBox Acceptance
 
-Status: ready for manual sign-off. Not yet verified by a real NekoBox client.
+Status: `not tested`. Sign-off readiness: `ready-for-human-signoff`. No real NekoBox client was available to the agent.
 
 ## Configuration
 
@@ -23,6 +23,12 @@ Status: ready for manual sign-off. Not yet verified by a real NekoBox client.
 ## Expected Result
 
 NekoBox reports a successful connection, the page loads, and sepigs connection/byte counters increase.
+
+## Execution Record
+
+| Device | OS version | Client version | Config | Tester/time | Result | Failure log or screenshot |
+| --- | --- | --- | --- | --- | --- | --- |
+| Pending | Pending | Pending | `verification/manual-pack/nekobox.md` | Pending | not tested | Pending |
 
 ## Acceptance
 

@@ -1,6 +1,6 @@
 # sepigs
 
-Current development line: `v0.2.0-beta` (Phase 9 hardening). Experimental packet, management, and transport features remain disabled by default.
+Current development line: `v0.2.0-beta.0` (Phase 10 release closure). Experimental packet, management, and transport features remain disabled by default.
 
 sepigs is a small TypeScript/Node.js proxy core for legal personal proxying, local forwarding, learning, and self-hosted services. The first version focuses on a stable architecture instead of many protocols.
 

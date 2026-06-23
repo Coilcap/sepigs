@@ -15,7 +15,7 @@
 13. Review the soak, benchmark, compatibility, security, and release artifact reports.
 14. Update `CHANGELOG.md`.
 
-For v0.2.0-beta, also review `docs/v0.2.0-beta-readiness.md`, `release-notes-v0.2.0-beta.md`, and all acceptance rows under `verification/manual-pack/`.
+For v0.2.0-beta.0, also review `docs/v0.2.0-beta-readiness.md`, `release-notes-v0.2.0-beta.md`, and all acceptance rows under `verification/manual-pack/`.
 
 Do not publish a release if socket/timer/listener counts fail to return to zero after stop.
 

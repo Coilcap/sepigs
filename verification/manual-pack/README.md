@@ -7,6 +7,7 @@ Test URL: `https://example.com/`. Success means the page loads through sepigs, o
 | Client | Tester | Version | Date | Result | Notes |
 | --- | --- | --- | --- | --- | --- |
 | Shadowrocket |  |  |  | pending |  |
+| Chrome / system proxy |  |  |  | pending |  |
 | Mihomo |  |  |  | pending |  |
 | Clash Verge |  |  |  | pending |  |
 | Stash |  |  |  | pending |  |

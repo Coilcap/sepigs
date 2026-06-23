@@ -1,6 +1,6 @@
 # v2rayN Acceptance
 
-Status: ready for manual sign-off. Not yet verified on a Windows host.
+Status: `not tested`. Sign-off readiness: `ready-for-human-signoff`. No Windows/v2rayN host was available to the agent.
 
 ## Configuration
 
@@ -24,6 +24,12 @@ Status: ready for manual sign-off. Not yet verified on a Windows host.
 ## Expected Result
 
 v2rayN shows a successful request, the page returns HTTP 200, and sepigs metrics increase without failed authentication.
+
+## Execution Record
+
+| Device | OS version | Client version | Config | Tester/time | Result | Failure log or screenshot |
+| --- | --- | --- | --- | --- | --- | --- |
+| Pending Windows host | Pending | Pending | `verification/manual-pack/v2rayn.md` | Pending | not tested | Pending |
 
 ## Acceptance
 

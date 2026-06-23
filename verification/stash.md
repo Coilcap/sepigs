@@ -1,6 +1,6 @@
 # Stash Acceptance
 
-Status: ready for manual sign-off. YAML parsing passed; real Stash execution is pending.
+Status: `not tested`. Sign-off readiness: `ready-for-human-signoff`. YAML parsing passed; real Stash execution is pending.
 
 ## Configuration
 
@@ -32,6 +32,12 @@ Canonical file: `examples/clients/stash.yaml`.
 ## Expected Result
 
 The URL loads through both HTTP and SOCKS5 selections, and sepigs metrics increase without failures.
+
+## Execution Record
+
+| Device | OS version | Client version | Config | Tester/time | Result | Failure log or screenshot |
+| --- | --- | --- | --- | --- | --- | --- |
+| Pending | Pending | Pending | `verification/manual-pack/stash.yaml` | Pending | not tested | Pending |
 
 ## Acceptance
 

@@ -1,6 +1,6 @@
 # Mihomo Acceptance
 
-Status: ready for manual sign-off. Not yet verified by a real Mihomo process.
+Status: `not tested`. Sign-off readiness: `ready-for-human-signoff`. No real Mihomo process was available to the agent.
 
 ## Configuration
 
@@ -38,6 +38,12 @@ Canonical file: `examples/clients/mihomo.yaml`.
 ## Expected Result
 
 The page returns HTTP 200, Mihomo reports the selected sepigs proxy, and `sepigs_connections_total` increases without connection errors.
+
+## Execution Record
+
+| Device | OS version | Client version | Config | Tester/time | Result | Failure log or screenshot |
+| --- | --- | --- | --- | --- | --- | --- |
+| Pending | Pending | Pending | `examples/clients/mihomo.yaml` | Pending | not tested | Pending |
 
 ## Acceptance
 

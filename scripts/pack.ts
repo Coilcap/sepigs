@@ -34,7 +34,7 @@ const main = async (): Promise<void> => {
   if (mode === "beta-dry-run") {
     const findings = await auditBetaFiles(files);
     const passed = findings.length === 0;
-    const report = ["# v0.2.0-beta Release Artifacts", "", `- Status: ${passed ? "passed" : "failed"}`, `- Files: ${files.length}`, "- Included runtime: `dist/src`, `dist/dashboard`", "- Excluded: tests, node_modules, profiles, temporary reports, subscription fixtures, local paths, and unrelated dist output", "", "## Findings", "", ...(passed ? ["- None"] : findings.map((finding) => `- ${finding}`)), ""].join("\n");
+    const report = ["# v0.2.0-beta.0 Release Artifacts", "", `- Status: ${passed ? "passed" : "failed"}`, `- Files: ${files.length}`, "- Included runtime: `dist/src`, `dist/dashboard`", "- Excluded: tests, node_modules, profiles, temporary reports, subscription fixtures, local paths, and unrelated dist output", "- Repository-only automation: `.github/workflows` is versioned in Git but intentionally excluded from the runtime archive", "", "## Findings", "", ...(passed ? ["- None"] : findings.map((finding) => `- ${finding}`)), ""].join("\n");
     await writeFile("docs/release-v0.2.0-beta-artifacts.md", report, "utf8");
     console.log(`release beta dry-run ${passed ? "passed" : "failed"}: ${files.length} files`);
     if (!passed) process.exitCode = 1;
@@ -91,6 +91,11 @@ const auditBetaFiles = async (files: readonly string[]): Promise<readonly string
     const text = await readFile(file, "utf8");
     if (/\/Users\/[A-Za-z0-9._-]+\//u.test(text)) findings.push(`local absolute path in ${file}`);
     if (/BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY/u.test(text)) findings.push(`private key material in ${file}`);
+    for (const match of text.matchAll(/"(?:password|token|privateKey)"\s*:\s*"([^"]+)"/gu)) {
+      const value = match[1] ?? "";
+      const placeholders = ["secret", "change-me", "change-me-long-random-password", "replace-with-a-long-token", "[REDACTED]", "..."];
+      if (!placeholders.includes(value)) findings.push(`non-placeholder credential in ${file}`);
+    }
   }
   return findings;
 };

@@ -3,7 +3,7 @@ import { access, mkdir, readFile, rm } from "node:fs/promises";
 import { resolve } from "node:path";
 import YAML from "yaml";
 
-const required = ["README.md", "shadowrocket.md", "mihomo.yaml", "clash-verge.md", "stash.yaml", "surge.conf", "nekobox.md", "v2rayn.md"];
+const required = ["README.md", "chrome-system.md", "shadowrocket.md", "mihomo.yaml", "clash-verge.md", "stash.yaml", "surge.conf", "nekobox.md", "v2rayn.md"];
 for (const file of required) await access(`verification/manual-pack/${file}`);
 for (const file of ["mihomo.yaml", "stash.yaml"]) {
   const parsed = YAML.parse(await readFile(`verification/manual-pack/${file}`, "utf8")) as unknown;

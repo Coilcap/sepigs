@@ -13,7 +13,14 @@ const cases: ExternalCase[] = [
 ];
 if (available.length > 0) throw new Error(`External binaries were detected (${available.map((item) => item.path).join(", ")}) but this release has no vetted automatic launcher for them; refusing to report skipped or verified.`);
 await mkdir("reports/compat", { recursive: true });
-const report = { generatedAt: new Date().toISOString(), binaries, cases, summary: { verified: 0, skipped: cases.length, failed: 0 } };
-await writeFile("reports/compat/external-v0.2.0.json", `${JSON.stringify(report, null, 2)}\n`, "utf8");
-await writeFile("reports/compat/external-v0.2.0.md", ["# External Compatibility v0.2.0", "", "No supported reference binary was installed; no external interoperability result is claimed.", "", "| Protocol | Case | Status | Reason |", "| --- | --- | --- | --- |", ...cases.map((item) => `| ${item.protocol} | ${item.case} | ${item.status} | ${item.reason} |`), "", "Local fixtures remain covered by `npm test`; they are not external reference evidence.", ""].join("\n"), "utf8");
+const installSuggestions = [
+  "cargo install shadowsocks-rust",
+  "brew install shadowsocks-libev",
+  "brew install sing-box",
+  "brew install xray",
+  "go install github.com/p4gefau1t/trojan-go@latest"
+] as const;
+const report = { generatedAt: new Date().toISOString(), binaries, installSuggestions, cases, summary: { verified: 0, skipped: cases.length, failed: 0 } };
+await writeFile("reports/compat/external-v0.2.0-beta.json", `${JSON.stringify(report, null, 2)}\n`, "utf8");
+await writeFile("reports/compat/external-v0.2.0-beta.md", ["# External Compatibility v0.2.0-beta.0", "", "No supported reference binary was installed; no external interoperability result is claimed.", "", "## Missing Binaries", "", ...binaries.map((item) => `- ${item.name}: missing (${item.candidates.join(", ")})`), "", "Installation suggestions (not executed by this validation):", "", ...installSuggestions.map((command) => `- \`${command}\``), "", "| Protocol | Case | Status | Reason |", "| --- | --- | --- | --- |", ...cases.map((item) => `| ${item.protocol} | ${item.case} | ${item.status} | ${item.reason} |`), "", "Local fixtures remain covered by `npm test`; they are not external reference evidence.", ""].join("\n"), "utf8");
 console.log(`external compatibility: 0 verified, ${cases.length} skipped with reason, 0 failed`);

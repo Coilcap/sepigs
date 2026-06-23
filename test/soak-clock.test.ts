@@ -54,7 +54,7 @@ void test("24h soak profile uses resumable long-run paths and duration", () => {
   assert.equal(profile.durationMs, 86_400_000);
   assert.equal(profile.concurrency, 128);
   assert.equal(profile.runDir, "reports/soak/24h");
-  assert.equal(profile.docsReportPath, "docs/soak-24h-report.md");
+  assert.equal(profile.docsReportPath, "docs/soak-24h-v0.2.0-beta-report.md");
 });
 
 const sleep = async (timeoutMs: number): Promise<void> => {
