@@ -2,13 +2,14 @@
 
 - Status: `full-24h-pending`
 - Phase 10 executed segment: `2h-segment-passed`
+- Phase 11 status: `full-24h-not-completed-in-this-acceptance-run`
 - Run directory: `reports/soak/24h/`
 - Resume command: `npm run soak:resume -- --profile 24h --duration-ms 86400000 --run-dir reports/soak/24h --docs-report docs/soak-24h-v0.2.0-beta-report.md`
 - Evidence: 1,220,350/1,220,350 successful requests, 0 errors, 1,440 reloads, final sockets/timers/listeners 0/0/0.
 - Resource trend: RSS samples 74.23-127.95 MiB; heap samples 15.74-41.51 MiB; final RSS/heap 90.73/36.50 MiB.
 - Infrastructure pauses: 2 pauses, 1,030,454 ms excluded from effective runtime by the active clock.
 
-The raw report below is a two-hour execution of the `24h` profile with `--duration-ms 7200000`; it is not a completed 24-hour pass.
+The raw report below is a two-hour execution of the `24h` profile with `--duration-ms 7200000`; it is not a completed 24-hour pass. Phase 11 did not mark the 24-hour gate as passed because the full wall-clock run has not completed.
 
 # Full Soak Report
 

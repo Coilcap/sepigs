@@ -2,6 +2,8 @@
 
 Status: `not tested`. Sign-off readiness: `ready-for-human-signoff`. YAML parsing passed; real Stash execution is pending.
 
+Phase 11 check: verification pack present; Stash was not available for a real client run.
+
 ## Configuration
 
 ```yaml

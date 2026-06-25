@@ -2,6 +2,8 @@
 
 Status: `not tested`. Sign-off readiness: `ready-for-human-signoff`. No iOS/Shadowrocket device was available to the agent.
 
+Phase 11 check: verification pack present; no iOS/Shadowrocket device was available for a real client run.
+
 ## Configuration
 
 - Type: SOCKS5

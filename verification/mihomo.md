@@ -2,6 +2,8 @@
 
 Status: `not tested`. Sign-off readiness: `ready-for-human-signoff`. No real Mihomo process was available to the agent.
 
+Phase 11 check: verification pack present; Mihomo binary/application was not available for a real client run.
+
 ## Configuration
 
 ```yaml

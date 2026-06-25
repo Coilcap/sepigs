@@ -2,6 +2,8 @@
 
 Status: `not tested`. Sign-off readiness: `ready-for-human-signoff`. Automated curl covers the protocol path but is not a Chrome/system-settings signature.
 
+Phase 11 check: verification pack present; no Chrome/system-proxy human sign-off was executed in this environment.
+
 ## Configuration And Import
 
 1. Start sepigs with `examples/sepigs.safe.json`.

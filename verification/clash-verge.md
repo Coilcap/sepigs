@@ -2,6 +2,8 @@
 
 Status: `not tested`. Sign-off readiness: `ready-for-human-signoff`. Mihomo YAML syntax is parsed locally; the Clash Verge GUI was not available.
 
+Phase 11 check: verification pack present; Clash Verge GUI was not available for a real client run.
+
 ## Configuration And Import
 
 1. Replace the `SEPIGS_*` values in `verification/manual-pack/mihomo.yaml`.

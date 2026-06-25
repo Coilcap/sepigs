@@ -2,6 +2,8 @@
 
 Status: `not tested`. Sign-off readiness: `ready-for-human-signoff`. No real NekoBox client was available to the agent.
 
+Phase 11 check: verification pack present; NekoBox was not available for a real client run.
+
 ## Configuration
 
 - Profile type: SOCKS5

@@ -2,6 +2,8 @@
 
 Status: `not tested`. Sign-off readiness: `ready-for-human-signoff`. Static section validation passed; real Surge execution is pending.
 
+Phase 11 check: verification pack present; Surge was not available for a real client run.
+
 ## Configuration
 
 ```ini

@@ -1,6 +1,8 @@
 # Client Compatibility
 
-Phase 7 keeps automated evidence separate from manual readiness. GUI and mobile clients are not marked verified unless the client actually ran in this environment.
+Phase 11 keeps automated evidence separate from manual readiness. GUI and mobile clients are not marked verified unless the client actually ran in this environment.
+
+Latest acceptance check: 2026-06-26 CST. The verification pack exists at `artifacts/sepigs-v0.2.0-client-verification-pack.zip`, but no P0/P1 GUI or mobile client has an executed human sign-off row yet.
 
 ## Automated Matrix
 

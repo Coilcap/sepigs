@@ -2,6 +2,8 @@
 
 Status: `not tested`. Sign-off readiness: `ready-for-human-signoff`. No Windows/v2rayN host was available to the agent.
 
+Phase 11 check: verification pack present; no Windows/v2rayN host was available for a real client run.
+
 ## Configuration
 
 - Server type: SOCKS
