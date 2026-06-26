@@ -1,16 +1,16 @@
 # External Compatibility v0.2.0-beta.0
 
-No supported reference binary was installed; no external interoperability result is claimed.
+No external interoperability result is claimed unless a vetted reference launcher completes the case.
 
-## Missing Binaries
+## Binary Detection
 
 - shadowsocks-rust: missing (sslocal, ssserver)
 - shadowsocks-libev: missing (ss-local, ss-server)
 - trojan-go: missing (trojan-go)
-- sing-box: missing (sing-box)
-- xray: missing (xray)
+- sing-box: detected at /opt/homebrew/bin/sing-box
+- xray: detected at /opt/homebrew/bin/xray
 
-Installation suggestions (not executed by this validation):
+Installation suggestions:
 
 - `cargo install shadowsocks-rust`
 - `brew install shadowsocks-libev`
@@ -20,16 +20,16 @@ Installation suggestions (not executed by this validation):
 
 | Protocol | Case | Status | Reason |
 | --- | --- | --- | --- |
-| shadowsocks | reference client -> sepigs inbound aes-128-gcm | skipped-with-reason | Skipped: no supported external reference binary found. Checked sslocal, ssserver, ss-local, ss-server, sing-box. |
-| shadowsocks | reference client -> sepigs inbound aes-256-gcm | skipped-with-reason | Skipped: no supported external reference binary found. Checked sslocal, ssserver, ss-local, ss-server, sing-box. |
-| shadowsocks | reference client -> sepigs inbound chacha20-ietf-poly1305 | skipped-with-reason | Skipped: no supported external reference binary found. Checked sslocal, ssserver, ss-local, ss-server, sing-box. |
-| shadowsocks | wrong password | skipped-with-reason | Skipped: no supported external reference binary found. Checked sslocal, ssserver, ss-local, ss-server, sing-box. |
-| shadowsocks | large payload | skipped-with-reason | Skipped: no supported external reference binary found. Checked sslocal, ssserver, ss-local, ss-server, sing-box. |
-| shadowsocks | remote close | skipped-with-reason | Skipped: no supported external reference binary found. Checked sslocal, ssserver, ss-local, ss-server, sing-box. |
-| trojan | reference client -> sepigs inbound | skipped-with-reason | Skipped: no supported external reference binary found. Checked trojan-go, sing-box, xray. |
-| trojan | wrong password | skipped-with-reason | Skipped: no supported external reference binary found. Checked trojan-go, sing-box, xray. |
-| trojan | large payload | skipped-with-reason | Skipped: no supported external reference binary found. Checked trojan-go, sing-box, xray. |
-| trojan | remote close | skipped-with-reason | Skipped: no supported external reference binary found. Checked trojan-go, sing-box, xray. |
-| trojan | TLS termination and SNI | skipped-with-reason | Skipped: no supported external reference binary found. Checked trojan-go, sing-box, xray. |
+| shadowsocks | reference client -> sepigs inbound aes-128-gcm | blocked-with-reason | Blocked: external reference binary detected (/opt/homebrew/bin/sing-box) but this release has no vetted automatic launcher for it; no verified interoperability result is claimed. |
+| shadowsocks | reference client -> sepigs inbound aes-256-gcm | blocked-with-reason | Blocked: external reference binary detected (/opt/homebrew/bin/sing-box) but this release has no vetted automatic launcher for it; no verified interoperability result is claimed. |
+| shadowsocks | reference client -> sepigs inbound chacha20-ietf-poly1305 | blocked-with-reason | Blocked: external reference binary detected (/opt/homebrew/bin/sing-box) but this release has no vetted automatic launcher for it; no verified interoperability result is claimed. |
+| shadowsocks | wrong password | blocked-with-reason | Blocked: external reference binary detected (/opt/homebrew/bin/sing-box) but this release has no vetted automatic launcher for it; no verified interoperability result is claimed. |
+| shadowsocks | large payload | blocked-with-reason | Blocked: external reference binary detected (/opt/homebrew/bin/sing-box) but this release has no vetted automatic launcher for it; no verified interoperability result is claimed. |
+| shadowsocks | remote close | blocked-with-reason | Blocked: external reference binary detected (/opt/homebrew/bin/sing-box) but this release has no vetted automatic launcher for it; no verified interoperability result is claimed. |
+| trojan | reference client -> sepigs inbound | blocked-with-reason | Blocked: external reference binary detected (/opt/homebrew/bin/sing-box, /opt/homebrew/bin/xray) but this release has no vetted automatic launcher for it; no verified interoperability result is claimed. |
+| trojan | wrong password | blocked-with-reason | Blocked: external reference binary detected (/opt/homebrew/bin/sing-box, /opt/homebrew/bin/xray) but this release has no vetted automatic launcher for it; no verified interoperability result is claimed. |
+| trojan | large payload | blocked-with-reason | Blocked: external reference binary detected (/opt/homebrew/bin/sing-box, /opt/homebrew/bin/xray) but this release has no vetted automatic launcher for it; no verified interoperability result is claimed. |
+| trojan | remote close | blocked-with-reason | Blocked: external reference binary detected (/opt/homebrew/bin/sing-box, /opt/homebrew/bin/xray) but this release has no vetted automatic launcher for it; no verified interoperability result is claimed. |
+| trojan | TLS termination and SNI | blocked-with-reason | Blocked: external reference binary detected (/opt/homebrew/bin/sing-box, /opt/homebrew/bin/xray) but this release has no vetted automatic launcher for it; no verified interoperability result is claimed. |
 
 Local fixtures remain covered by `npm test`; they are not external reference evidence.

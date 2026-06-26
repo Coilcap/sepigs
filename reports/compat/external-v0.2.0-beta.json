@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-25T21:09:34.297Z",
+  "generatedAt": "2026-06-26T03:42:30.512Z",
   "binaries": [
     {
       "name": "shadowsocks-rust",
@@ -25,13 +25,15 @@
       "name": "sing-box",
       "candidates": [
         "sing-box"
-      ]
+      ],
+      "path": "/opt/homebrew/bin/sing-box"
     },
     {
       "name": "xray",
       "candidates": [
         "xray"
-      ]
+      ],
+      "path": "/opt/homebrew/bin/xray"
     }
   ],
   "installSuggestions": [
@@ -45,8 +47,8 @@
     {
       "protocol": "shadowsocks",
       "case": "reference client -> sepigs inbound aes-128-gcm",
-      "status": "skipped-with-reason",
-      "reason": "Skipped: no supported external reference binary found. Checked sslocal, ssserver, ss-local, ss-server, sing-box.",
+      "status": "blocked-with-reason",
+      "reason": "Blocked: external reference binary detected (/opt/homebrew/bin/sing-box) but this release has no vetted automatic launcher for it; no verified interoperability result is claimed.",
       "candidates": [
         "sslocal",
         "ssserver",
@@ -58,8 +60,8 @@
     {
       "protocol": "shadowsocks",
       "case": "reference client -> sepigs inbound aes-256-gcm",
-      "status": "skipped-with-reason",
-      "reason": "Skipped: no supported external reference binary found. Checked sslocal, ssserver, ss-local, ss-server, sing-box.",
+      "status": "blocked-with-reason",
+      "reason": "Blocked: external reference binary detected (/opt/homebrew/bin/sing-box) but this release has no vetted automatic launcher for it; no verified interoperability result is claimed.",
       "candidates": [
         "sslocal",
         "ssserver",
@@ -71,8 +73,8 @@
     {
       "protocol": "shadowsocks",
       "case": "reference client -> sepigs inbound chacha20-ietf-poly1305",
-      "status": "skipped-with-reason",
-      "reason": "Skipped: no supported external reference binary found. Checked sslocal, ssserver, ss-local, ss-server, sing-box.",
+      "status": "blocked-with-reason",
+      "reason": "Blocked: external reference binary detected (/opt/homebrew/bin/sing-box) but this release has no vetted automatic launcher for it; no verified interoperability result is claimed.",
       "candidates": [
         "sslocal",
         "ssserver",
@@ -84,8 +86,8 @@
     {
       "protocol": "shadowsocks",
       "case": "wrong password",
-      "status": "skipped-with-reason",
-      "reason": "Skipped: no supported external reference binary found. Checked sslocal, ssserver, ss-local, ss-server, sing-box.",
+      "status": "blocked-with-reason",
+      "reason": "Blocked: external reference binary detected (/opt/homebrew/bin/sing-box) but this release has no vetted automatic launcher for it; no verified interoperability result is claimed.",
       "candidates": [
         "sslocal",
         "ssserver",
@@ -97,8 +99,8 @@
     {
       "protocol": "shadowsocks",
       "case": "large payload",
-      "status": "skipped-with-reason",
-      "reason": "Skipped: no supported external reference binary found. Checked sslocal, ssserver, ss-local, ss-server, sing-box.",
+      "status": "blocked-with-reason",
+      "reason": "Blocked: external reference binary detected (/opt/homebrew/bin/sing-box) but this release has no vetted automatic launcher for it; no verified interoperability result is claimed.",
       "candidates": [
         "sslocal",
         "ssserver",
@@ -110,8 +112,8 @@
     {
       "protocol": "shadowsocks",
       "case": "remote close",
-      "status": "skipped-with-reason",
-      "reason": "Skipped: no supported external reference binary found. Checked sslocal, ssserver, ss-local, ss-server, sing-box.",
+      "status": "blocked-with-reason",
+      "reason": "Blocked: external reference binary detected (/opt/homebrew/bin/sing-box) but this release has no vetted automatic launcher for it; no verified interoperability result is claimed.",
       "candidates": [
         "sslocal",
         "ssserver",
@@ -123,8 +125,8 @@
     {
       "protocol": "trojan",
       "case": "reference client -> sepigs inbound",
-      "status": "skipped-with-reason",
-      "reason": "Skipped: no supported external reference binary found. Checked trojan-go, sing-box, xray.",
+      "status": "blocked-with-reason",
+      "reason": "Blocked: external reference binary detected (/opt/homebrew/bin/sing-box, /opt/homebrew/bin/xray) but this release has no vetted automatic launcher for it; no verified interoperability result is claimed.",
       "candidates": [
         "trojan-go",
         "sing-box",
@@ -134,8 +136,8 @@
     {
       "protocol": "trojan",
       "case": "wrong password",
-      "status": "skipped-with-reason",
-      "reason": "Skipped: no supported external reference binary found. Checked trojan-go, sing-box, xray.",
+      "status": "blocked-with-reason",
+      "reason": "Blocked: external reference binary detected (/opt/homebrew/bin/sing-box, /opt/homebrew/bin/xray) but this release has no vetted automatic launcher for it; no verified interoperability result is claimed.",
       "candidates": [
         "trojan-go",
         "sing-box",
@@ -145,8 +147,8 @@
     {
       "protocol": "trojan",
       "case": "large payload",
-      "status": "skipped-with-reason",
-      "reason": "Skipped: no supported external reference binary found. Checked trojan-go, sing-box, xray.",
+      "status": "blocked-with-reason",
+      "reason": "Blocked: external reference binary detected (/opt/homebrew/bin/sing-box, /opt/homebrew/bin/xray) but this release has no vetted automatic launcher for it; no verified interoperability result is claimed.",
       "candidates": [
         "trojan-go",
         "sing-box",
@@ -156,8 +158,8 @@
     {
       "protocol": "trojan",
       "case": "remote close",
-      "status": "skipped-with-reason",
-      "reason": "Skipped: no supported external reference binary found. Checked trojan-go, sing-box, xray.",
+      "status": "blocked-with-reason",
+      "reason": "Blocked: external reference binary detected (/opt/homebrew/bin/sing-box, /opt/homebrew/bin/xray) but this release has no vetted automatic launcher for it; no verified interoperability result is claimed.",
       "candidates": [
         "trojan-go",
         "sing-box",
@@ -167,8 +169,8 @@
     {
       "protocol": "trojan",
       "case": "TLS termination and SNI",
-      "status": "skipped-with-reason",
-      "reason": "Skipped: no supported external reference binary found. Checked trojan-go, sing-box, xray.",
+      "status": "blocked-with-reason",
+      "reason": "Blocked: external reference binary detected (/opt/homebrew/bin/sing-box, /opt/homebrew/bin/xray) but this release has no vetted automatic launcher for it; no verified interoperability result is claimed.",
       "candidates": [
         "trojan-go",
         "sing-box",
@@ -178,7 +180,8 @@
   ],
   "summary": {
     "verified": 0,
-    "skipped": 11,
+    "skipped": 0,
+    "blocked": 11,
     "failed": 0
   }
 }

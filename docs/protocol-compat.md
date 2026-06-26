@@ -27,8 +27,10 @@ Verified by local fixture tests:
 
 External reference implementation status:
 
-- `shadowsocks-rust` / `shadowsocks-libev` binaries were not found in this environment when the matrix was generated.
-- Cases are recorded as `skipped-with-reason`, not verified.
+- `sing-box` is installed at `/opt/homebrew/bin/sing-box`.
+- `shadowsocks-rust` / `shadowsocks-libev` binaries are still missing.
+- External cases are recorded as `blocked-with-reason` because this release has no vetted automatic launcher for the detected reference binary.
+- No verified external Shadowsocks interoperability is claimed.
 
 Unsupported:
 
@@ -44,8 +46,11 @@ Verified by local fixture tests:
 
 External reference implementation status:
 
-- `trojan-go` / `trojan` binaries were not found in this environment when the matrix was generated.
-- Wrong password, SNI/serverName, remote close, and large payload are recorded as `skipped-with-reason`.
+- `sing-box` is installed at `/opt/homebrew/bin/sing-box`.
+- `xray` is installed at `/opt/homebrew/bin/xray`.
+- `trojan-go` is still missing.
+- Wrong password, SNI/serverName, remote close, and large payload are recorded as `blocked-with-reason` until a vetted launcher can drive the detected reference binaries.
+- No verified external Trojan interoperability is claimed.
 
 Unsupported:
 
@@ -59,4 +64,4 @@ npm run compat:trojan
 npm run compat:matrix
 ```
 
-If a reference binary is installed later, rerun the matrix command and attach the refreshed `reports/compat/` artifacts. Do not mark external compatibility verified without the reference process logs and command output.
+If a reference launcher is added later, rerun the matrix command and attach the refreshed `reports/compat/` artifacts. Do not mark external compatibility verified without the reference process logs and command output.
