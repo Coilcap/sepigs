@@ -17,6 +17,11 @@ Artifacts:
 - [protocol-matrix.json](../reports/compat/protocol-matrix.json)
 - [protocol-matrix.md](../reports/compat/protocol-matrix.md)
 
+Current external summary for `v0.2.0-beta.0`: 0 verified, 11 blocked, and 0
+failed. `sing-box` and `xray` are installed, but this release has no vetted
+automatic launcher. No external interoperability result is inferred from local
+fixtures.
+
 ## Shadowsocks
 
 Verified by local fixture tests:

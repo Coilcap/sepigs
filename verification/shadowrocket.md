@@ -1,8 +1,8 @@
 # Shadowrocket Acceptance
 
-Status: `not tested`. Sign-off readiness: `ready-for-human-signoff`. No iOS/Shadowrocket device was available to the agent.
-
-Phase 11 check: verification pack present; no iOS/Shadowrocket device was available for a real client run.
+Status: `verified`. The user manually confirmed all Shadowrocket acceptance
+checks passed. Device, OS, Shadowrocket version, screenshots, and detailed logs
+were not supplied and remain `unknown`.
 
 ## Configuration
 
@@ -31,14 +31,14 @@ The URL loads, Shadowrocket shows traffic on the sepigs node, and sepigs metrics
 
 | Device | OS version | Client version | Config | Tester/time | Result | Failure log or screenshot |
 | --- | --- | --- | --- | --- | --- | --- |
-| Pending iPhone/iPad | Pending | Pending | `verification/manual-pack/shadowrocket.md` | Pending | not tested | Pending |
+| unknown | unknown | unknown | `verification/manual-pack/shadowrocket.md` | User manual signoff / 2026-06-28 CST | verified | unknown |
 
 ## Acceptance
 
 | Check | Expected | Actual | Pass | Evidence |
 | --- | --- | --- | --- | --- |
-| Node saves | No validation error | Pending | Pending | Screenshot |
-| SOCKS5 connection | URL loads | Pending | Pending | Connection log |
-| Auth rejection test | Wrong credentials fail | Pending | Pending | Error screenshot |
-| Metrics increment | Counters increase | Pending | Pending | `/metrics` capture |
-| Rollback | VPN/profile disabled | Pending | Pending | Screenshot |
+| Node saves | No validation error | Pass reported by user | Yes | User manual signoff; detailed log not supplied |
+| SOCKS5 connection | URL loads | Pass reported by user | Yes | User manual signoff; detailed log not supplied |
+| Auth rejection test | Wrong credentials fail | Pass reported by user | Yes | User manual signoff; detailed log not supplied |
+| Metrics increment | Counters increase | Pass reported by user | Yes | User manual signoff; detailed log not supplied |
+| Rollback | VPN/profile disabled | Pass reported by user | Yes | User manual signoff; detailed log not supplied |

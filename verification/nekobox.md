@@ -1,8 +1,8 @@
 # NekoBox Acceptance
 
-Status: `not tested`. Sign-off readiness: `ready-for-human-signoff`. No real NekoBox client was available to the agent.
-
-Phase 11 check: verification pack present; NekoBox was not available for a real client run.
+Status: `verified`. The user manually confirmed all NekoBox acceptance checks
+passed. Device, OS, client version, screenshots, and detailed logs were not
+supplied and remain `unknown`.
 
 ## Configuration
 
@@ -30,14 +30,14 @@ NekoBox reports a successful connection, the page loads, and sepigs connection/b
 
 | Device | OS version | Client version | Config | Tester/time | Result | Failure log or screenshot |
 | --- | --- | --- | --- | --- | --- | --- |
-| Pending | Pending | Pending | `verification/manual-pack/nekobox.md` | Pending | not tested | Pending |
+| unknown | unknown | unknown | `verification/manual-pack/nekobox.md` | User manual signoff / 2026-06-28 CST | verified | unknown |
 
 ## Acceptance
 
 | Check | Expected | Actual | Pass | Evidence |
 | --- | --- | --- | --- | --- |
-| Profile saves | No validation error | Pending | Pending | Screenshot |
-| Connection test | Successful | Pending | Pending | NekoBox log |
-| URL request | HTTP 200 | Pending | Pending | Browser screenshot |
-| Metrics increment | Counters increase | Pending | Pending | `/metrics` capture |
-| Rollback | Direct mode restored | Pending | Pending | Screenshot |
+| Profile saves | No validation error | Pass reported by user | Yes | User manual signoff; detailed log not supplied |
+| Connection test | Successful | Pass reported by user | Yes | User manual signoff; detailed log not supplied |
+| URL request | HTTP 200 | Pass reported by user | Yes | User manual signoff; detailed log not supplied |
+| Metrics increment | Counters increase | Pass reported by user | Yes | User manual signoff; detailed log not supplied |
+| Rollback | Direct mode restored | Pass reported by user | Yes | User manual signoff; detailed log not supplied |

@@ -2,6 +2,8 @@
 
 No external interoperability result is claimed unless a vetted reference launcher completes the case.
 
+Summary: 0 verified, 11 blocked, 0 failed.
+
 ## Binary Detection
 
 - shadowsocks-rust: missing (sslocal, ssserver)

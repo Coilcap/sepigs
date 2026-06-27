@@ -2,7 +2,11 @@
 
 Phase 11 keeps automated evidence separate from manual readiness. GUI and mobile clients are not marked verified unless the client actually ran in this environment.
 
-Latest acceptance check: 2026-06-26 CST. The verification pack exists at `artifacts/sepigs-v0.2.0-client-verification-pack.zip`, but no P0/P1 GUI or mobile client has an executed human sign-off row yet.
+Latest acceptance check: 2026-06-28 CST. The verification pack exists at
+`artifacts/sepigs-v0.2.0-client-verification-pack.zip`. The user manually
+confirmed all P0 and P1 clients passed. Device models, OS versions, client
+versions, screenshots, and detailed logs were not supplied and are recorded as
+`unknown` in the individual worksheets.
 
 ## Automated Matrix
 
@@ -21,14 +25,14 @@ Latest acceptance check: 2026-06-26 CST. The verification pack exists at `artifa
 
 | Client | Status | Config | Validation URL | Expected Result |
 | --- | --- | --- | --- | --- |
-| Chrome / system proxy | not tested; ready-for-human-signoff | [chrome-system.md](../verification/chrome-system.md) | `https://example.com/` | Page loads and sepigs metrics increment. |
-| Mihomo | not tested; ready-for-human-signoff | [mihomo.md](../verification/mihomo.md) | `https://example.com/` | Selected `SEPIGS` policy reaches the URL. |
-| Shadowrocket | not tested; ready-for-human-signoff | [shadowrocket.md](../verification/shadowrocket.md) | `https://example.com/` | Manual HTTP/SOCKS profile reaches the URL. |
-| Clash Verge | not tested; ready-for-human-signoff | [clash-verge.md](../verification/clash-verge.md) | `https://example.com/` | Imported Mihomo profile reaches the URL. |
-| NekoBox | not tested; ready-for-human-signoff | [nekobox.md](../verification/nekobox.md) | `https://example.com/` | Manual HTTP/SOCKS profile reaches the URL. |
-| v2rayN | not tested; ready-for-human-signoff | [v2rayn.md](../verification/v2rayn.md) | `https://example.com/` | Manual HTTP/SOCKS profile reaches the URL. |
-| Surge | not tested; ready-for-human-signoff | [surge.md](../verification/surge.md) | `https://example.com/` | `SEPIGS` policy reaches the URL. |
-| Stash | not tested; ready-for-human-signoff | [stash.md](../verification/stash.md) | `https://example.com/` | `SEPIGS` policy reaches the URL. |
+| Chrome / system proxy | verified by user manual signoff | [chrome-system.md](../verification/chrome-system.md) | `https://example.com/` | All worksheet checks reported passed; detailed metadata unknown. |
+| Mihomo | verified by user manual signoff | [mihomo.md](../verification/mihomo.md) | `https://example.com/` | All worksheet checks reported passed; detailed metadata unknown. |
+| Shadowrocket | verified by user manual signoff | [shadowrocket.md](../verification/shadowrocket.md) | `https://example.com/` | All worksheet checks reported passed; detailed metadata unknown. |
+| Clash Verge | verified by user manual signoff | [clash-verge.md](../verification/clash-verge.md) | `https://example.com/` | All worksheet checks reported passed; detailed metadata unknown. |
+| NekoBox | verified by user manual signoff | [nekobox.md](../verification/nekobox.md) | `https://example.com/` | All worksheet checks reported passed; detailed metadata unknown. |
+| v2rayN | verified by user manual signoff | [v2rayn.md](../verification/v2rayn.md) | `https://example.com/` | All worksheet checks reported passed; detailed metadata unknown. |
+| Surge | verified by user manual signoff | [surge.md](../verification/surge.md) | `https://example.com/` | All worksheet checks reported passed; detailed metadata unknown. |
+| Stash | verified by user manual signoff | [stash.md](../verification/stash.md) | `https://example.com/` | All worksheet checks reported passed; detailed metadata unknown. |
 
 ## Reproduction
 

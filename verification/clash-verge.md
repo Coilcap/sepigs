@@ -1,8 +1,8 @@
 # Clash Verge Acceptance
 
-Status: `not tested`. Sign-off readiness: `ready-for-human-signoff`. Mihomo YAML syntax is parsed locally; the Clash Verge GUI was not available.
-
-Phase 11 check: verification pack present; Clash Verge GUI was not available for a real client run.
+Status: `verified`. The user manually confirmed all Clash Verge acceptance
+checks passed. Device, OS, app/core version, screenshots, and detailed logs were
+not supplied and remain `unknown`.
 
 ## Configuration And Import
 
@@ -17,13 +17,13 @@ Expected result: HTTP 200 through the selected sepigs SOCKS5 endpoint and direct
 
 | Device | OS version | App/core version | Config | Tester/time | Result | Failure log or screenshot |
 | --- | --- | --- | --- | --- | --- | --- |
-| Pending desktop | Pending | Pending | `verification/manual-pack/mihomo.yaml` | Pending | not tested | Pending |
+| unknown | unknown | unknown | `verification/manual-pack/mihomo.yaml` | User manual signoff / 2026-06-28 CST | verified | unknown |
 
 ## Acceptance
 
 | Check | Expected | Actual | Pass | Evidence |
 | --- | --- | --- | --- | --- |
-| Import | No syntax error | Pending | Pending | Screenshot/log |
-| Request | URL loads | Pending | Pending | Connection log |
-| Metrics | Counter increases | Pending | Pending | `/metrics` capture |
-| Rollback | System proxy disabled | Pending | Pending | Screenshot |
+| Import | No syntax error | Pass reported by user | Yes | User manual signoff; detailed log not supplied |
+| Request | URL loads | Pass reported by user | Yes | User manual signoff; detailed log not supplied |
+| Metrics | Counter increases | Pass reported by user | Yes | User manual signoff; detailed log not supplied |
+| Rollback | System proxy disabled | Pass reported by user | Yes | User manual signoff; detailed log not supplied |

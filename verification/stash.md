@@ -1,8 +1,8 @@
 # Stash Acceptance
 
-Status: `not tested`. Sign-off readiness: `ready-for-human-signoff`. YAML parsing passed; real Stash execution is pending.
-
-Phase 11 check: verification pack present; Stash was not available for a real client run.
+Status: `verified`. The user manually confirmed all Stash acceptance checks
+passed. Device, OS, client version, screenshots, and detailed logs were not
+supplied and remain `unknown`.
 
 ## Configuration
 
@@ -39,14 +39,14 @@ The URL loads through both HTTP and SOCKS5 selections, and sepigs metrics increa
 
 | Device | OS version | Client version | Config | Tester/time | Result | Failure log or screenshot |
 | --- | --- | --- | --- | --- | --- | --- |
-| Pending | Pending | Pending | `verification/manual-pack/stash.yaml` | Pending | not tested | Pending |
+| unknown | unknown | unknown | `verification/manual-pack/stash.yaml` | User manual signoff / 2026-06-28 CST | verified | unknown |
 
 ## Acceptance
 
 | Check | Expected | Actual | Pass | Evidence |
 | --- | --- | --- | --- | --- |
-| YAML imports | No parser error | Pending | Pending | Screenshot |
-| HTTP path | URL loads | Pending | Pending | Stash log |
-| SOCKS5 path | URL loads | Pending | Pending | Stash log |
-| Metrics increment | Counters increase | Pending | Pending | `/metrics` capture |
-| Rollback | Profile disabled | Pending | Pending | Screenshot |
+| YAML imports | No parser error | Pass reported by user | Yes | User manual signoff; detailed log not supplied |
+| HTTP path | URL loads | Pass reported by user | Yes | User manual signoff; detailed log not supplied |
+| SOCKS5 path | URL loads | Pass reported by user | Yes | User manual signoff; detailed log not supplied |
+| Metrics increment | Counters increase | Pass reported by user | Yes | User manual signoff; detailed log not supplied |
+| Rollback | Profile disabled | Pass reported by user | Yes | User manual signoff; detailed log not supplied |

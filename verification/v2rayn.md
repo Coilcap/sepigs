@@ -1,8 +1,8 @@
 # v2rayN Acceptance
 
-Status: `not tested`. Sign-off readiness: `ready-for-human-signoff`. No Windows/v2rayN host was available to the agent.
-
-Phase 11 check: verification pack present; no Windows/v2rayN host was available for a real client run.
+Status: `verified`. The user manually confirmed all v2rayN acceptance checks
+passed. Device, Windows version, v2rayN version, screenshots, and detailed logs
+were not supplied and remain `unknown`.
 
 ## Configuration
 
@@ -31,14 +31,14 @@ v2rayN shows a successful request, the page returns HTTP 200, and sepigs metrics
 
 | Device | OS version | Client version | Config | Tester/time | Result | Failure log or screenshot |
 | --- | --- | --- | --- | --- | --- | --- |
-| Pending Windows host | Pending | Pending | `verification/manual-pack/v2rayn.md` | Pending | not tested | Pending |
+| unknown | unknown | unknown | `verification/manual-pack/v2rayn.md` | User manual signoff / 2026-06-28 CST | verified | unknown |
 
 ## Acceptance
 
 | Check | Expected | Actual | Pass | Evidence |
 | --- | --- | --- | --- | --- |
-| Server saves | No validation error | Pending | Pending | Screenshot |
-| SOCKS connection | Successful | Pending | Pending | v2rayN log |
-| URL request | HTTP 200 | Pending | Pending | Browser screenshot |
-| Metrics increment | Counters increase | Pending | Pending | `/metrics` capture |
-| Rollback | System proxy cleared | Pending | Pending | Screenshot |
+| Server saves | No validation error | Pass reported by user | Yes | User manual signoff; detailed log not supplied |
+| SOCKS connection | Successful | Pass reported by user | Yes | User manual signoff; detailed log not supplied |
+| URL request | HTTP 200 | Pass reported by user | Yes | User manual signoff; detailed log not supplied |
+| Metrics increment | Counters increase | Pass reported by user | Yes | User manual signoff; detailed log not supplied |
+| Rollback | System proxy cleared | Pass reported by user | Yes | User manual signoff; detailed log not supplied |

@@ -1,8 +1,8 @@
 # Surge Acceptance
 
-Status: `not tested`. Sign-off readiness: `ready-for-human-signoff`. Static section validation passed; real Surge execution is pending.
-
-Phase 11 check: verification pack present; Surge was not available for a real client run.
+Status: `verified`. The user manually confirmed all Surge acceptance checks
+passed. Device, OS, client version, screenshots, and detailed logs were not
+supplied and remain `unknown`.
 
 ## Configuration
 
@@ -39,14 +39,14 @@ Both proxy selections load the URL and produce successful connections in Surge a
 
 | Device | OS version | Client version | Config | Tester/time | Result | Failure log or screenshot |
 | --- | --- | --- | --- | --- | --- | --- |
-| Pending | Pending | Pending | `verification/manual-pack/surge.conf` | Pending | not tested | Pending |
+| unknown | unknown | unknown | `verification/manual-pack/surge.conf` | User manual signoff / 2026-06-28 CST | verified | unknown |
 
 ## Acceptance
 
 | Check | Expected | Actual | Pass | Evidence |
 | --- | --- | --- | --- | --- |
-| Profile imports | No parser error | Pending | Pending | Screenshot |
-| HTTP selection | URL loads | Pending | Pending | Request log |
-| SOCKS5 selection | URL loads | Pending | Pending | Request log |
-| Metrics increment | Counters increase | Pending | Pending | `/metrics` capture |
-| Rollback | Previous profile restored | Pending | Pending | Screenshot |
+| Profile imports | No parser error | Pass reported by user | Yes | User manual signoff; detailed log not supplied |
+| HTTP selection | URL loads | Pass reported by user | Yes | User manual signoff; detailed log not supplied |
+| SOCKS5 selection | URL loads | Pass reported by user | Yes | User manual signoff; detailed log not supplied |
+| Metrics increment | Counters increase | Pass reported by user | Yes | User manual signoff; detailed log not supplied |
+| Rollback | Previous profile restored | Pass reported by user | Yes | User manual signoff; detailed log not supplied |
