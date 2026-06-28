@@ -1,6 +1,6 @@
 # v0.2 Beta Maintenance Policy
 
-Status: planning policy. There is no current requirement to publish
+Status: active M0 policy. There is no current requirement to publish
 `v0.2.0-beta.1`.
 
 ## Support Boundary
@@ -25,10 +25,19 @@ It does not receive:
 
 ## Maintenance Branch Decision
 
-No beta.1 release is needed now. Before the first v0.3 runtime change merges to
-main, create `release/v0.2.x` from the immutable `v0.2.0-beta.0` tag. This
-protects the beta baseline and provides a clean backport target. The branch may
-exist without producing a release.
+No beta.1 release is needed now. M0 created and pushed `release/v0.2.x` from
+clean main commit `e14094d8eebcef18aeeeda96cffd4c43e61186c5` before any
+v0.3 runtime work. This protects the beta line and provides a clean backport
+target. The branch may exist without producing a release, and the published
+`v0.2.0-beta.0` tag remains unchanged.
+
+Allowed maintenance changes are bug fixes, security fixes, documentation
+fixes, release metadata/packaging fixes, compatibility evidence updates, and
+their regression tests.
+
+The maintenance branch forbids new protocols, large Dashboard features,
+breaking configuration changes, experimental feature expansion, and all v0.3
+runtime/architecture work.
 
 ## beta.1 Triggers
 
@@ -81,6 +90,10 @@ Every beta.1 fix requires:
 - Forward-port to main.
 - Bug-log entry and release note.
 
+The release candidate must be built from `release/v0.2.x`, not main. After the
+maintenance fix is verified, forward-port the minimal fix and regression test
+to main.
+
 ## beta.1 Release Gate
 
 Before tagging:
@@ -99,4 +112,3 @@ The v0.2 beta line remains available until v0.3 beta has passed equivalent or
 stronger soak, client, compatibility, security, and release gates. Ending
 maintenance requires an explicit announcement; it is not implied by starting
 v0.3 development.
-

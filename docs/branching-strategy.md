@@ -1,6 +1,8 @@
 # Branching Strategy
 
-Status: planning only. No branch is created by this document.
+Status: active M0 policy. `release/v0.2.x` was created and pushed from
+`e14094d8eebcef18aeeeda96cffd4c43e61186c5`; `main` remains the v0.3
+integration branch.
 
 ## Objectives
 
@@ -20,14 +22,40 @@ Status: planning only. No branch is created by this document.
 - Does not accept P2 prototype dependencies or code paths.
 - Does not change config version 1 during v0.3.
 
+Allowed v0.3 work:
+
+- M0 policy, evidence, baseline, and release-boundary work.
+- M1 vetted external compatibility tooling and evidence.
+- M2 transactional reload implementation after its design review.
+- Dashboard API and minimal Web Dashboard beta-ready hardening.
+- UDP, fake-IP, DNS, performance, test, security, and release hardening.
+
 ### `release/v0.2.x`
 
-- Maintenance-only branch created from `v0.2.0-beta.0` before the first v0.3
-  runtime change merges to main.
+- Maintenance-only branch created during M0 before the first v0.3 runtime
+  change merges to main.
 - Receives only eligible bug, security, compatibility, performance regression,
   test, documentation, and packaging fixes.
 - Must not receive v0.3 features, broad refactors, or config changes.
 - Creation of the branch does not imply a beta.1 release.
+
+Allowed:
+
+- Bug fixes.
+- Security fixes.
+- Documentation fixes.
+- Release metadata and packaging fixes.
+- Compatibility evidence updates.
+- Regression tests required by an eligible fix.
+
+Forbidden:
+
+- New protocols.
+- New large Dashboard features.
+- Breaking configuration changes.
+- Experimental feature expansion.
+- v0.3 runtime or architecture code.
+- TUN, QUIC/Hysteria2, or WireGuard development.
 
 ### Short-Lived Feature Branches
 
@@ -92,6 +120,10 @@ focused on failure cleanup and evidence integrity.
 If the fix depends on v0.3 architecture, redesign a smaller v0.2 fix or defer
 with a documented mitigation. Do not backport the architecture.
 
+Do not publish `v0.2.0-beta.1` directly from main. A required beta.1 fix must
+land on `release/v0.2.x`, pass maintenance gates there, and then be
+forward-ported to main.
+
 ## Tag Rules
 
 - Never move, recreate, or force-update `v0.2.0-beta.0`.
@@ -111,4 +143,3 @@ with a documented mitigation. Do not backport the architecture.
 5. Performance baseline and beta closure.
 
 P2 work proceeds independently and cannot block mainline v0.3 delivery.
-
