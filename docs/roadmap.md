@@ -35,6 +35,21 @@ Phase 9 adds regression, UDP performance, mixed soak, secret scanning, external-
 - Add parser fuzzing for DNS, SOCKS5 UDP, Shadowsocks/Trojan handshakes, and subscription dialects.
 - Establish cross-platform CI and signed artifact provenance before a stable release.
 
+## v0.3.0 Planning
+
+The current v0.3.0 plan prioritizes verified external interoperability,
+transactional cross-component reload, beta maintenance, stress coverage, and
+measured Dashboard/performance stabilization. Native TUN, QUIC/Hysteria2, and
+WireGuard work remains isolated from main.
+
+See:
+
+- [v0.3.0 roadmap](v0.3.0-roadmap.md)
+- [v0.3.0 acceptance criteria](v0.3.0-acceptance-criteria.md)
+- [v0.3.0 risk matrix](v0.3.0-risk-matrix.md)
+- [branching strategy](branching-strategy.md)
+- [beta maintenance policy](beta-maintenance-policy.md)
+
 ## Engineering Notes
 
 Next protocol additions should keep protocol parsing out of `Engine`. New transports should expose a small typed interface under `src/transport` and have socket/resource cleanup tests before feature tests.
