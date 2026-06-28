@@ -15,7 +15,7 @@ Every record contains:
 | --- | --- |
 | `evidenceId` | Stable unique ID, such as `client-mihomo-20260628-01` |
 | `kind` | `client`, `protocol`, `soak`, or `release` |
-| `result` | `verified`, `failed`, `blocked`, or `skipped` |
+| `result` | `verified`, `failed`, `blocked`, `skipped`, or `unsupported` |
 | `startedAt` / `completedAt` | UTC ISO-8601 timestamps |
 | `sepigsCommit` | Full Git commit hash |
 | `environment` | OS, architecture, Node.js version, and relevant limits |
@@ -25,7 +25,8 @@ Every record contains:
 
 `blocked` means an attempted validation could not reach the product assertion
 because of an environment/dependency boundary. `skipped` means it was not
-attempted. Neither is equivalent to `verified`.
+attempted. `unsupported` means the case is outside the declared product or
+harness capability boundary. None is equivalent to `verified`.
 
 Commands and logs must redact passwords, tokens, private keys, subscription
 URLs, user paths, and unrelated environment variables. Release artifacts must
@@ -76,6 +77,15 @@ Required fields:
 A reference case is verified only when the expected external binary actually
 started, reached ready state, exchanged the asserted payload, and cleaned up.
 A local mock or binary detection alone cannot satisfy this record.
+
+The M1 JSON record maps these fields as follows: `caseId`,
+`referenceImplementation`, `referenceVersion`, `sepigsRole`, `protocol`,
+optional `cipher`, `payloadSize`, redacted `command`, `result`, `reason`,
+bounded stdout/stderr excerpts, `reproductionCommand`, logical
+`artifactPath`, and timestamps. Binary path and version-command evidence live
+in the companion `reference-detection.json`. Raw temporary configs, logs,
+certificates, and keys are deleted after the bounded run and are not release
+artifacts.
 
 ## Soak Evidence
 
@@ -130,4 +140,3 @@ must not claim stable/latest status from a prerelease.
   criterion.
 - Evidence changes receive the same review as code when they alter a release
   claim.
-

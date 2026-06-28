@@ -475,3 +475,33 @@ Remaining risk:
 Next:
 - Repair GitHub credentials, push `main`, then create/push the beta tag only after confirming `origin/main` contains this release-closure commit.
 - Complete human client sign-off and external reference implementation compatibility before making a production-stable claim.
+
+## Stage 18 - Phase 12 M1 External Compatibility Harness
+
+Completed:
+- Added reference detection with executable, version, platform, architecture, and install-hint evidence.
+- Added loopback-only temporary config generators for shadowsocks-rust, shadowsocks-libev, sing-box, Xray, and Trojan-Go.
+- Added a bounded external process runner with readiness, crash containment, graceful stop, force-kill fallback, port cleanup checks, and capped logs.
+- Added real Shadowsocks and Trojan client/server interoperability cases plus per-case reproduction and combined reports.
+
+Found:
+- Xray can acknowledge its local SOCKS CONNECT before the remote Trojan tunnel is fully settled; sending the full 1 MiB as the first application write caused a deterministic reset.
+- External process logs and commands could expose system temporary paths in retained evidence.
+- Trojan tests use an ephemeral self-signed certificate, so encrypted interoperability must not be described as public-PKI verification.
+- The `tsx` CLI opened an IPC socket even for report-only commands and failed with `listen EPERM` in a restricted environment.
+- A missing command with no readiness callback could emit its asynchronous spawn error after the runner had already returned ready.
+
+Fixed:
+- Large payload verification now confirms a small exchange first, then asserts the complete 1 MiB payload over the established tunnel.
+- Retained evidence redacts test-only secrets and replaces system temporary paths with `<system-temp>`.
+- Documentation and case reasons state the self-signed certificate and trust boundary explicitly.
+- New npm entries use `node --import tsx`, matching existing sandbox-safe project scripts and avoiding the CLI IPC server.
+- Process readiness now waits for Node's successful `spawn` event, and a missing-command regression test verifies contained failure and bounded teardown.
+
+Remaining risk:
+- shadowsocks-rust, shadowsocks-libev, and trojan-go are absent, leaving 28 cases skipped.
+- Binary path and version are captured, but digest/provenance enforcement remains an M2 supply-chain gate.
+- Process-group cleanup has automated local coverage but still needs CI/platform variance evidence.
+
+Next:
+- In M2, install pinned missing references, add digest/provenance gates, and rerun skipped cases without changing protocol core behavior.

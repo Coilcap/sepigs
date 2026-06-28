@@ -31,3 +31,21 @@ Not yet supported:
 - Per-user rate limits.
 - Full OS-level sandbox profiles for plugins.
 - Authenticated metrics endpoint.
+
+## M1 External Compatibility Harness
+
+- Reference processes bind only to `127.0.0.1` on randomly allocated ports.
+- Configs, bounded raw logs, test certificates, and keys live under a
+  sepigs-owned system temporary directory with restrictive file modes.
+- The harness reads no user proxy config and uses fixed values explicitly
+  named test-only; reports redact those values.
+- Startup and stop deadlines are bounded. A timed-out process receives
+  `SIGTERM`, then a process-group `SIGKILL` fallback, followed by a port-release
+  check.
+- Captured stdout/stderr is capped and report excerpts replace the system
+  temporary path with `<system-temp>`.
+- Temporary process artifacts are removed at teardown and are excluded from
+  release packages. Small redacted summary reports under `reports/compat/`
+  are the only retained evidence.
+- External binaries remain third-party test dependencies. Detection and a
+  successful version command do not grant trust or imply interoperability.
