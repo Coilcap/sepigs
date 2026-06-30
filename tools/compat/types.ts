@@ -15,6 +15,7 @@ export interface ExternalCompatibilityCase {
   readonly protocol: "shadowsocks" | "trojan";
   readonly cipher?: string;
   readonly payloadSize: number;
+  readonly concurrency?: number;
   readonly command: string;
   readonly result: CompatibilityResult;
   readonly reason: string;
@@ -22,6 +23,11 @@ export interface ExternalCompatibilityCase {
   readonly stderrExcerpt: string;
   readonly reproductionCommand: string;
   readonly artifactPath: string;
+  readonly processCleanup?: {
+    readonly graceful: boolean;
+    readonly forced: boolean;
+    readonly portsReleased: boolean;
+  };
   readonly startedAt: string;
   readonly completedAt: string;
 }

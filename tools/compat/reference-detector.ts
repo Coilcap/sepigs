@@ -3,6 +3,7 @@ import { access, mkdir, writeFile } from "node:fs/promises";
 import { constants } from "node:fs";
 import { delimiter, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { redactLocalPath } from "./path-redaction.js";
 import type { ReferenceImplementation } from "./types.js";
 
 export type DetectionStatus = "available" | "partial" | "missing" | "failed-version-check";
@@ -103,10 +104,11 @@ export const writeReferenceDetectionReport = async (
   report: ReferenceDetectionReport,
   directory = "reports/compat"
 ): Promise<void> => {
+  const redactedReport = redactDetectionReport(report);
   await mkdir(directory, { recursive: true });
   await Promise.all([
-    writeFile(join(directory, "reference-detection.json"), `${JSON.stringify(report, null, 2)}\n`, "utf8"),
-    writeFile(join(directory, "reference-detection.md"), renderMarkdown(report), "utf8")
+    writeFile(join(directory, "reference-detection.json"), `${JSON.stringify(redactedReport, null, 2)}\n`, "utf8"),
+    writeFile(join(directory, "reference-detection.md"), renderMarkdown(redactedReport), "utf8")
   ]);
 };
 
@@ -223,6 +225,20 @@ const aggregateStatus = (binaries: readonly BinaryDetection[]): DetectionStatus 
   if (binaries.every((item) => item.status === "available")) return "available";
   return "partial";
 };
+
+const redactDetectionReport = (report: ReferenceDetectionReport): ReferenceDetectionReport => ({
+  ...report,
+  implementations: report.implementations.map((implementation) => ({
+    ...implementation,
+    binaries: implementation.binaries.map((binary) => ({
+      ...binary,
+      ...(binary.path === undefined ? {} : { path: redactLocalPath(binary.path) }),
+      versionCommand: binary.versionCommand.map((part, index) =>
+        index === 0 && part.startsWith("/") ? redactLocalPath(part) : part
+      )
+    }))
+  }))
+});
 
 const appendBounded = (current: string, value: Buffer | string, limit: number): string => {
   if (current.length >= limit) return current;

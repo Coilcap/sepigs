@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "baselineName": "v0.3.0-m2",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "source": "Phase 13 M2 real external compatibility run",
+  "changeNote": "Initial M2 baseline after adding Xray Shadowsocks, remote-close, and sing-box concurrency evidence.",
+  "maximumVerifiedDropPercent": 20,
+  "implementations": {
+    "sing-box": {
+      "versionPrefix": "sing-box version 1.13.14",
+      "verified": 23
+    },
+    "xray": {
+      "versionPrefix": "Xray 26.3.27",
+      "verified": 21
+    }
+  }
+}

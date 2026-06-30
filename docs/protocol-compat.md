@@ -7,7 +7,7 @@ they are not external interoperability evidence. The immutable external
 summary for `v0.2.0-beta.0` remains 0 verified, 11 blocked, and 0 failed
 because that release had no vetted launcher.
 
-M1 development evidence for v0.3.0 is separate: 23 verified, 28 skipped,
+M2 development evidence for v0.3.0 is separate: 44 verified, 28 skipped,
 0 blocked, 0 failed, and 2 unsupported. The harness actually starts each
 available reference process, checks payload integrity or expected rejection,
 then verifies process and port cleanup.
@@ -32,12 +32,14 @@ Local fixture evidence:
 - All three supported AEAD ciphers.
 - `test/compat/shadowsocks-compat.test.ts`.
 
-External M1 evidence:
+External M2 evidence:
 
-- sing-box 1.13.14 produced 11 verified cases.
+- sing-box 1.13.14 produced 15 verified Shadowsocks cases.
+- Xray 26.3.27 produced 13 verified Shadowsocks cases.
 - Both sepigs roles and all three AEAD ciphers were asserted.
 - Outbound cases include 31-byte and 1 MiB payloads.
-- Both directions include wrong-password rejection.
+- Both directions include wrong-password rejection and remote close.
+- sing-box includes an 8-connection concurrent case in both directions.
 - shadowsocks-rust and shadowsocks-libev are missing; their 22 cases are
   skipped, not verified or failed.
 
@@ -58,12 +60,12 @@ Local fixture evidence:
 - Password hash line and TCP relay framing.
 - `test/compat/trojan-compat.test.ts`.
 
-External M1 evidence:
+External M2 evidence:
 
-- sing-box 1.13.14 produced 6 verified Trojan TLS cases.
-- Xray 26.3.27 produced 6 verified Trojan TLS cases.
+- sing-box 1.13.14 produced 8 verified Trojan TLS cases.
+- Xray 26.3.27 produced 8 verified Trojan TLS cases.
 - Both sepigs roles, wrong-password rejection, SNI/server-name handling,
-  31-byte payloads, and 1 MiB payloads were asserted.
+  31-byte payloads, 1 MiB payloads, and remote close were asserted.
 - The generated certificate is self-signed. sepigs outbound and sing-box
   client test paths disable chain validation; Xray client pins its fingerprint.
   This is not public-PKI certification.
@@ -81,7 +83,7 @@ Legacy fixture matrix:
 - [protocol-matrix.json](../reports/compat/protocol-matrix.json)
 - [protocol-matrix.md](../reports/compat/protocol-matrix.md)
 
-M1 reference evidence:
+M2 reference evidence:
 
 - [reference-detection.json](../reports/compat/reference-detection.json)
 - [reference-detection.md](../reports/compat/reference-detection.md)
@@ -89,8 +91,12 @@ M1 reference evidence:
 - [external-v1.md](../reports/compat/external-v1.md)
 - [external-summary-v1.json](../reports/compat/external-summary-v1.json)
 - [external-summary-v1.md](../reports/compat/external-summary-v1.md)
+- [reference-fingerprints.json](../reports/compat/reference-fingerprints.json)
+- [sing-box-v0.3.0-m2.json](../reports/compat/sing-box-v0.3.0-m2.json)
+- [xray-v0.3.0-m2.json](../reports/compat/xray-v0.3.0-m2.json)
+- [gate-v0.3.0-m2.json](../reports/compat/gate-v0.3.0-m2.json)
 
-To reproduce one M1 case:
+To reproduce one M2 case:
 
 ```bash
 npm run compat:external:v1 -- --case <case-id>

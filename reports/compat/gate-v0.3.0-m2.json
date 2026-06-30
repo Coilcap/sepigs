@@ -1,0 +1,25 @@
+{
+  "generatedAt": "2026-06-30T22:05:30.039Z",
+  "baselineName": "v0.3.0-m2",
+  "passed": true,
+  "findings": [],
+  "currentSummary": {
+    "verified": 44,
+    "failed": 0,
+    "skipped": 28,
+    "blocked": 0,
+    "unsupported": 2
+  },
+  "implementations": {
+    "sing-box": {
+      "baselineVerified": 23,
+      "currentVerified": 23,
+      "verifiedDropPercent": 0
+    },
+    "xray": {
+      "baselineVerified": 21,
+      "currentVerified": 21,
+      "verifiedDropPercent": 0
+    }
+  }
+}

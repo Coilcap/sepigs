@@ -1,6 +1,6 @@
 # External Compatibility Harness
 
-The M1 harness detects supported reference binaries, generates isolated
+The M2 harness detects and fingerprints supported reference binaries, generates isolated
 loopback-only configs, owns their process lifecycle, exchanges real payloads,
 and writes redacted evidence. It does not install software or convert missing
 dependencies into successful results.
@@ -9,8 +9,11 @@ dependencies into successful results.
 
 ```bash
 npm run compat:detect
+npm run compat:fingerprint
 npm run compat:external:v1
 npm run compat:report
+npm run compat:gate
+npm run compat:evidence-pack
 ```
 
 Run one case with:
@@ -54,23 +57,24 @@ changing `PATH`.
 Only `verified` is a positive interoperability claim. Detection, local mocks,
 blocked cases, and skipped cases are not substitutes.
 
-## Current M1 Matrix
+## Current M2 Matrix
 
-The 2026-06-29 Darwin arm64 run found sing-box 1.13.14 and Xray 26.3.27:
+The 2026-07-01 Darwin arm64 run found sing-box 1.13.14 and Xray 26.3.27:
 
 | Reference | Verified | Failed | Blocked | Skipped | Unsupported |
 | --- | ---: | ---: | ---: | ---: | ---: |
 | shadowsocks-rust | 0 | 0 | 0 | 11 | 0 |
 | shadowsocks-libev | 0 | 0 | 0 | 11 | 0 |
-| sing-box | 17 | 0 | 0 | 0 | 1 |
-| xray | 6 | 0 | 0 | 0 | 1 |
+| sing-box | 23 | 0 | 0 | 0 | 1 |
+| xray | 21 | 0 | 0 | 0 | 1 |
 | trojan-go | 0 | 0 | 0 | 6 | 0 |
-| **Total** | **23** | **0** | **0** | **28** | **2** |
+| **Total** | **44** | **0** | **0** | **28** | **2** |
 
 Shadowsocks coverage includes both sepigs roles, all three supported AEAD
-ciphers, 31-byte and 1 MiB payloads where defined, and wrong-password
-rejection. Trojan coverage includes both sepigs roles over local TLS, 31-byte
-and 1 MiB payloads, SNI/server-name behavior, and wrong-password rejection.
+ciphers, 31-byte and 1 MiB payloads where defined, wrong-password rejection,
+remote close, and sing-box 8-connection concurrency. Trojan coverage includes
+both sepigs roles over local TLS, 31-byte and 1 MiB payloads,
+SNI/server-name behavior, wrong-password rejection, and remote close.
 
 ## Trojan Boundary
 
@@ -84,7 +88,7 @@ the payload is measured over an established tunnel.
 
 Plain Trojan mode remains a local fixture convenience. It is not eligible for
 public interoperability verification. Trojan-Go extensions, WebSocket,
-multiplexing, and QUIC are outside M1.
+multiplexing, and QUIC are outside M2.
 
 ## Lifecycle And Artifacts
 
@@ -98,7 +102,16 @@ Retained reports:
 
 - `reports/compat/reference-detection.json`
 - `reports/compat/reference-detection.md`
+- `reports/compat/reference-fingerprints.json`
+- `reports/compat/reference-fingerprints.md`
 - `reports/compat/external-v1.json`
 - `reports/compat/external-v1.md`
 - `reports/compat/external-summary-v1.json`
 - `reports/compat/external-summary-v1.md`
+- `reports/compat/sing-box-v0.3.0-m2.json`
+- `reports/compat/xray-v0.3.0-m2.json`
+- `reports/compat/gate-v0.3.0-m2.json`
+
+The ZIP evidence pack contains only these redacted text reports, a manifest,
+and reproduction commands. It never includes external binaries or temporary
+configs.

@@ -13,12 +13,15 @@ import { TrojanOutbound } from "../../src/outbound/trojan.js";
 import type { TcpStream } from "../../src/protocol/types.js";
 import { closeSocket } from "../../src/utils/net.js";
 import { generateTestCertificate } from "./certificates.js";
+import { SING_BOX_M2_POLICY } from "./cases/sing-box.js";
+import { XRAY_M2_POLICY } from "./cases/xray.js";
 import {
   generateShadowsocksLibevCommand,
   generateShadowsocksRustConfig,
   generateSingBoxShadowsocksConfig,
   generateSingBoxTrojanConfig,
   generateTrojanGoConfig,
+  generateXrayShadowsocksConfig,
   generateXrayTrojanConfig
 } from "./config-generators/index.js";
 import type {
@@ -64,11 +67,12 @@ const CIPHERS: readonly ShadowsocksCipher[] = [
 const SMALL_PAYLOAD = Buffer.from("sepigs-external-reference-small", "utf8");
 const LARGE_PAYLOAD = Buffer.alloc(1024 * 1024, 0x5a);
 const LARGE_PAYLOAD_WARMUP = Buffer.from("sepigs-large-payload-warmup", "utf8");
+const REMOTE_CLOSE_PAYLOAD = Buffer.from("sepigs-remote-close-probe", "utf8");
 const PROCESS_LOG_LIMIT = 64 * 1024;
 const PROCESS_START_TIMEOUT_MS = 5_000;
 const PROCESS_STOP_TIMEOUT_MS = 2_000;
 
-type ShadowsocksImplementation = "shadowsocks-rust" | "shadowsocks-libev" | "sing-box";
+type ShadowsocksImplementation = "shadowsocks-rust" | "shadowsocks-libev" | "sing-box" | "xray";
 type TrojanImplementation = "sing-box" | "xray" | "trojan-go";
 
 interface CaseContext {
@@ -79,6 +83,7 @@ interface CaseContext {
   readonly protocol: "shadowsocks" | "trojan";
   readonly payload: Buffer;
   readonly cipher?: ShadowsocksCipher;
+  readonly concurrency?: number;
   readonly displayCommand: string;
   readonly artifactPath: string;
   readonly startedAt: string;
@@ -87,6 +92,13 @@ interface CaseContext {
 interface RunningReference {
   readonly process: ManagedExternalProcess;
   readonly plan: ReferenceLaunchPlan;
+}
+
+interface SocketScenarioInput {
+  readonly payload: Buffer;
+  readonly expectFailure?: boolean;
+  readonly remoteClose?: boolean;
+  readonly concurrency?: number;
 }
 
 type ReferenceLaunchOutcome =
@@ -115,7 +127,7 @@ export const runExternalCompatibilityHarness = async (
   const temp = await createCompatTempDirectory("harness");
   const cases: ExternalCompatibilityCase[] = [];
   try {
-    for (const implementation of ["shadowsocks-rust", "shadowsocks-libev", "sing-box"] as const) {
+    for (const implementation of ["shadowsocks-rust", "shadowsocks-libev", "sing-box", "xray"] as const) {
       await runShadowsocksCases(implementation, detection, temp.path, cases, options.caseFilter);
     }
     const certificate = await generateTestCertificate(temp.path);
@@ -196,6 +208,57 @@ const runShadowsocksCases = async (
       expectFailure: true
     }));
   }
+  const supportsRemoteClose = implementation === "sing-box"
+    ? SING_BOX_M2_POLICY.shadowsocks.remoteClose
+    : implementation === "xray" && XRAY_M2_POLICY.shadowsocks.remoteClose;
+  if (supportsRemoteClose) {
+    const remoteServerId = `ss-${implementation}-sepigs-outbound-remote-close`;
+    if (selected(remoteServerId, caseFilter)) {
+      results.push(await runShadowsocksServerCase({
+        caseId: remoteServerId,
+        implementation,
+        binary: serverBinary,
+        cipher: "aes-128-gcm",
+        payload: REMOTE_CLOSE_PAYLOAD,
+        password: COMPAT_TEST_ONLY_PASSWORD,
+        tempRoot,
+        remoteClose: true
+      }));
+    }
+    const remoteClientId = `ss-${implementation}-sepigs-inbound-remote-close`;
+    if (selected(remoteClientId, caseFilter)) {
+      results.push(await runShadowsocksClientCase({
+        caseId: remoteClientId,
+        implementation,
+        binary: clientBinary,
+        cipher: "aes-128-gcm",
+        payload: REMOTE_CLOSE_PAYLOAD,
+        password: COMPAT_TEST_ONLY_PASSWORD,
+        tempRoot,
+        remoteClose: true
+      }));
+    }
+  }
+  if (implementation === "sing-box") {
+    const concurrency = SING_BOX_M2_POLICY.shadowsocks.concurrentConnections;
+    for (const role of ["outbound", "inbound"] as const) {
+      const caseId = `ss-sing-box-sepigs-${role}-concurrent-${concurrency}`;
+      if (!selected(caseId, caseFilter)) continue;
+      const input = {
+        caseId,
+        implementation,
+        binary: role === "outbound" ? serverBinary : clientBinary,
+        cipher: "aes-256-gcm" as const,
+        payload: SMALL_PAYLOAD,
+        password: COMPAT_TEST_ONLY_PASSWORD,
+        tempRoot,
+        concurrency
+      };
+      results.push(role === "outbound"
+        ? await runShadowsocksServerCase(input)
+        : await runShadowsocksClientCase(input));
+    }
+  }
 };
 
 const runTrojanCases = async (
@@ -249,6 +312,28 @@ const runTrojanCases = async (
       expectFailure: true
     }));
   }
+  const supportsRemoteClose = implementation === "sing-box"
+    ? SING_BOX_M2_POLICY.trojan.remoteClose
+    : implementation === "xray" && XRAY_M2_POLICY.trojan.remoteClose;
+  if (supportsRemoteClose) {
+    for (const role of ["outbound", "inbound"] as const) {
+      const caseId = `trojan-${implementation}-sepigs-${role}-remote-close`;
+      if (!selected(caseId, caseFilter)) continue;
+      const input = {
+        caseId,
+        implementation,
+        binary,
+        payload: REMOTE_CLOSE_PAYLOAD,
+        password: COMPAT_TEST_ONLY_PASSWORD,
+        tempRoot,
+        certificate,
+        remoteClose: true
+      };
+      results.push(role === "outbound"
+        ? await runTrojanServerCase(input)
+        : await runTrojanClientCase(input));
+    }
+  }
 };
 
 const runShadowsocksServerCase = async (input: {
@@ -260,12 +345,14 @@ const runShadowsocksServerCase = async (input: {
   readonly password: string;
   readonly tempRoot: string;
   readonly expectFailure?: boolean;
+  readonly remoteClose?: boolean;
+  readonly concurrency?: number;
 }): Promise<ExternalCompatibilityCase> => {
   const unavailable = unavailableCase(input, "outbound", "shadowsocks");
   if (unavailable !== undefined) return unavailable;
   const startedAt = new Date().toISOString();
   const caseDir = await createCompatSubdirectory(input.tempRoot, input.caseId);
-  const echo = await startEchoServer();
+  const echo = await startEchoServer({ remoteClose: input.remoteClose === true });
   const listenPort = await allocateLoopbackPort();
   let running: RunningReference | undefined;
   let outbound: ShadowsocksOutbound | undefined;
@@ -292,19 +379,14 @@ const runShadowsocksServerCase = async (input: {
       method: input.cipher,
       password: input.password
     }, limits(), new Logger("silent"));
-    const connection = await outbound.connect(proxyRequest(echo.port, input.caseId));
-    try {
-      if (input.expectFailure === true) {
-        await expectExchangeFailure(connection.socket, input.payload);
-      } else {
-        await exchangeAndAssert(connection.socket, input.payload);
-      }
-    } finally {
-      closeSocket(connection.socket);
-    }
+    const activeOutbound = outbound;
+    await runSocketScenario(
+      async () => (await activeOutbound.connect(proxyRequest(echo.port, input.caseId))).socket,
+      input
+    );
     const stop = await running.process.stop();
     running = undefined;
-    return completeCase(context, lifecycleResult(stop), input.expectFailure === true ? "wrong password was rejected" : "payload integrity passed", stop);
+    return completeCase(context, lifecycleResult(stop), scenarioReason(input), stop);
   } catch (error) {
     const stop = running === undefined ? undefined : await running.process.stop();
     running = undefined;
@@ -325,12 +407,14 @@ const runShadowsocksClientCase = async (input: {
   readonly password: string;
   readonly tempRoot: string;
   readonly expectFailure?: boolean;
+  readonly remoteClose?: boolean;
+  readonly concurrency?: number;
 }): Promise<ExternalCompatibilityCase> => {
   const unavailable = unavailableCase(input, "inbound", "shadowsocks");
   if (unavailable !== undefined) return unavailable;
   const startedAt = new Date().toISOString();
   const caseDir = await createCompatSubdirectory(input.tempRoot, input.caseId);
-  const echo = await startEchoServer();
+  const echo = await startEchoServer({ remoteClose: input.remoteClose === true });
   const engine = createShadowsocksEngine(input.cipher, COMPAT_TEST_ONLY_PASSWORD);
   let running: RunningReference | undefined;
   try {
@@ -355,16 +439,11 @@ const runShadowsocksClientCase = async (input: {
     if (input.expectFailure === true) {
       await expectSocksFailure(localPort, echo.port, input.payload);
     } else {
-      const socket = await openSocksTunnel(localPort, echo.port);
-      try {
-        await exchangeAndAssert(socket, input.payload);
-      } finally {
-        closeSocket(socket);
-      }
+      await runSocketScenario(async () => await openSocksTunnel(localPort, echo.port), input);
     }
     const stop = await running.process.stop();
     running = undefined;
-    return completeCase(context, lifecycleResult(stop), input.expectFailure === true ? "wrong password was rejected" : "payload integrity passed", stop);
+    return completeCase(context, lifecycleResult(stop), scenarioReason(input), stop);
   } catch (error) {
     const stop = running === undefined ? undefined : await running.process.stop();
     running = undefined;
@@ -385,13 +464,14 @@ const runTrojanServerCase = async (input: {
   readonly tempRoot: string;
   readonly certificate: Awaited<ReturnType<typeof generateTestCertificate>>;
   readonly expectFailure?: boolean;
+  readonly remoteClose?: boolean;
 }): Promise<ExternalCompatibilityCase> => {
   const unavailable = unavailableTrojanCase(input, "outbound");
   if (unavailable !== undefined) return unavailable;
   const tls = input.certificate.tls as CompatTlsFiles;
   const startedAt = new Date().toISOString();
   const caseDir = await createCompatSubdirectory(input.tempRoot, input.caseId);
-  const echo = await startEchoServer();
+  const echo = await startEchoServer({ remoteClose: input.remoteClose === true });
   const listenPort = await allocateLoopbackPort();
   let running: RunningReference | undefined;
   let outbound: TrojanOutbound | undefined;
@@ -418,16 +498,11 @@ const runTrojanServerCase = async (input: {
       password: input.password,
       tls: { enabled: true, serverName: tls.serverName, rejectUnauthorized: false }
     }, limits(), new Logger("silent"));
-    const connection = await outbound.connect(proxyRequest(echo.port, input.caseId));
-    try {
-      if (input.expectFailure === true) {
-        await expectExchangeFailure(connection.socket, input.payload);
-      } else {
-        await exchangeAndAssert(connection.socket, input.payload);
-      }
-    } finally {
-      closeSocket(connection.socket);
-    }
+    const activeOutbound = outbound;
+    await runSocketScenario(
+      async () => (await activeOutbound.connect(proxyRequest(echo.port, input.caseId))).socket,
+      input
+    );
     const stop = await running.process.stop();
     running = undefined;
     return completeCase(
@@ -435,6 +510,8 @@ const runTrojanServerCase = async (input: {
       lifecycleResult(stop),
       input.expectFailure === true
         ? "wrong password was rejected"
+        : input.remoteClose === true
+          ? "TLS remote close propagated and resources were released"
         : "TLS payload integrity passed; ephemeral self-signed chain validation disabled",
       stop
     );
@@ -458,13 +535,14 @@ const runTrojanClientCase = async (input: {
   readonly tempRoot: string;
   readonly certificate: Awaited<ReturnType<typeof generateTestCertificate>>;
   readonly expectFailure?: boolean;
+  readonly remoteClose?: boolean;
 }): Promise<ExternalCompatibilityCase> => {
   const unavailable = unavailableTrojanCase(input, "inbound");
   if (unavailable !== undefined) return unavailable;
   const tls = input.certificate.tls as CompatTlsFiles;
   const startedAt = new Date().toISOString();
   const caseDir = await createCompatSubdirectory(input.tempRoot, input.caseId);
-  const echo = await startEchoServer();
+  const echo = await startEchoServer({ remoteClose: input.remoteClose === true });
   const engine = createTrojanEngine(COMPAT_TEST_ONLY_PASSWORD, tls);
   let running: RunningReference | undefined;
   try {
@@ -489,16 +567,20 @@ const runTrojanClientCase = async (input: {
     if (input.expectFailure === true) {
       await expectSocksFailure(localPort, echo.port, input.payload);
     } else {
-      const socket = await openSocksTunnel(localPort, echo.port);
-      try {
-        await exchangeAndAssert(socket, input.payload);
-      } finally {
-        closeSocket(socket);
-      }
+      await runSocketScenario(async () => await openSocksTunnel(localPort, echo.port), input);
     }
     const stop = await running.process.stop();
     running = undefined;
-    return completeCase(context, lifecycleResult(stop), input.expectFailure === true ? "wrong password was rejected" : "TLS payload integrity passed", stop);
+    return completeCase(
+      context,
+      lifecycleResult(stop),
+      input.expectFailure === true
+        ? "wrong password was rejected"
+        : input.remoteClose === true
+          ? "TLS remote close propagated and resources were released"
+          : "TLS payload integrity passed",
+      stop
+    );
   } catch (error) {
     const stop = running === undefined ? undefined : await running.process.stop();
     running = undefined;
@@ -515,7 +597,8 @@ const generateShadowsocksPlan = async (input: ShadowsocksGeneratorInput & {
 }): Promise<ReferenceLaunchPlan> => {
   if (input.implementation === "shadowsocks-rust") return await generateShadowsocksRustConfig(input);
   if (input.implementation === "shadowsocks-libev") return generateShadowsocksLibevCommand(input);
-  return await generateSingBoxShadowsocksConfig(input);
+  if (input.implementation === "sing-box") return await generateSingBoxShadowsocksConfig(input);
+  return await generateXrayShadowsocksConfig(input);
 };
 
 const generateTrojanPlan = async (input: TrojanGeneratorInput & {
@@ -564,6 +647,7 @@ const unavailableCase = (
     readonly binary: BinaryDetection | undefined;
     readonly payload: Buffer;
     readonly cipher?: ShadowsocksCipher;
+    readonly concurrency?: number;
   },
   sepigsRole: "inbound" | "outbound",
   protocol: "shadowsocks" | "trojan"
@@ -578,6 +662,7 @@ const unavailableCase = (
     protocol,
     ...(input.cipher === undefined ? {} : { cipher: input.cipher }),
     payloadSize: input.payload.byteLength,
+    ...(input.concurrency === undefined ? {} : { concurrency: input.concurrency }),
     command: input.binary?.name ?? "missing",
     result,
     reason: input.binary === undefined
@@ -631,6 +716,7 @@ const failedCase = (
     readonly binary: BinaryDetection | undefined;
     readonly payload: Buffer;
     readonly cipher?: ShadowsocksCipher;
+    readonly concurrency?: number;
   },
   sepigsRole: "inbound" | "outbound",
   protocol: "shadowsocks" | "trojan",
@@ -646,6 +732,7 @@ const failedCase = (
   protocol,
   ...(input.cipher === undefined ? {} : { cipher: input.cipher }),
   payloadSize: input.payload.byteLength,
+  ...(input.concurrency === undefined ? {} : { concurrency: input.concurrency }),
   command: input.binary?.name ?? "unknown",
   result: "failed",
   reason: sanitizeEvidence(error instanceof Error ? error.message : String(error)),
@@ -653,6 +740,13 @@ const failedCase = (
   stderrExcerpt: excerpt(stop?.stderr ?? ""),
   reproductionCommand: `npm run compat:external:v1 -- --case ${input.caseId}`,
   artifactPath: compatArtifactLabel(caseDir),
+  ...(stop === undefined ? {} : {
+    processCleanup: {
+      graceful: stop.graceful,
+      forced: stop.forced,
+      portsReleased: stop.portsReleased
+    }
+  }),
   startedAt,
   completedAt: new Date().toISOString()
 });
@@ -664,6 +758,7 @@ const caseContext = (
     readonly binary: BinaryDetection | undefined;
     readonly payload: Buffer;
     readonly cipher?: ShadowsocksCipher;
+    readonly concurrency?: number;
   },
   plan: ReferenceLaunchPlan,
   caseDir: string,
@@ -678,6 +773,7 @@ const caseContext = (
   protocol,
   payload: input.payload,
   ...(input.cipher === undefined ? {} : { cipher: input.cipher }),
+  ...(input.concurrency === undefined ? {} : { concurrency: input.concurrency }),
   displayCommand: sanitizeEvidence(plan.displayCommand),
   artifactPath: compatArtifactLabel(caseDir),
   startedAt
@@ -696,6 +792,7 @@ const completeCase = (
   protocol: context.protocol,
   ...(context.cipher === undefined ? {} : { cipher: context.cipher }),
   payloadSize: context.payload.byteLength,
+  ...(context.concurrency === undefined ? {} : { concurrency: context.concurrency }),
   command: context.displayCommand,
   result,
   reason: sanitizeEvidence(reason),
@@ -703,6 +800,13 @@ const completeCase = (
   stderrExcerpt: excerpt(stop?.stderr ?? ""),
   reproductionCommand: `npm run compat:external:v1 -- --case ${context.caseId}`,
   artifactPath: context.artifactPath,
+  ...(stop === undefined ? {} : {
+    processCleanup: {
+      graceful: stop.graceful,
+      forced: stop.forced,
+      portsReleased: stop.portsReleased
+    }
+  }),
   startedAt: context.startedAt,
   completedAt: new Date().toISOString()
 });
@@ -719,7 +823,7 @@ const shadowsocksBinary = (
     ? role === "server" ? "ssserver" : "sslocal"
     : implementation === "shadowsocks-libev"
       ? role === "server" ? "ss-server" : "ss-local"
-      : "sing-box";
+      : implementation;
   return findDetectedBinary(report, implementation, name);
 };
 
@@ -782,13 +886,29 @@ const proxyRequest = (port: number, id: string) => ({
   startedAt: Date.now()
 });
 
-const startEchoServer = async (): Promise<{ readonly port: number; close(): Promise<void> }> => {
+const startEchoServer = async (
+  options: { readonly remoteClose?: boolean } = {}
+): Promise<{ readonly port: number; close(): Promise<void> }> => {
   const sockets = new Set<net.Socket>();
+  const closeTimers = new Set<NodeJS.Timeout>();
   const server = net.createServer((socket) => {
     sockets.add(socket);
-    socket.once("close", () => sockets.delete(socket));
+    socket.once("close", () => {
+      sockets.delete(socket);
+      for (const timer of closeTimers) clearTimeout(timer);
+      closeTimers.clear();
+    });
     socket.on("error", () => undefined);
-    socket.pipe(socket);
+    if (options.remoteClose === true) {
+      const timer = setTimeout(() => {
+        closeTimers.delete(timer);
+        socket.end();
+      }, 100);
+      timer.unref();
+      closeTimers.add(timer);
+    } else {
+      socket.pipe(socket);
+    }
   });
   await new Promise<void>((resolvePromise, reject) => {
     server.once("error", reject);
@@ -802,6 +922,8 @@ const startEchoServer = async (): Promise<{ readonly port: number; close(): Prom
   return {
     port: address.port,
     close: async () => {
+      for (const timer of closeTimers) clearTimeout(timer);
+      closeTimers.clear();
       for (const socket of sockets) closeSocket(socket);
       await new Promise<void>((resolvePromise) => server.close(() => {
         resolvePromise();
@@ -809,6 +931,77 @@ const startEchoServer = async (): Promise<{ readonly port: number; close(): Prom
     }
   };
 };
+
+const runSocketScenario = async (
+  createSocket: () => Promise<TcpStream>,
+  input: SocketScenarioInput
+): Promise<void> => {
+  const count = input.concurrency ?? 1;
+  await Promise.all(Array.from({ length: count }, async () => {
+    const socket = await createSocket();
+    try {
+      if (input.expectFailure === true) {
+        await expectExchangeFailure(socket, input.payload);
+      } else if (input.remoteClose === true) {
+        await triggerRemoteClose(socket, input.payload);
+      } else {
+        await exchangeAndAssert(socket, input.payload);
+      }
+    } finally {
+      closeSocket(socket);
+    }
+  }));
+};
+
+const triggerRemoteClose = async (socket: TcpStream, payload: Buffer): Promise<void> => {
+  if (socket.destroyed) return;
+  try {
+    await writeWithBackpressure(socket, payload);
+  } catch (error) {
+    if (isExpectedCloseError(error)) return;
+    throw error;
+  }
+  await waitForRemoteClose(socket);
+};
+
+const scenarioReason = (input: SocketScenarioInput): string => {
+  if (input.expectFailure === true) return "wrong password was rejected";
+  if (input.remoteClose === true) return "remote close propagated and resources were released";
+  if ((input.concurrency ?? 1) > 1) return `${String(input.concurrency)} concurrent payload exchanges passed`;
+  return "payload integrity passed";
+};
+
+const waitForRemoteClose = async (socket: TcpStream): Promise<void> => {
+  if (socket.destroyed) return;
+  await new Promise<void>((resolvePromise, reject) => {
+    const cleanup = (): void => {
+      clearTimeout(timer);
+      socket.removeListener("close", onClose);
+      socket.removeListener("error", onError);
+    };
+    const onClose = (): void => {
+      cleanup();
+      resolvePromise();
+    };
+    const onError = (error: Error): void => {
+      cleanup();
+      if (isExpectedCloseError(error)) {
+        resolvePromise();
+      } else {
+        reject(error);
+      }
+    };
+    const timer = setTimeout(() => {
+      cleanup();
+      reject(new Error("timed out waiting for remote close"));
+    }, 5_000);
+    socket.once("close", onClose);
+    socket.once("error", onError);
+  });
+};
+
+const isExpectedCloseError = (error: unknown): boolean =>
+  error instanceof Error && (error.message.includes("ECONNRESET") || error.message.includes("EPIPE"));
 
 const exchangeAndAssert = async (socket: TcpStream, payload: Buffer): Promise<void> => {
   if (payload.byteLength > 64 * 1024) {

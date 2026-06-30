@@ -1,9 +1,9 @@
 # External Compatibility Summary v1
 
-- Generated: 2026-06-28T17:16:09.458Z
-- Detection generated: 2026-06-28T17:16:02.488Z
-- Harness generated: 2026-06-28T17:16:04.965Z
-- Result counts: {"verified":23,"failed":0,"skipped":28,"blocked":0,"unsupported":2}
+- Generated: 2026-06-30T22:05:29.865Z
+- Detection generated: 2026-06-30T22:05:20.085Z
+- Harness generated: 2026-06-30T22:05:29.605Z
+- Result counts: {"verified":44,"failed":0,"skipped":28,"blocked":0,"unsupported":2}
 
 ## Reference Detection
 
@@ -52,18 +52,39 @@
 | ss-sing-box-sepigs-inbound-chacha20-ietf-poly1305-small | sing-box | verified | payload integrity passed |
 | ss-sing-box-sepigs-outbound-wrong-password | sing-box | verified | wrong password was rejected |
 | ss-sing-box-sepigs-inbound-wrong-password | sing-box | verified | wrong password was rejected |
+| ss-sing-box-sepigs-outbound-remote-close | sing-box | verified | remote close propagated and resources were released |
+| ss-sing-box-sepigs-inbound-remote-close | sing-box | verified | remote close propagated and resources were released |
+| ss-sing-box-sepigs-outbound-concurrent-8 | sing-box | verified | 8 concurrent payload exchanges passed |
+| ss-sing-box-sepigs-inbound-concurrent-8 | sing-box | verified | 8 concurrent payload exchanges passed |
+| ss-xray-sepigs-outbound-aes-128-gcm-small | xray | verified | payload integrity passed |
+| ss-xray-sepigs-outbound-aes-128-gcm-large | xray | verified | payload integrity passed |
+| ss-xray-sepigs-inbound-aes-128-gcm-small | xray | verified | payload integrity passed |
+| ss-xray-sepigs-outbound-aes-256-gcm-small | xray | verified | payload integrity passed |
+| ss-xray-sepigs-outbound-aes-256-gcm-large | xray | verified | payload integrity passed |
+| ss-xray-sepigs-inbound-aes-256-gcm-small | xray | verified | payload integrity passed |
+| ss-xray-sepigs-outbound-chacha20-ietf-poly1305-small | xray | verified | payload integrity passed |
+| ss-xray-sepigs-outbound-chacha20-ietf-poly1305-large | xray | verified | payload integrity passed |
+| ss-xray-sepigs-inbound-chacha20-ietf-poly1305-small | xray | verified | payload integrity passed |
+| ss-xray-sepigs-outbound-wrong-password | xray | verified | wrong password was rejected |
+| ss-xray-sepigs-inbound-wrong-password | xray | verified | wrong password was rejected |
+| ss-xray-sepigs-outbound-remote-close | xray | verified | remote close propagated and resources were released |
+| ss-xray-sepigs-inbound-remote-close | xray | verified | remote close propagated and resources were released |
 | trojan-sing-box-sepigs-outbound-small | sing-box | verified | TLS payload integrity passed; ephemeral self-signed chain validation disabled |
 | trojan-sing-box-sepigs-inbound-small | sing-box | verified | TLS payload integrity passed |
 | trojan-sing-box-sepigs-outbound-large | sing-box | verified | TLS payload integrity passed; ephemeral self-signed chain validation disabled |
 | trojan-sing-box-sepigs-inbound-large | sing-box | verified | TLS payload integrity passed |
 | trojan-sing-box-sepigs-outbound-wrong-password | sing-box | verified | wrong password was rejected |
 | trojan-sing-box-sepigs-inbound-wrong-password | sing-box | verified | wrong password was rejected |
+| trojan-sing-box-sepigs-outbound-remote-close | sing-box | verified | TLS remote close propagated and resources were released |
+| trojan-sing-box-sepigs-inbound-remote-close | sing-box | verified | TLS remote close propagated and resources were released |
 | trojan-xray-sepigs-outbound-small | xray | verified | TLS payload integrity passed; ephemeral self-signed chain validation disabled |
 | trojan-xray-sepigs-inbound-small | xray | verified | TLS payload integrity passed |
 | trojan-xray-sepigs-outbound-large | xray | verified | TLS payload integrity passed; ephemeral self-signed chain validation disabled |
 | trojan-xray-sepigs-inbound-large | xray | verified | TLS payload integrity passed |
 | trojan-xray-sepigs-outbound-wrong-password | xray | verified | wrong password was rejected |
 | trojan-xray-sepigs-inbound-wrong-password | xray | verified | wrong password was rejected |
+| trojan-xray-sepigs-outbound-remote-close | xray | verified | TLS remote close propagated and resources were released |
+| trojan-xray-sepigs-inbound-remote-close | xray | verified | TLS remote close propagated and resources were released |
 | trojan-trojan-go-sepigs-outbound-small | trojan-go | skipped | reference binary status is missing |
 | trojan-trojan-go-sepigs-inbound-small | trojan-go | skipped | reference binary status is missing |
 | trojan-trojan-go-sepigs-outbound-large | trojan-go | skipped | reference binary status is missing |

@@ -1,8 +1,8 @@
 {
-  "generatedAt": "2026-06-28T17:16:04.965Z",
+  "generatedAt": "2026-06-30T22:05:29.605Z",
   "platform": "darwin",
   "architecture": "arm64",
-  "detectionGeneratedAt": "2026-06-28T17:16:02.488Z",
+  "detectionGeneratedAt": "2026-06-30T22:05:20.085Z",
   "cases": [
     {
       "caseId": "ss-shadowsocks-rust-sepigs-outbound-aes-128-gcm-small",
@@ -19,8 +19,8 @@
       "stderrExcerpt": "",
       "reproductionCommand": "npm run compat:external:v1 -- --case ss-shadowsocks-rust-sepigs-outbound-aes-128-gcm-small",
       "artifactPath": "none",
-      "startedAt": "2026-06-28T17:16:02.489Z",
-      "completedAt": "2026-06-28T17:16:02.489Z"
+      "startedAt": "2026-06-30T22:05:20.087Z",
+      "completedAt": "2026-06-30T22:05:20.087Z"
     },
     {
       "caseId": "ss-shadowsocks-rust-sepigs-outbound-aes-128-gcm-large",
@@ -37,8 +37,8 @@
       "stderrExcerpt": "",
       "reproductionCommand": "npm run compat:external:v1 -- --case ss-shadowsocks-rust-sepigs-outbound-aes-128-gcm-large",
       "artifactPath": "none",
-      "startedAt": "2026-06-28T17:16:02.489Z",
-      "completedAt": "2026-06-28T17:16:02.489Z"
+      "startedAt": "2026-06-30T22:05:20.087Z",
+      "completedAt": "2026-06-30T22:05:20.087Z"
     },
     {
       "caseId": "ss-shadowsocks-rust-sepigs-inbound-aes-128-gcm-small",
@@ -55,8 +55,8 @@
       "stderrExcerpt": "",
       "reproductionCommand": "npm run compat:external:v1 -- --case ss-shadowsocks-rust-sepigs-inbound-aes-128-gcm-small",
       "artifactPath": "none",
-      "startedAt": "2026-06-28T17:16:02.489Z",
-      "completedAt": "2026-06-28T17:16:02.489Z"
+      "startedAt": "2026-06-30T22:05:20.087Z",
+      "completedAt": "2026-06-30T22:05:20.087Z"
     },
     {
       "caseId": "ss-shadowsocks-rust-sepigs-outbound-aes-256-gcm-small",
@@ -73,8 +73,8 @@
       "stderrExcerpt": "",
       "reproductionCommand": "npm run compat:external:v1 -- --case ss-shadowsocks-rust-sepigs-outbound-aes-256-gcm-small",
       "artifactPath": "none",
-      "startedAt": "2026-06-28T17:16:02.489Z",
-      "completedAt": "2026-06-28T17:16:02.489Z"
+      "startedAt": "2026-06-30T22:05:20.087Z",
+      "completedAt": "2026-06-30T22:05:20.087Z"
     },
     {
       "caseId": "ss-shadowsocks-rust-sepigs-outbound-aes-256-gcm-large",
@@ -91,8 +91,8 @@
       "stderrExcerpt": "",
       "reproductionCommand": "npm run compat:external:v1 -- --case ss-shadowsocks-rust-sepigs-outbound-aes-256-gcm-large",
       "artifactPath": "none",
-      "startedAt": "2026-06-28T17:16:02.489Z",
-      "completedAt": "2026-06-28T17:16:02.489Z"
+      "startedAt": "2026-06-30T22:05:20.087Z",
+      "completedAt": "2026-06-30T22:05:20.087Z"
     },
     {
       "caseId": "ss-shadowsocks-rust-sepigs-inbound-aes-256-gcm-small",
@@ -109,8 +109,8 @@
       "stderrExcerpt": "",
       "reproductionCommand": "npm run compat:external:v1 -- --case ss-shadowsocks-rust-sepigs-inbound-aes-256-gcm-small",
       "artifactPath": "none",
-      "startedAt": "2026-06-28T17:16:02.489Z",
-      "completedAt": "2026-06-28T17:16:02.489Z"
+      "startedAt": "2026-06-30T22:05:20.087Z",
+      "completedAt": "2026-06-30T22:05:20.087Z"
     },
     {
       "caseId": "ss-shadowsocks-rust-sepigs-outbound-chacha20-ietf-poly1305-small",
@@ -127,8 +127,8 @@
       "stderrExcerpt": "",
       "reproductionCommand": "npm run compat:external:v1 -- --case ss-shadowsocks-rust-sepigs-outbound-chacha20-ietf-poly1305-small",
       "artifactPath": "none",
-      "startedAt": "2026-06-28T17:16:02.489Z",
-      "completedAt": "2026-06-28T17:16:02.489Z"
+      "startedAt": "2026-06-30T22:05:20.087Z",
+      "completedAt": "2026-06-30T22:05:20.087Z"
     },
     {
       "caseId": "ss-shadowsocks-rust-sepigs-outbound-chacha20-ietf-poly1305-large",
@@ -145,8 +145,8 @@
       "stderrExcerpt": "",
       "reproductionCommand": "npm run compat:external:v1 -- --case ss-shadowsocks-rust-sepigs-outbound-chacha20-ietf-poly1305-large",
       "artifactPath": "none",
-      "startedAt": "2026-06-28T17:16:02.489Z",
-      "completedAt": "2026-06-28T17:16:02.489Z"
+      "startedAt": "2026-06-30T22:05:20.087Z",
+      "completedAt": "2026-06-30T22:05:20.087Z"
     },
     {
       "caseId": "ss-shadowsocks-rust-sepigs-inbound-chacha20-ietf-poly1305-small",
@@ -163,8 +163,8 @@
       "stderrExcerpt": "",
       "reproductionCommand": "npm run compat:external:v1 -- --case ss-shadowsocks-rust-sepigs-inbound-chacha20-ietf-poly1305-small",
       "artifactPath": "none",
-      "startedAt": "2026-06-28T17:16:02.489Z",
-      "completedAt": "2026-06-28T17:16:02.489Z"
+      "startedAt": "2026-06-30T22:05:20.087Z",
+      "completedAt": "2026-06-30T22:05:20.087Z"
     },
     {
       "caseId": "ss-shadowsocks-rust-sepigs-outbound-wrong-password",
@@ -181,8 +181,8 @@
       "stderrExcerpt": "",
       "reproductionCommand": "npm run compat:external:v1 -- --case ss-shadowsocks-rust-sepigs-outbound-wrong-password",
       "artifactPath": "none",
-      "startedAt": "2026-06-28T17:16:02.489Z",
-      "completedAt": "2026-06-28T17:16:02.489Z"
+      "startedAt": "2026-06-30T22:05:20.087Z",
+      "completedAt": "2026-06-30T22:05:20.087Z"
     },
     {
       "caseId": "ss-shadowsocks-rust-sepigs-inbound-wrong-password",
@@ -199,8 +199,8 @@
       "stderrExcerpt": "",
       "reproductionCommand": "npm run compat:external:v1 -- --case ss-shadowsocks-rust-sepigs-inbound-wrong-password",
       "artifactPath": "none",
-      "startedAt": "2026-06-28T17:16:02.489Z",
-      "completedAt": "2026-06-28T17:16:02.489Z"
+      "startedAt": "2026-06-30T22:05:20.087Z",
+      "completedAt": "2026-06-30T22:05:20.087Z"
     },
     {
       "caseId": "ss-shadowsocks-libev-sepigs-outbound-aes-128-gcm-small",
@@ -217,8 +217,8 @@
       "stderrExcerpt": "",
       "reproductionCommand": "npm run compat:external:v1 -- --case ss-shadowsocks-libev-sepigs-outbound-aes-128-gcm-small",
       "artifactPath": "none",
-      "startedAt": "2026-06-28T17:16:02.489Z",
-      "completedAt": "2026-06-28T17:16:02.489Z"
+      "startedAt": "2026-06-30T22:05:20.087Z",
+      "completedAt": "2026-06-30T22:05:20.087Z"
     },
     {
       "caseId": "ss-shadowsocks-libev-sepigs-outbound-aes-128-gcm-large",
@@ -235,8 +235,8 @@
       "stderrExcerpt": "",
       "reproductionCommand": "npm run compat:external:v1 -- --case ss-shadowsocks-libev-sepigs-outbound-aes-128-gcm-large",
       "artifactPath": "none",
-      "startedAt": "2026-06-28T17:16:02.489Z",
-      "completedAt": "2026-06-28T17:16:02.489Z"
+      "startedAt": "2026-06-30T22:05:20.087Z",
+      "completedAt": "2026-06-30T22:05:20.087Z"
     },
     {
       "caseId": "ss-shadowsocks-libev-sepigs-inbound-aes-128-gcm-small",
@@ -253,8 +253,8 @@
       "stderrExcerpt": "",
       "reproductionCommand": "npm run compat:external:v1 -- --case ss-shadowsocks-libev-sepigs-inbound-aes-128-gcm-small",
       "artifactPath": "none",
-      "startedAt": "2026-06-28T17:16:02.489Z",
-      "completedAt": "2026-06-28T17:16:02.489Z"
+      "startedAt": "2026-06-30T22:05:20.087Z",
+      "completedAt": "2026-06-30T22:05:20.087Z"
     },
     {
       "caseId": "ss-shadowsocks-libev-sepigs-outbound-aes-256-gcm-small",
@@ -271,8 +271,8 @@
       "stderrExcerpt": "",
       "reproductionCommand": "npm run compat:external:v1 -- --case ss-shadowsocks-libev-sepigs-outbound-aes-256-gcm-small",
       "artifactPath": "none",
-      "startedAt": "2026-06-28T17:16:02.489Z",
-      "completedAt": "2026-06-28T17:16:02.489Z"
+      "startedAt": "2026-06-30T22:05:20.087Z",
+      "completedAt": "2026-06-30T22:05:20.087Z"
     },
     {
       "caseId": "ss-shadowsocks-libev-sepigs-outbound-aes-256-gcm-large",
@@ -289,8 +289,8 @@
       "stderrExcerpt": "",
       "reproductionCommand": "npm run compat:external:v1 -- --case ss-shadowsocks-libev-sepigs-outbound-aes-256-gcm-large",
       "artifactPath": "none",
-      "startedAt": "2026-06-28T17:16:02.489Z",
-      "completedAt": "2026-06-28T17:16:02.489Z"
+      "startedAt": "2026-06-30T22:05:20.087Z",
+      "completedAt": "2026-06-30T22:05:20.087Z"
     },
     {
       "caseId": "ss-shadowsocks-libev-sepigs-inbound-aes-256-gcm-small",
@@ -307,8 +307,8 @@
       "stderrExcerpt": "",
       "reproductionCommand": "npm run compat:external:v1 -- --case ss-shadowsocks-libev-sepigs-inbound-aes-256-gcm-small",
       "artifactPath": "none",
-      "startedAt": "2026-06-28T17:16:02.489Z",
-      "completedAt": "2026-06-28T17:16:02.489Z"
+      "startedAt": "2026-06-30T22:05:20.087Z",
+      "completedAt": "2026-06-30T22:05:20.087Z"
     },
     {
       "caseId": "ss-shadowsocks-libev-sepigs-outbound-chacha20-ietf-poly1305-small",
@@ -325,8 +325,8 @@
       "stderrExcerpt": "",
       "reproductionCommand": "npm run compat:external:v1 -- --case ss-shadowsocks-libev-sepigs-outbound-chacha20-ietf-poly1305-small",
       "artifactPath": "none",
-      "startedAt": "2026-06-28T17:16:02.489Z",
-      "completedAt": "2026-06-28T17:16:02.489Z"
+      "startedAt": "2026-06-30T22:05:20.087Z",
+      "completedAt": "2026-06-30T22:05:20.087Z"
     },
     {
       "caseId": "ss-shadowsocks-libev-sepigs-outbound-chacha20-ietf-poly1305-large",
@@ -343,8 +343,8 @@
       "stderrExcerpt": "",
       "reproductionCommand": "npm run compat:external:v1 -- --case ss-shadowsocks-libev-sepigs-outbound-chacha20-ietf-poly1305-large",
       "artifactPath": "none",
-      "startedAt": "2026-06-28T17:16:02.489Z",
-      "completedAt": "2026-06-28T17:16:02.489Z"
+      "startedAt": "2026-06-30T22:05:20.087Z",
+      "completedAt": "2026-06-30T22:05:20.087Z"
     },
     {
       "caseId": "ss-shadowsocks-libev-sepigs-inbound-chacha20-ietf-poly1305-small",
@@ -361,8 +361,8 @@
       "stderrExcerpt": "",
       "reproductionCommand": "npm run compat:external:v1 -- --case ss-shadowsocks-libev-sepigs-inbound-chacha20-ietf-poly1305-small",
       "artifactPath": "none",
-      "startedAt": "2026-06-28T17:16:02.489Z",
-      "completedAt": "2026-06-28T17:16:02.489Z"
+      "startedAt": "2026-06-30T22:05:20.087Z",
+      "completedAt": "2026-06-30T22:05:20.087Z"
     },
     {
       "caseId": "ss-shadowsocks-libev-sepigs-outbound-wrong-password",
@@ -379,8 +379,8 @@
       "stderrExcerpt": "",
       "reproductionCommand": "npm run compat:external:v1 -- --case ss-shadowsocks-libev-sepigs-outbound-wrong-password",
       "artifactPath": "none",
-      "startedAt": "2026-06-28T17:16:02.489Z",
-      "completedAt": "2026-06-28T17:16:02.489Z"
+      "startedAt": "2026-06-30T22:05:20.087Z",
+      "completedAt": "2026-06-30T22:05:20.087Z"
     },
     {
       "caseId": "ss-shadowsocks-libev-sepigs-inbound-wrong-password",
@@ -397,8 +397,8 @@
       "stderrExcerpt": "",
       "reproductionCommand": "npm run compat:external:v1 -- --case ss-shadowsocks-libev-sepigs-inbound-wrong-password",
       "artifactPath": "none",
-      "startedAt": "2026-06-28T17:16:02.489Z",
-      "completedAt": "2026-06-28T17:16:02.489Z"
+      "startedAt": "2026-06-30T22:05:20.087Z",
+      "completedAt": "2026-06-30T22:05:20.087Z"
     },
     {
       "caseId": "ss-sing-box-sepigs-outbound-aes-128-gcm-small",
@@ -415,8 +415,13 @@
       "stderrExcerpt": "",
       "reproductionCommand": "npm run compat:external:v1 -- --case ss-sing-box-sepigs-outbound-aes-128-gcm-small",
       "artifactPath": "system-temp/ss-sing-box-sepigs-outbound-aes-128-gcm-small",
-      "startedAt": "2026-06-28T17:16:02.489Z",
-      "completedAt": "2026-06-28T17:16:02.556Z"
+      "processCleanup": {
+        "graceful": true,
+        "forced": false,
+        "portsReleased": true
+      },
+      "startedAt": "2026-06-30T22:05:20.087Z",
+      "completedAt": "2026-06-30T22:05:20.152Z"
     },
     {
       "caseId": "ss-sing-box-sepigs-outbound-aes-128-gcm-large",
@@ -433,8 +438,13 @@
       "stderrExcerpt": "",
       "reproductionCommand": "npm run compat:external:v1 -- --case ss-sing-box-sepigs-outbound-aes-128-gcm-large",
       "artifactPath": "system-temp/ss-sing-box-sepigs-outbound-aes-128-gcm-large",
-      "startedAt": "2026-06-28T17:16:02.556Z",
-      "completedAt": "2026-06-28T17:16:02.616Z"
+      "processCleanup": {
+        "graceful": true,
+        "forced": false,
+        "portsReleased": true
+      },
+      "startedAt": "2026-06-30T22:05:20.152Z",
+      "completedAt": "2026-06-30T22:05:20.215Z"
     },
     {
       "caseId": "ss-sing-box-sepigs-inbound-aes-128-gcm-small",
@@ -451,8 +461,13 @@
       "stderrExcerpt": "",
       "reproductionCommand": "npm run compat:external:v1 -- --case ss-sing-box-sepigs-inbound-aes-128-gcm-small",
       "artifactPath": "system-temp/ss-sing-box-sepigs-inbound-aes-128-gcm-small",
-      "startedAt": "2026-06-28T17:16:02.616Z",
-      "completedAt": "2026-06-28T17:16:02.674Z"
+      "processCleanup": {
+        "graceful": true,
+        "forced": false,
+        "portsReleased": true
+      },
+      "startedAt": "2026-06-30T22:05:20.215Z",
+      "completedAt": "2026-06-30T22:05:20.274Z"
     },
     {
       "caseId": "ss-sing-box-sepigs-outbound-aes-256-gcm-small",
@@ -469,8 +484,13 @@
       "stderrExcerpt": "",
       "reproductionCommand": "npm run compat:external:v1 -- --case ss-sing-box-sepigs-outbound-aes-256-gcm-small",
       "artifactPath": "system-temp/ss-sing-box-sepigs-outbound-aes-256-gcm-small",
-      "startedAt": "2026-06-28T17:16:02.674Z",
-      "completedAt": "2026-06-28T17:16:02.730Z"
+      "processCleanup": {
+        "graceful": true,
+        "forced": false,
+        "portsReleased": true
+      },
+      "startedAt": "2026-06-30T22:05:20.275Z",
+      "completedAt": "2026-06-30T22:05:20.332Z"
     },
     {
       "caseId": "ss-sing-box-sepigs-outbound-aes-256-gcm-large",
@@ -487,8 +507,13 @@
       "stderrExcerpt": "",
       "reproductionCommand": "npm run compat:external:v1 -- --case ss-sing-box-sepigs-outbound-aes-256-gcm-large",
       "artifactPath": "system-temp/ss-sing-box-sepigs-outbound-aes-256-gcm-large",
-      "startedAt": "2026-06-28T17:16:02.730Z",
-      "completedAt": "2026-06-28T17:16:02.792Z"
+      "processCleanup": {
+        "graceful": true,
+        "forced": false,
+        "portsReleased": true
+      },
+      "startedAt": "2026-06-30T22:05:20.332Z",
+      "completedAt": "2026-06-30T22:05:20.394Z"
     },
     {
       "caseId": "ss-sing-box-sepigs-inbound-aes-256-gcm-small",
@@ -505,8 +530,13 @@
       "stderrExcerpt": "",
       "reproductionCommand": "npm run compat:external:v1 -- --case ss-sing-box-sepigs-inbound-aes-256-gcm-small",
       "artifactPath": "system-temp/ss-sing-box-sepigs-inbound-aes-256-gcm-small",
-      "startedAt": "2026-06-28T17:16:02.792Z",
-      "completedAt": "2026-06-28T17:16:02.849Z"
+      "processCleanup": {
+        "graceful": true,
+        "forced": false,
+        "portsReleased": true
+      },
+      "startedAt": "2026-06-30T22:05:20.394Z",
+      "completedAt": "2026-06-30T22:05:20.453Z"
     },
     {
       "caseId": "ss-sing-box-sepigs-outbound-chacha20-ietf-poly1305-small",
@@ -523,8 +553,13 @@
       "stderrExcerpt": "",
       "reproductionCommand": "npm run compat:external:v1 -- --case ss-sing-box-sepigs-outbound-chacha20-ietf-poly1305-small",
       "artifactPath": "system-temp/ss-sing-box-sepigs-outbound-chacha20-ietf-poly1305-small",
-      "startedAt": "2026-06-28T17:16:02.850Z",
-      "completedAt": "2026-06-28T17:16:02.906Z"
+      "processCleanup": {
+        "graceful": true,
+        "forced": false,
+        "portsReleased": true
+      },
+      "startedAt": "2026-06-30T22:05:20.453Z",
+      "completedAt": "2026-06-30T22:05:20.510Z"
     },
     {
       "caseId": "ss-sing-box-sepigs-outbound-chacha20-ietf-poly1305-large",
@@ -541,8 +576,13 @@
       "stderrExcerpt": "",
       "reproductionCommand": "npm run compat:external:v1 -- --case ss-sing-box-sepigs-outbound-chacha20-ietf-poly1305-large",
       "artifactPath": "system-temp/ss-sing-box-sepigs-outbound-chacha20-ietf-poly1305-large",
-      "startedAt": "2026-06-28T17:16:02.907Z",
-      "completedAt": "2026-06-28T17:16:02.970Z"
+      "processCleanup": {
+        "graceful": true,
+        "forced": false,
+        "portsReleased": true
+      },
+      "startedAt": "2026-06-30T22:05:20.510Z",
+      "completedAt": "2026-06-30T22:05:20.574Z"
     },
     {
       "caseId": "ss-sing-box-sepigs-inbound-chacha20-ietf-poly1305-small",
@@ -559,8 +599,13 @@
       "stderrExcerpt": "",
       "reproductionCommand": "npm run compat:external:v1 -- --case ss-sing-box-sepigs-inbound-chacha20-ietf-poly1305-small",
       "artifactPath": "system-temp/ss-sing-box-sepigs-inbound-chacha20-ietf-poly1305-small",
-      "startedAt": "2026-06-28T17:16:02.970Z",
-      "completedAt": "2026-06-28T17:16:03.029Z"
+      "processCleanup": {
+        "graceful": true,
+        "forced": false,
+        "portsReleased": true
+      },
+      "startedAt": "2026-06-30T22:05:20.574Z",
+      "completedAt": "2026-06-30T22:05:20.637Z"
     },
     {
       "caseId": "ss-sing-box-sepigs-outbound-wrong-password",
@@ -574,11 +619,16 @@
       "result": "verified",
       "reason": "wrong password was rejected",
       "stdoutExcerpt": "",
-      "stderrExcerpt": "",
+      "stderrExcerpt": "+0800 2026-07-01 06:05:20 \u001b[31mERROR\u001b[0m [\u001b[38;5;144m1764002944\u001b[0m 1ms] inbound/shadowsocks[reference-in]: process connection from 127.0.0.1:55639: shadowsocks: serve TCP from 127.0.0.1:55639: cipher: message authentication failed",
       "reproductionCommand": "npm run compat:external:v1 -- --case ss-sing-box-sepigs-outbound-wrong-password",
       "artifactPath": "system-temp/ss-sing-box-sepigs-outbound-wrong-password",
-      "startedAt": "2026-06-28T17:16:03.029Z",
-      "completedAt": "2026-06-28T17:16:03.084Z"
+      "processCleanup": {
+        "graceful": true,
+        "forced": false,
+        "portsReleased": true
+      },
+      "startedAt": "2026-06-30T22:05:20.638Z",
+      "completedAt": "2026-06-30T22:05:20.697Z"
     },
     {
       "caseId": "ss-sing-box-sepigs-inbound-wrong-password",
@@ -595,8 +645,406 @@
       "stderrExcerpt": "",
       "reproductionCommand": "npm run compat:external:v1 -- --case ss-sing-box-sepigs-inbound-wrong-password",
       "artifactPath": "system-temp/ss-sing-box-sepigs-inbound-wrong-password",
-      "startedAt": "2026-06-28T17:16:03.084Z",
-      "completedAt": "2026-06-28T17:16:03.143Z"
+      "processCleanup": {
+        "graceful": true,
+        "forced": false,
+        "portsReleased": true
+      },
+      "startedAt": "2026-06-30T22:05:20.697Z",
+      "completedAt": "2026-06-30T22:05:20.756Z"
+    },
+    {
+      "caseId": "ss-sing-box-sepigs-outbound-remote-close",
+      "referenceImplementation": "sing-box",
+      "referenceVersion": "sing-box version 1.13.14 Environment: go1.26.4 darwin/arm64 Tags: with_gvisor,with_quic,with_dhcp,with_wireguard,with_utls,with_acme,with_clash_api,with_tailscale,with_ccm,with_ocm,with_naive_outbound,badlinkname,tfogo_checklinkname0 CGO: enabled",
+      "sepigsRole": "outbound",
+      "protocol": "shadowsocks",
+      "cipher": "aes-128-gcm",
+      "payloadSize": 25,
+      "command": "sing-box run -c <temp-config>",
+      "result": "verified",
+      "reason": "remote close propagated and resources were released",
+      "stdoutExcerpt": "",
+      "stderrExcerpt": "",
+      "reproductionCommand": "npm run compat:external:v1 -- --case ss-sing-box-sepigs-outbound-remote-close",
+      "artifactPath": "system-temp/ss-sing-box-sepigs-outbound-remote-close",
+      "processCleanup": {
+        "graceful": true,
+        "forced": false,
+        "portsReleased": true
+      },
+      "startedAt": "2026-06-30T22:05:20.756Z",
+      "completedAt": "2026-06-30T22:05:20.914Z"
+    },
+    {
+      "caseId": "ss-sing-box-sepigs-inbound-remote-close",
+      "referenceImplementation": "sing-box",
+      "referenceVersion": "sing-box version 1.13.14 Environment: go1.26.4 darwin/arm64 Tags: with_gvisor,with_quic,with_dhcp,with_wireguard,with_utls,with_acme,with_clash_api,with_tailscale,with_ccm,with_ocm,with_naive_outbound,badlinkname,tfogo_checklinkname0 CGO: enabled",
+      "sepigsRole": "inbound",
+      "protocol": "shadowsocks",
+      "cipher": "aes-128-gcm",
+      "payloadSize": 25,
+      "command": "sing-box run -c <temp-config>",
+      "result": "verified",
+      "reason": "remote close propagated and resources were released",
+      "stdoutExcerpt": "",
+      "stderrExcerpt": "",
+      "reproductionCommand": "npm run compat:external:v1 -- --case ss-sing-box-sepigs-inbound-remote-close",
+      "artifactPath": "system-temp/ss-sing-box-sepigs-inbound-remote-close",
+      "processCleanup": {
+        "graceful": true,
+        "forced": false,
+        "portsReleased": true
+      },
+      "startedAt": "2026-06-30T22:05:20.914Z",
+      "completedAt": "2026-06-30T22:05:21.075Z"
+    },
+    {
+      "caseId": "ss-sing-box-sepigs-outbound-concurrent-8",
+      "referenceImplementation": "sing-box",
+      "referenceVersion": "sing-box version 1.13.14 Environment: go1.26.4 darwin/arm64 Tags: with_gvisor,with_quic,with_dhcp,with_wireguard,with_utls,with_acme,with_clash_api,with_tailscale,with_ccm,with_ocm,with_naive_outbound,badlinkname,tfogo_checklinkname0 CGO: enabled",
+      "sepigsRole": "outbound",
+      "protocol": "shadowsocks",
+      "cipher": "aes-256-gcm",
+      "payloadSize": 31,
+      "concurrency": 8,
+      "command": "sing-box run -c <temp-config>",
+      "result": "verified",
+      "reason": "8 concurrent payload exchanges passed",
+      "stdoutExcerpt": "",
+      "stderrExcerpt": "",
+      "reproductionCommand": "npm run compat:external:v1 -- --case ss-sing-box-sepigs-outbound-concurrent-8",
+      "artifactPath": "system-temp/ss-sing-box-sepigs-outbound-concurrent-8",
+      "processCleanup": {
+        "graceful": true,
+        "forced": false,
+        "portsReleased": true
+      },
+      "startedAt": "2026-06-30T22:05:21.075Z",
+      "completedAt": "2026-06-30T22:05:21.136Z"
+    },
+    {
+      "caseId": "ss-sing-box-sepigs-inbound-concurrent-8",
+      "referenceImplementation": "sing-box",
+      "referenceVersion": "sing-box version 1.13.14 Environment: go1.26.4 darwin/arm64 Tags: with_gvisor,with_quic,with_dhcp,with_wireguard,with_utls,with_acme,with_clash_api,with_tailscale,with_ccm,with_ocm,with_naive_outbound,badlinkname,tfogo_checklinkname0 CGO: enabled",
+      "sepigsRole": "inbound",
+      "protocol": "shadowsocks",
+      "cipher": "aes-256-gcm",
+      "payloadSize": 31,
+      "concurrency": 8,
+      "command": "sing-box run -c <temp-config>",
+      "result": "verified",
+      "reason": "8 concurrent payload exchanges passed",
+      "stdoutExcerpt": "",
+      "stderrExcerpt": "",
+      "reproductionCommand": "npm run compat:external:v1 -- --case ss-sing-box-sepigs-inbound-concurrent-8",
+      "artifactPath": "system-temp/ss-sing-box-sepigs-inbound-concurrent-8",
+      "processCleanup": {
+        "graceful": true,
+        "forced": false,
+        "portsReleased": true
+      },
+      "startedAt": "2026-06-30T22:05:21.136Z",
+      "completedAt": "2026-06-30T22:05:21.198Z"
+    },
+    {
+      "caseId": "ss-xray-sepigs-outbound-aes-128-gcm-small",
+      "referenceImplementation": "xray",
+      "referenceVersion": "Xray 26.3.27 (Xray, Penetrates Everything.) Custom (go1.26.1 darwin/arm64) A unified platform for anti-censorship.",
+      "sepigsRole": "outbound",
+      "protocol": "shadowsocks",
+      "cipher": "aes-128-gcm",
+      "payloadSize": 31,
+      "command": "xray run -config <temp-config>",
+      "result": "verified",
+      "reason": "payload integrity passed",
+      "stdoutExcerpt": "Xray 26.3.27 (Xray, Penetrates Everything.) Custom (go1.26.1 darwin/arm64)\nA unified platform for anti-censorship.\n2026/07/01 06:05:21.214152 [Info] infra/conf/serial: Reading config: &{Name:<system-temp>/sepigs-compat-harness-T5gSN9/ss-xray-sepigs-outbound-aes-128-gcm-small/xray-shadowsocks-server.json Format:json}\n2026/07/01 06:05:21.214497 [Warning] common/errors: The feature Shadowsocks (with no Forward Secrecy, etc.) is deprecated, not recommended for using and might be removed. Please migrate to VLESS Encryption as soon as possible.\n2026/07/01 06:05:21.215129 [Warning] core: Xray 26.3.27 started\n2026/07/01 06:05:21.250964 from 127.0.0.1:55721 rejected  common/drain: common/drain: unable to drain connection > EOF > proxy/shadowsocks: failed to read 50 bytes > EOF\n2026/07/01 06:05:21.251473 from 127.0.0.1:55722 accepted tcp:127.0.0.1:55718 [direct]",
+      "stderrExcerpt": "",
+      "reproductionCommand": "npm run compat:external:v1 -- --case ss-xray-sepigs-outbound-aes-128-gcm-small",
+      "artifactPath": "system-temp/ss-xray-sepigs-outbound-aes-128-gcm-small",
+      "processCleanup": {
+        "graceful": true,
+        "forced": false,
+        "portsReleased": true
+      },
+      "startedAt": "2026-06-30T22:05:21.198Z",
+      "completedAt": "2026-06-30T22:05:21.253Z"
+    },
+    {
+      "caseId": "ss-xray-sepigs-outbound-aes-128-gcm-large",
+      "referenceImplementation": "xray",
+      "referenceVersion": "Xray 26.3.27 (Xray, Penetrates Everything.) Custom (go1.26.1 darwin/arm64) A unified platform for anti-censorship.",
+      "sepigsRole": "outbound",
+      "protocol": "shadowsocks",
+      "cipher": "aes-128-gcm",
+      "payloadSize": 1048576,
+      "command": "xray run -config <temp-config>",
+      "result": "verified",
+      "reason": "payload integrity passed",
+      "stdoutExcerpt": "Xray 26.3.27 (Xray, Penetrates Everything.) Custom (go1.26.1 darwin/arm64)\nA unified platform for anti-censorship.\n2026/07/01 06:05:21.268783 [Info] infra/conf/serial: Reading config: &{Name:<system-temp>/sepigs-compat-harness-T5gSN9/ss-xray-sepigs-outbound-aes-128-gcm-large/xray-shadowsocks-server.json Format:json}\n2026/07/01 06:05:21.269160 [Warning] common/errors: The feature Shadowsocks (with no Forward Secrecy, etc.) is deprecated, not recommended for using and might be removed. Please migrate to VLESS Encryption as soon as possible.\n2026/07/01 06:05:21.269591 [Warning] core: Xray 26.3.27 started\n2026/07/01 06:05:21.307442 from 127.0.0.1:55728 rejected  common/drain: common/drain: unable to drain connection > EOF > proxy/shadowsocks: failed to read 50 bytes > EOF\n2026/07/01 06:05:21.307881 from 127.0.0.1:55729 accepted tcp:127.0.0.1:55725 [direct]",
+      "stderrExcerpt": "",
+      "reproductionCommand": "npm run compat:external:v1 -- --case ss-xray-sepigs-outbound-aes-128-gcm-large",
+      "artifactPath": "system-temp/ss-xray-sepigs-outbound-aes-128-gcm-large",
+      "processCleanup": {
+        "graceful": true,
+        "forced": false,
+        "portsReleased": true
+      },
+      "startedAt": "2026-06-30T22:05:21.253Z",
+      "completedAt": "2026-06-30T22:05:21.317Z"
+    },
+    {
+      "caseId": "ss-xray-sepigs-inbound-aes-128-gcm-small",
+      "referenceImplementation": "xray",
+      "referenceVersion": "Xray 26.3.27 (Xray, Penetrates Everything.) Custom (go1.26.1 darwin/arm64) A unified platform for anti-censorship.",
+      "sepigsRole": "inbound",
+      "protocol": "shadowsocks",
+      "cipher": "aes-128-gcm",
+      "payloadSize": 31,
+      "command": "xray run -config <temp-config>",
+      "result": "verified",
+      "reason": "payload integrity passed",
+      "stdoutExcerpt": "Xray 26.3.27 (Xray, Penetrates Everything.) Custom (go1.26.1 darwin/arm64)\nA unified platform for anti-censorship.\n2026/07/01 06:05:21.332109 [Info] infra/conf/serial: Reading config: &{Name:<system-temp>/sepigs-compat-harness-T5gSN9/ss-xray-sepigs-inbound-aes-128-gcm-small/xray-shadowsocks-client.json Format:json}\n2026/07/01 06:05:21.332532 [Warning] common/errors: The feature Shadowsocks (with no Forward Secrecy, etc.) is deprecated, not recommended for using and might be removed. Please migrate to VLESS Encryption as soon as possible.\n2026/07/01 06:05:21.332794 [Warning] core: Xray 26.3.27 started\n2026/07/01 06:05:21.370593 from tcp:127.0.0.1:55737 accepted tcp:127.0.0.1:55732 [reference-out]",
+      "stderrExcerpt": "",
+      "reproductionCommand": "npm run compat:external:v1 -- --case ss-xray-sepigs-inbound-aes-128-gcm-small",
+      "artifactPath": "system-temp/ss-xray-sepigs-inbound-aes-128-gcm-small",
+      "processCleanup": {
+        "graceful": true,
+        "forced": false,
+        "portsReleased": true
+      },
+      "startedAt": "2026-06-30T22:05:21.317Z",
+      "completedAt": "2026-06-30T22:05:21.373Z"
+    },
+    {
+      "caseId": "ss-xray-sepigs-outbound-aes-256-gcm-small",
+      "referenceImplementation": "xray",
+      "referenceVersion": "Xray 26.3.27 (Xray, Penetrates Everything.) Custom (go1.26.1 darwin/arm64) A unified platform for anti-censorship.",
+      "sepigsRole": "outbound",
+      "protocol": "shadowsocks",
+      "cipher": "aes-256-gcm",
+      "payloadSize": 31,
+      "command": "xray run -config <temp-config>",
+      "result": "verified",
+      "reason": "payload integrity passed",
+      "stdoutExcerpt": "Xray 26.3.27 (Xray, Penetrates Everything.) Custom (go1.26.1 darwin/arm64)\nA unified platform for anti-censorship.\n2026/07/01 06:05:21.390250 [Info] infra/conf/serial: Reading config: &{Name:<system-temp>/sepigs-compat-harness-T5gSN9/ss-xray-sepigs-outbound-aes-256-gcm-small/xray-shadowsocks-server.json Format:json}\n2026/07/01 06:05:21.390834 [Warning] common/errors: The feature Shadowsocks (with no Forward Secrecy, etc.) is deprecated, not recommended for using and might be removed. Please migrate to VLESS Encryption as soon as possible.\n2026/07/01 06:05:21.391419 [Warning] core: Xray 26.3.27 started\n2026/07/01 06:05:21.427213 from 127.0.0.1:55744 rejected  common/drain: common/drain: unable to drain connection > EOF > proxy/shadowsocks: failed to read 50 bytes > EOF\n2026/07/01 06:05:21.427544 from 127.0.0.1:55745 accepted tcp:127.0.0.1:55741 [direct]",
+      "stderrExcerpt": "",
+      "reproductionCommand": "npm run compat:external:v1 -- --case ss-xray-sepigs-outbound-aes-256-gcm-small",
+      "artifactPath": "system-temp/ss-xray-sepigs-outbound-aes-256-gcm-small",
+      "processCleanup": {
+        "graceful": true,
+        "forced": false,
+        "portsReleased": true
+      },
+      "startedAt": "2026-06-30T22:05:21.374Z",
+      "completedAt": "2026-06-30T22:05:21.429Z"
+    },
+    {
+      "caseId": "ss-xray-sepigs-outbound-aes-256-gcm-large",
+      "referenceImplementation": "xray",
+      "referenceVersion": "Xray 26.3.27 (Xray, Penetrates Everything.) Custom (go1.26.1 darwin/arm64) A unified platform for anti-censorship.",
+      "sepigsRole": "outbound",
+      "protocol": "shadowsocks",
+      "cipher": "aes-256-gcm",
+      "payloadSize": 1048576,
+      "command": "xray run -config <temp-config>",
+      "result": "verified",
+      "reason": "payload integrity passed",
+      "stdoutExcerpt": "Xray 26.3.27 (Xray, Penetrates Everything.) Custom (go1.26.1 darwin/arm64)\nA unified platform for anti-censorship.\n2026/07/01 06:05:21.445300 [Info] infra/conf/serial: Reading config: &{Name:<system-temp>/sepigs-compat-harness-T5gSN9/ss-xray-sepigs-outbound-aes-256-gcm-large/xray-shadowsocks-server.json Format:json}\n2026/07/01 06:05:21.445808 [Warning] common/errors: The feature Shadowsocks (with no Forward Secrecy, etc.) is deprecated, not recommended for using and might be removed. Please migrate to VLESS Encryption as soon as possible.\n2026/07/01 06:05:21.446567 [Warning] core: Xray 26.3.27 started\n2026/07/01 06:05:21.482583 from 127.0.0.1:55751 rejected  common/drain: common/drain: unable to drain connection > EOF > proxy/shadowsocks: failed to read 50 bytes > EOF\n2026/07/01 06:05:21.482885 from 127.0.0.1:55752 accepted tcp:127.0.0.1:55748 [direct]",
+      "stderrExcerpt": "",
+      "reproductionCommand": "npm run compat:external:v1 -- --case ss-xray-sepigs-outbound-aes-256-gcm-large",
+      "artifactPath": "system-temp/ss-xray-sepigs-outbound-aes-256-gcm-large",
+      "processCleanup": {
+        "graceful": true,
+        "forced": false,
+        "portsReleased": true
+      },
+      "startedAt": "2026-06-30T22:05:21.429Z",
+      "completedAt": "2026-06-30T22:05:21.490Z"
+    },
+    {
+      "caseId": "ss-xray-sepigs-inbound-aes-256-gcm-small",
+      "referenceImplementation": "xray",
+      "referenceVersion": "Xray 26.3.27 (Xray, Penetrates Everything.) Custom (go1.26.1 darwin/arm64) A unified platform for anti-censorship.",
+      "sepigsRole": "inbound",
+      "protocol": "shadowsocks",
+      "cipher": "aes-256-gcm",
+      "payloadSize": 31,
+      "command": "xray run -config <temp-config>",
+      "result": "verified",
+      "reason": "payload integrity passed",
+      "stdoutExcerpt": "Xray 26.3.27 (Xray, Penetrates Everything.) Custom (go1.26.1 darwin/arm64)\nA unified platform for anti-censorship.\n2026/07/01 06:05:21.505206 [Info] infra/conf/serial: Reading config: &{Name:<system-temp>/sepigs-compat-harness-T5gSN9/ss-xray-sepigs-inbound-aes-256-gcm-small/xray-shadowsocks-client.json Format:json}\n2026/07/01 06:05:21.505678 [Warning] common/errors: The feature Shadowsocks (with no Forward Secrecy, etc.) is deprecated, not recommended for using and might be removed. Please migrate to VLESS Encryption as soon as possible.\n2026/07/01 06:05:21.506021 [Warning] core: Xray 26.3.27 started\n2026/07/01 06:05:21.543710 from tcp:127.0.0.1:55760 accepted tcp:127.0.0.1:55755 [reference-out]",
+      "stderrExcerpt": "",
+      "reproductionCommand": "npm run compat:external:v1 -- --case ss-xray-sepigs-inbound-aes-256-gcm-small",
+      "artifactPath": "system-temp/ss-xray-sepigs-inbound-aes-256-gcm-small",
+      "processCleanup": {
+        "graceful": true,
+        "forced": false,
+        "portsReleased": true
+      },
+      "startedAt": "2026-06-30T22:05:21.490Z",
+      "completedAt": "2026-06-30T22:05:21.546Z"
+    },
+    {
+      "caseId": "ss-xray-sepigs-outbound-chacha20-ietf-poly1305-small",
+      "referenceImplementation": "xray",
+      "referenceVersion": "Xray 26.3.27 (Xray, Penetrates Everything.) Custom (go1.26.1 darwin/arm64) A unified platform for anti-censorship.",
+      "sepigsRole": "outbound",
+      "protocol": "shadowsocks",
+      "cipher": "chacha20-ietf-poly1305",
+      "payloadSize": 31,
+      "command": "xray run -config <temp-config>",
+      "result": "verified",
+      "reason": "payload integrity passed",
+      "stdoutExcerpt": "Xray 26.3.27 (Xray, Penetrates Everything.) Custom (go1.26.1 darwin/arm64)\nA unified platform for anti-censorship.\n2026/07/01 06:05:21.560791 [Info] infra/conf/serial: Reading config: &{Name:<system-temp>/sepigs-compat-harness-T5gSN9/ss-xray-sepigs-outbound-chacha20-ietf-poly1305-small/xray-shadowsocks-server.json Format:json}\n2026/07/01 06:05:21.561189 [Warning] common/errors: The feature Shadowsocks (with no Forward Secrecy, etc.) is deprecated, not recommended for using and might be removed. Please migrate to VLESS Encryption as soon as possible.\n2026/07/01 06:05:21.561532 [Warning] core: Xray 26.3.27 started\n2026/07/01 06:05:21.600276 from 127.0.0.1:55767 rejected  common/drain: common/drain: unable to drain connection > EOF > proxy/shadowsocks: failed to read 50 bytes > EOF\n2026/07/01 06:05:21.600716 from 127.0.0.1:55768 accepted tcp:127.0.0.1:55764 [direct]",
+      "stderrExcerpt": "",
+      "reproductionCommand": "npm run compat:external:v1 -- --case ss-xray-sepigs-outbound-chacha20-ietf-poly1305-small",
+      "artifactPath": "system-temp/ss-xray-sepigs-outbound-chacha20-ietf-poly1305-small",
+      "processCleanup": {
+        "graceful": true,
+        "forced": false,
+        "portsReleased": true
+      },
+      "startedAt": "2026-06-30T22:05:21.546Z",
+      "completedAt": "2026-06-30T22:05:21.603Z"
+    },
+    {
+      "caseId": "ss-xray-sepigs-outbound-chacha20-ietf-poly1305-large",
+      "referenceImplementation": "xray",
+      "referenceVersion": "Xray 26.3.27 (Xray, Penetrates Everything.) Custom (go1.26.1 darwin/arm64) A unified platform for anti-censorship.",
+      "sepigsRole": "outbound",
+      "protocol": "shadowsocks",
+      "cipher": "chacha20-ietf-poly1305",
+      "payloadSize": 1048576,
+      "command": "xray run -config <temp-config>",
+      "result": "verified",
+      "reason": "payload integrity passed",
+      "stdoutExcerpt": "Xray 26.3.27 (Xray, Penetrates Everything.) Custom (go1.26.1 darwin/arm64)\nA unified platform for anti-censorship.\n2026/07/01 06:05:21.618172 [Info] infra/conf/serial: Reading config: &{Name:<system-temp>/sepigs-compat-harness-T5gSN9/ss-xray-sepigs-outbound-chacha20-ietf-poly1305-large/xray-shadowsocks-server.json Format:json}\n2026/07/01 06:05:21.618627 [Warning] common/errors: The feature Shadowsocks (with no Forward Secrecy, etc.) is deprecated, not recommended for using and might be removed. Please migrate to VLESS Encryption as soon as possible.\n2026/07/01 06:05:21.619226 [Warning] core: Xray 26.3.27 started\n2026/07/01 06:05:21.656564 from 127.0.0.1:55774 rejected  common/drain: common/drain: unable to drain connection > EOF > proxy/shadowsocks: failed to read 50 bytes > EOF\n2026/07/01 06:05:21.656982 from 127.0.0.1:55775 accepted tcp:127.0.0.1:55771 [direct]",
+      "stderrExcerpt": "",
+      "reproductionCommand": "npm run compat:external:v1 -- --case ss-xray-sepigs-outbound-chacha20-ietf-poly1305-large",
+      "artifactPath": "system-temp/ss-xray-sepigs-outbound-chacha20-ietf-poly1305-large",
+      "processCleanup": {
+        "graceful": true,
+        "forced": false,
+        "portsReleased": true
+      },
+      "startedAt": "2026-06-30T22:05:21.603Z",
+      "completedAt": "2026-06-30T22:05:21.669Z"
+    },
+    {
+      "caseId": "ss-xray-sepigs-inbound-chacha20-ietf-poly1305-small",
+      "referenceImplementation": "xray",
+      "referenceVersion": "Xray 26.3.27 (Xray, Penetrates Everything.) Custom (go1.26.1 darwin/arm64) A unified platform for anti-censorship.",
+      "sepigsRole": "inbound",
+      "protocol": "shadowsocks",
+      "cipher": "chacha20-ietf-poly1305",
+      "payloadSize": 31,
+      "command": "xray run -config <temp-config>",
+      "result": "verified",
+      "reason": "payload integrity passed",
+      "stdoutExcerpt": "Xray 26.3.27 (Xray, Penetrates Everything.) Custom (go1.26.1 darwin/arm64)\nA unified platform for anti-censorship.\n2026/07/01 06:05:21.684425 [Info] infra/conf/serial: Reading config: &{Name:<system-temp>/sepigs-compat-harness-T5gSN9/ss-xray-sepigs-inbound-chacha20-ietf-poly1305-small/xray-shadowsocks-client.json Format:json}\n2026/07/01 06:05:21.684787 [Warning] common/errors: The feature Shadowsocks (with no Forward Secrecy, etc.) is deprecated, not recommended for using and might be removed. Please migrate to VLESS Encryption as soon as possible.\n2026/07/01 06:05:21.685037 [Warning] core: Xray 26.3.27 started\n2026/07/01 06:05:21.723490 from tcp:127.0.0.1:55783 accepted tcp:127.0.0.1:55778 [reference-out]",
+      "stderrExcerpt": "",
+      "reproductionCommand": "npm run compat:external:v1 -- --case ss-xray-sepigs-inbound-chacha20-ietf-poly1305-small",
+      "artifactPath": "system-temp/ss-xray-sepigs-inbound-chacha20-ietf-poly1305-small",
+      "processCleanup": {
+        "graceful": true,
+        "forced": false,
+        "portsReleased": true
+      },
+      "startedAt": "2026-06-30T22:05:21.669Z",
+      "completedAt": "2026-06-30T22:05:21.726Z"
+    },
+    {
+      "caseId": "ss-xray-sepigs-outbound-wrong-password",
+      "referenceImplementation": "xray",
+      "referenceVersion": "Xray 26.3.27 (Xray, Penetrates Everything.) Custom (go1.26.1 darwin/arm64) A unified platform for anti-censorship.",
+      "sepigsRole": "outbound",
+      "protocol": "shadowsocks",
+      "cipher": "aes-128-gcm",
+      "payloadSize": 31,
+      "command": "xray run -config <temp-config>",
+      "result": "verified",
+      "reason": "wrong password was rejected",
+      "stdoutExcerpt": "Xray 26.3.27 (Xray, Penetrates Everything.) Custom (go1.26.1 darwin/arm64)\nA unified platform for anti-censorship.\n2026/07/01 06:05:21.741514 [Info] infra/conf/serial: Reading config: &{Name:<system-temp>/sepigs-compat-harness-T5gSN9/ss-xray-sepigs-outbound-wrong-password/xray-shadowsocks-server.json Format:json}\n2026/07/01 06:05:21.741943 [Warning] common/errors: The feature Shadowsocks (with no Forward Secrecy, etc.) is deprecated, not recommended for using and might be removed. Please migrate to VLESS Encryption as soon as possible.\n2026/07/01 06:05:21.742329 [Warning] core: Xray 26.3.27 started\n2026/07/01 06:05:21.779998 from 127.0.0.1:55790 rejected  common/drain: common/drain: unable to drain connection > EOF > proxy/shadowsocks: failed to read 50 bytes > EOF\n2026/07/01 06:05:24.782107 from 127.0.0.1:55791 rejected  common/drain: common/drain: unable to drain connection > EOF > proxy/shadowsocks: failed to match an user > proxy/shadowsocks: Not Found",
+      "stderrExcerpt": "",
+      "reproductionCommand": "npm run compat:external:v1 -- --case ss-xray-sepigs-outbound-wrong-password",
+      "artifactPath": "system-temp/ss-xray-sepigs-outbound-wrong-password",
+      "processCleanup": {
+        "graceful": true,
+        "forced": false,
+        "portsReleased": true
+      },
+      "startedAt": "2026-06-30T22:05:21.726Z",
+      "completedAt": "2026-06-30T22:05:24.786Z"
+    },
+    {
+      "caseId": "ss-xray-sepigs-inbound-wrong-password",
+      "referenceImplementation": "xray",
+      "referenceVersion": "Xray 26.3.27 (Xray, Penetrates Everything.) Custom (go1.26.1 darwin/arm64) A unified platform for anti-censorship.",
+      "sepigsRole": "inbound",
+      "protocol": "shadowsocks",
+      "cipher": "aes-128-gcm",
+      "payloadSize": 31,
+      "command": "xray run -config <temp-config>",
+      "result": "verified",
+      "reason": "wrong password was rejected",
+      "stdoutExcerpt": "Xray 26.3.27 (Xray, Penetrates Everything.) Custom (go1.26.1 darwin/arm64)\nA unified platform for anti-censorship.\n2026/07/01 06:05:24.815764 [Info] infra/conf/serial: Reading config: &{Name:<system-temp>/sepigs-compat-harness-T5gSN9/ss-xray-sepigs-inbound-wrong-password/xray-shadowsocks-client.json Format:json}\n2026/07/01 06:05:24.816446 [Warning] common/errors: The feature Shadowsocks (with no Forward Secrecy, etc.) is deprecated, not recommended for using and might be removed. Please migrate to VLESS Encryption as soon as possible.\n2026/07/01 06:05:24.816898 [Warning] core: Xray 26.3.27 started\n2026/07/01 06:05:24.843722 from tcp:127.0.0.1:55800 accepted tcp:127.0.0.1:55795 [reference-out]",
+      "stderrExcerpt": "",
+      "reproductionCommand": "npm run compat:external:v1 -- --case ss-xray-sepigs-inbound-wrong-password",
+      "artifactPath": "system-temp/ss-xray-sepigs-inbound-wrong-password",
+      "processCleanup": {
+        "graceful": true,
+        "forced": false,
+        "portsReleased": true
+      },
+      "startedAt": "2026-06-30T22:05:24.786Z",
+      "completedAt": "2026-06-30T22:05:24.846Z"
+    },
+    {
+      "caseId": "ss-xray-sepigs-outbound-remote-close",
+      "referenceImplementation": "xray",
+      "referenceVersion": "Xray 26.3.27 (Xray, Penetrates Everything.) Custom (go1.26.1 darwin/arm64) A unified platform for anti-censorship.",
+      "sepigsRole": "outbound",
+      "protocol": "shadowsocks",
+      "cipher": "aes-128-gcm",
+      "payloadSize": 25,
+      "command": "xray run -config <temp-config>",
+      "result": "verified",
+      "reason": "remote close propagated and resources were released",
+      "stdoutExcerpt": "Xray 26.3.27 (Xray, Penetrates Everything.) Custom (go1.26.1 darwin/arm64)\nA unified platform for anti-censorship.\n2026/07/01 06:05:24.864867 [Info] infra/conf/serial: Reading config: &{Name:<system-temp>/sepigs-compat-harness-T5gSN9/ss-xray-sepigs-outbound-remote-close/xray-shadowsocks-server.json Format:json}\n2026/07/01 06:05:24.865297 [Warning] common/errors: The feature Shadowsocks (with no Forward Secrecy, etc.) is deprecated, not recommended for using and might be removed. Please migrate to VLESS Encryption as soon as possible.\n2026/07/01 06:05:24.865824 [Warning] core: Xray 26.3.27 started\n2026/07/01 06:05:24.899153 from 127.0.0.1:55806 rejected  common/drain: common/drain: unable to drain connection > EOF > proxy/shadowsocks: failed to read 50 bytes > EOF\n2026/07/01 06:05:24.899710 from 127.0.0.1:55807 accepted tcp:127.0.0.1:55803 [direct]",
+      "stderrExcerpt": "",
+      "reproductionCommand": "npm run compat:external:v1 -- --case ss-xray-sepigs-outbound-remote-close",
+      "artifactPath": "system-temp/ss-xray-sepigs-outbound-remote-close",
+      "processCleanup": {
+        "graceful": true,
+        "forced": false,
+        "portsReleased": true
+      },
+      "startedAt": "2026-06-30T22:05:24.847Z",
+      "completedAt": "2026-06-30T22:05:25.005Z"
+    },
+    {
+      "caseId": "ss-xray-sepigs-inbound-remote-close",
+      "referenceImplementation": "xray",
+      "referenceVersion": "Xray 26.3.27 (Xray, Penetrates Everything.) Custom (go1.26.1 darwin/arm64) A unified platform for anti-censorship.",
+      "sepigsRole": "inbound",
+      "protocol": "shadowsocks",
+      "cipher": "aes-128-gcm",
+      "payloadSize": 25,
+      "command": "xray run -config <temp-config>",
+      "result": "verified",
+      "reason": "remote close propagated and resources were released",
+      "stdoutExcerpt": "Xray 26.3.27 (Xray, Penetrates Everything.) Custom (go1.26.1 darwin/arm64)\nA unified platform for anti-censorship.\n2026/07/01 06:05:25.028854 [Info] infra/conf/serial: Reading config: &{Name:<system-temp>/sepigs-compat-harness-T5gSN9/ss-xray-sepigs-inbound-remote-close/xray-shadowsocks-client.json Format:json}\n2026/07/01 06:05:25.029568 [Warning] common/errors: The feature Shadowsocks (with no Forward Secrecy, etc.) is deprecated, not recommended for using and might be removed. Please migrate to VLESS Encryption as soon as possible.\n2026/07/01 06:05:25.029979 [Warning] core: Xray 26.3.27 started\n2026/07/01 06:05:25.060092 from tcp:127.0.0.1:55815 accepted tcp:127.0.0.1:55810 [reference-out]",
+      "stderrExcerpt": "",
+      "reproductionCommand": "npm run compat:external:v1 -- --case ss-xray-sepigs-inbound-remote-close",
+      "artifactPath": "system-temp/ss-xray-sepigs-inbound-remote-close",
+      "processCleanup": {
+        "graceful": true,
+        "forced": false,
+        "portsReleased": true
+      },
+      "startedAt": "2026-06-30T22:05:25.005Z",
+      "completedAt": "2026-06-30T22:05:25.166Z"
     },
     {
       "caseId": "trojan-sing-box-sepigs-outbound-small",
@@ -609,11 +1057,16 @@
       "result": "verified",
       "reason": "TLS payload integrity passed; ephemeral self-signed chain validation disabled",
       "stdoutExcerpt": "",
-      "stderrExcerpt": "+0800 2026-06-29 01:16:03 \u001b[31mERROR\u001b[0m [\u001b[38;5;130m1253586290\u001b[0m 1ms] inbound/trojan[reference-in]: process connection from 127.0.0.1:63222: TLS handshake: EOF",
+      "stderrExcerpt": "+0800 2026-07-01 06:05:25 \u001b[31mERROR\u001b[0m [\u001b[38;5;97m3665154385\u001b[0m 0ms] inbound/trojan[reference-in]: process connection from 127.0.0.1:55822: TLS handshake: EOF",
       "reproductionCommand": "npm run compat:external:v1 -- --case trojan-sing-box-sepigs-outbound-small",
       "artifactPath": "system-temp/trojan-sing-box-sepigs-outbound-small",
-      "startedAt": "2026-06-28T17:16:03.237Z",
-      "completedAt": "2026-06-28T17:16:03.298Z"
+      "processCleanup": {
+        "graceful": true,
+        "forced": false,
+        "portsReleased": true
+      },
+      "startedAt": "2026-06-30T22:05:25.213Z",
+      "completedAt": "2026-06-30T22:05:25.274Z"
     },
     {
       "caseId": "trojan-sing-box-sepigs-inbound-small",
@@ -629,8 +1082,13 @@
       "stderrExcerpt": "",
       "reproductionCommand": "npm run compat:external:v1 -- --case trojan-sing-box-sepigs-inbound-small",
       "artifactPath": "system-temp/trojan-sing-box-sepigs-inbound-small",
-      "startedAt": "2026-06-28T17:16:03.298Z",
-      "completedAt": "2026-06-28T17:16:03.359Z"
+      "processCleanup": {
+        "graceful": true,
+        "forced": false,
+        "portsReleased": true
+      },
+      "startedAt": "2026-06-30T22:05:25.274Z",
+      "completedAt": "2026-06-30T22:05:25.334Z"
     },
     {
       "caseId": "trojan-sing-box-sepigs-outbound-large",
@@ -643,11 +1101,16 @@
       "result": "verified",
       "reason": "TLS payload integrity passed; ephemeral self-signed chain validation disabled",
       "stdoutExcerpt": "",
-      "stderrExcerpt": "+0800 2026-06-29 01:16:03 \u001b[31mERROR\u001b[0m [\u001b[38;5;101m3427546709\u001b[0m 0ms] inbound/trojan[reference-in]: process connection from 127.0.0.1:63238: TLS handshake: EOF",
+      "stderrExcerpt": "+0800 2026-07-01 06:05:25 \u001b[31mERROR\u001b[0m [\u001b[38;5;195m868905139\u001b[0m 0ms] inbound/trojan[reference-in]: process connection from 127.0.0.1:55838: TLS handshake: EOF",
       "reproductionCommand": "npm run compat:external:v1 -- --case trojan-sing-box-sepigs-outbound-large",
       "artifactPath": "system-temp/trojan-sing-box-sepigs-outbound-large",
-      "startedAt": "2026-06-28T17:16:03.359Z",
-      "completedAt": "2026-06-28T17:16:03.419Z"
+      "processCleanup": {
+        "graceful": true,
+        "forced": false,
+        "portsReleased": true
+      },
+      "startedAt": "2026-06-30T22:05:25.334Z",
+      "completedAt": "2026-06-30T22:05:25.396Z"
     },
     {
       "caseId": "trojan-sing-box-sepigs-inbound-large",
@@ -663,8 +1126,13 @@
       "stderrExcerpt": "",
       "reproductionCommand": "npm run compat:external:v1 -- --case trojan-sing-box-sepigs-inbound-large",
       "artifactPath": "system-temp/trojan-sing-box-sepigs-inbound-large",
-      "startedAt": "2026-06-28T17:16:03.419Z",
-      "completedAt": "2026-06-28T17:16:03.483Z"
+      "processCleanup": {
+        "graceful": true,
+        "forced": false,
+        "portsReleased": true
+      },
+      "startedAt": "2026-06-30T22:05:25.396Z",
+      "completedAt": "2026-06-30T22:05:25.459Z"
     },
     {
       "caseId": "trojan-sing-box-sepigs-outbound-wrong-password",
@@ -677,11 +1145,16 @@
       "result": "verified",
       "reason": "wrong password was rejected",
       "stdoutExcerpt": "",
-      "stderrExcerpt": "+0800 2026-06-29 01:16:03 \u001b[31mERROR\u001b[0m [\u001b[38;5;78m10628926\u001b[0m 0ms] inbound/trojan[reference-in]: process connection from 127.0.0.1:63255: TLS handshake: EOF\n+0800 2026-06-29 01:16:03 \u001b[31mERROR\u001b[0m [\u001b[38;5;223m452223951\u001b[0m 1ms] inbound/trojan[reference-in]: process connection from 127.0.0.1:63256: bad request: fallback disabled",
+      "stderrExcerpt": "+0800 2026-07-01 06:05:25 \u001b[31mERROR\u001b[0m [\u001b[38;5;135m1270591095\u001b[0m 0ms] inbound/trojan[reference-in]: process connection from 127.0.0.1:55854: TLS handshake: EOF\n+0800 2026-07-01 06:05:25 \u001b[31mERROR\u001b[0m [\u001b[38;5;155m4036102283\u001b[0m 1ms] inbound/trojan[reference-in]: process connection from 127.0.0.1:55855: bad request: fallback disabled",
       "reproductionCommand": "npm run compat:external:v1 -- --case trojan-sing-box-sepigs-outbound-wrong-password",
       "artifactPath": "system-temp/trojan-sing-box-sepigs-outbound-wrong-password",
-      "startedAt": "2026-06-28T17:16:03.483Z",
-      "completedAt": "2026-06-28T17:16:03.540Z"
+      "processCleanup": {
+        "graceful": true,
+        "forced": false,
+        "portsReleased": true
+      },
+      "startedAt": "2026-06-30T22:05:25.459Z",
+      "completedAt": "2026-06-30T22:05:25.518Z"
     },
     {
       "caseId": "trojan-sing-box-sepigs-inbound-wrong-password",
@@ -697,8 +1170,57 @@
       "stderrExcerpt": "",
       "reproductionCommand": "npm run compat:external:v1 -- --case trojan-sing-box-sepigs-inbound-wrong-password",
       "artifactPath": "system-temp/trojan-sing-box-sepigs-inbound-wrong-password",
-      "startedAt": "2026-06-28T17:16:03.540Z",
-      "completedAt": "2026-06-28T17:16:03.598Z"
+      "processCleanup": {
+        "graceful": true,
+        "forced": false,
+        "portsReleased": true
+      },
+      "startedAt": "2026-06-30T22:05:25.518Z",
+      "completedAt": "2026-06-30T22:05:25.576Z"
+    },
+    {
+      "caseId": "trojan-sing-box-sepigs-outbound-remote-close",
+      "referenceImplementation": "sing-box",
+      "referenceVersion": "sing-box version 1.13.14 Environment: go1.26.4 darwin/arm64 Tags: with_gvisor,with_quic,with_dhcp,with_wireguard,with_utls,with_acme,with_clash_api,with_tailscale,with_ccm,with_ocm,with_naive_outbound,badlinkname,tfogo_checklinkname0 CGO: enabled",
+      "sepigsRole": "outbound",
+      "protocol": "trojan",
+      "payloadSize": 25,
+      "command": "sing-box run -c <temp-config>",
+      "result": "verified",
+      "reason": "TLS remote close propagated and resources were released",
+      "stdoutExcerpt": "",
+      "stderrExcerpt": "+0800 2026-07-01 06:05:25 \u001b[31mERROR\u001b[0m [\u001b[38;5;142m967041918\u001b[0m 0ms] inbound/trojan[reference-in]: process connection from 127.0.0.1:55868: TLS handshake: EOF",
+      "reproductionCommand": "npm run compat:external:v1 -- --case trojan-sing-box-sepigs-outbound-remote-close",
+      "artifactPath": "system-temp/trojan-sing-box-sepigs-outbound-remote-close",
+      "processCleanup": {
+        "graceful": true,
+        "forced": false,
+        "portsReleased": true
+      },
+      "startedAt": "2026-06-30T22:05:25.576Z",
+      "completedAt": "2026-06-30T22:05:25.738Z"
+    },
+    {
+      "caseId": "trojan-sing-box-sepigs-inbound-remote-close",
+      "referenceImplementation": "sing-box",
+      "referenceVersion": "sing-box version 1.13.14 Environment: go1.26.4 darwin/arm64 Tags: with_gvisor,with_quic,with_dhcp,with_wireguard,with_utls,with_acme,with_clash_api,with_tailscale,with_ccm,with_ocm,with_naive_outbound,badlinkname,tfogo_checklinkname0 CGO: enabled",
+      "sepigsRole": "inbound",
+      "protocol": "trojan",
+      "payloadSize": 25,
+      "command": "sing-box run -c <temp-config>",
+      "result": "verified",
+      "reason": "TLS remote close propagated and resources were released",
+      "stdoutExcerpt": "",
+      "stderrExcerpt": "",
+      "reproductionCommand": "npm run compat:external:v1 -- --case trojan-sing-box-sepigs-inbound-remote-close",
+      "artifactPath": "system-temp/trojan-sing-box-sepigs-inbound-remote-close",
+      "processCleanup": {
+        "graceful": true,
+        "forced": false,
+        "portsReleased": true
+      },
+      "startedAt": "2026-06-30T22:05:25.738Z",
+      "completedAt": "2026-06-30T22:05:25.902Z"
     },
     {
       "caseId": "trojan-xray-sepigs-outbound-small",
@@ -710,12 +1232,17 @@
       "command": "xray run -config <temp-config>",
       "result": "verified",
       "reason": "TLS payload integrity passed; ephemeral self-signed chain validation disabled",
-      "stdoutExcerpt": "Xray 26.3.27 (Xray, Penetrates Everything.) Custom (go1.26.1 darwin/arm64)\nA unified platform for anti-censorship.\n2026/06/29 01:16:03.613358 [Info] infra/conf/serial: Reading config: &{Name:<system-temp>/sepigs-compat-harness-mtb3OY/trojan-xray-sepigs-outbound-small/xray-trojan-server.json Format:json}\n2026/06/29 01:16:03.615039 [Warning] common/errors: The feature Trojan (with no Flow, etc.) is deprecated, not recommended for using and might be removed. Please migrate to VLESS with Flow & Seed as soon as possible.\n2026/06/29 01:16:03.619390 [Warning] core: Xray 26.3.27 started\n2026/06/29 01:16:03.655643 from 127.0.0.1:63270 accepted tcp:127.0.0.1:63266 [direct]",
+      "stdoutExcerpt": "Xray 26.3.27 (Xray, Penetrates Everything.) Custom (go1.26.1 darwin/arm64)\nA unified platform for anti-censorship.\n2026/07/01 06:05:25.924329 [Info] infra/conf/serial: Reading config: &{Name:<system-temp>/sepigs-compat-harness-T5gSN9/trojan-xray-sepigs-outbound-small/xray-trojan-server.json Format:json}\n2026/07/01 06:05:25.925084 [Warning] common/errors: The feature Trojan (with no Flow, etc.) is deprecated, not recommended for using and might be removed. Please migrate to VLESS with Flow & Seed as soon as possible.\n2026/07/01 06:05:25.926225 [Warning] core: Xray 26.3.27 started\n2026/07/01 06:05:25.960704 from 127.0.0.1:55885 accepted tcp:127.0.0.1:55881 [direct]",
       "stderrExcerpt": "",
       "reproductionCommand": "npm run compat:external:v1 -- --case trojan-xray-sepigs-outbound-small",
       "artifactPath": "system-temp/trojan-xray-sepigs-outbound-small",
-      "startedAt": "2026-06-28T17:16:03.598Z",
-      "completedAt": "2026-06-28T17:16:03.658Z"
+      "processCleanup": {
+        "graceful": true,
+        "forced": false,
+        "portsReleased": true
+      },
+      "startedAt": "2026-06-30T22:05:25.902Z",
+      "completedAt": "2026-06-30T22:05:25.964Z"
     },
     {
       "caseId": "trojan-xray-sepigs-inbound-small",
@@ -727,12 +1254,17 @@
       "command": "xray run -config <temp-config>",
       "result": "verified",
       "reason": "TLS payload integrity passed",
-      "stdoutExcerpt": "Xray 26.3.27 (Xray, Penetrates Everything.) Custom (go1.26.1 darwin/arm64)\nA unified platform for anti-censorship.\n2026/06/29 01:16:03.669161 [Info] infra/conf/serial: Reading config: &{Name:<system-temp>/sepigs-compat-harness-mtb3OY/trojan-xray-sepigs-inbound-small/xray-trojan-client.json Format:json}\n2026/06/29 01:16:03.669981 [Warning] common/errors: The feature Trojan (with no Flow, etc.) is deprecated, not recommended for using and might be removed. Please migrate to VLESS with Flow & Seed as soon as possible.\n2026/06/29 01:16:03.670209 [Warning] core: Xray 26.3.27 started\n2026/06/29 01:16:03.711988 from tcp:127.0.0.1:63278 accepted tcp:127.0.0.1:63273 [reference-out]",
+      "stdoutExcerpt": "Xray 26.3.27 (Xray, Penetrates Everything.) Custom (go1.26.1 darwin/arm64)\nA unified platform for anti-censorship.\n2026/07/01 06:05:25.980953 [Info] infra/conf/serial: Reading config: &{Name:<system-temp>/sepigs-compat-harness-T5gSN9/trojan-xray-sepigs-inbound-small/xray-trojan-client.json Format:json}\n2026/07/01 06:05:25.981468 [Warning] common/errors: The feature Trojan (with no Flow, etc.) is deprecated, not recommended for using and might be removed. Please migrate to VLESS with Flow & Seed as soon as possible.\n2026/07/01 06:05:25.981738 [Warning] core: Xray 26.3.27 started\n2026/07/01 06:05:26.017833 from tcp:127.0.0.1:55893 accepted tcp:127.0.0.1:55888 [reference-out]",
       "stderrExcerpt": "",
       "reproductionCommand": "npm run compat:external:v1 -- --case trojan-xray-sepigs-inbound-small",
       "artifactPath": "system-temp/trojan-xray-sepigs-inbound-small",
-      "startedAt": "2026-06-28T17:16:03.658Z",
-      "completedAt": "2026-06-28T17:16:03.717Z"
+      "processCleanup": {
+        "graceful": true,
+        "forced": false,
+        "portsReleased": true
+      },
+      "startedAt": "2026-06-30T22:05:25.964Z",
+      "completedAt": "2026-06-30T22:05:26.023Z"
     },
     {
       "caseId": "trojan-xray-sepigs-outbound-large",
@@ -744,12 +1276,17 @@
       "command": "xray run -config <temp-config>",
       "result": "verified",
       "reason": "TLS payload integrity passed; ephemeral self-signed chain validation disabled",
-      "stdoutExcerpt": "Xray 26.3.27 (Xray, Penetrates Everything.) Custom (go1.26.1 darwin/arm64)\nA unified platform for anti-censorship.\n2026/06/29 01:16:03.728434 [Info] infra/conf/serial: Reading config: &{Name:<system-temp>/sepigs-compat-harness-mtb3OY/trojan-xray-sepigs-outbound-large/xray-trojan-server.json Format:json}\n2026/06/29 01:16:03.728908 [Warning] common/errors: The feature Trojan (with no Flow, etc.) is deprecated, not recommended for using and might be removed. Please migrate to VLESS with Flow & Seed as soon as possible.\n2026/06/29 01:16:03.729586 [Warning] core: Xray 26.3.27 started\n2026/06/29 01:16:03.773719 from 127.0.0.1:63286 accepted tcp:127.0.0.1:63282 [direct]",
+      "stdoutExcerpt": "Xray 26.3.27 (Xray, Penetrates Everything.) Custom (go1.26.1 darwin/arm64)\nA unified platform for anti-censorship.\n2026/07/01 06:05:26.038944 [Info] infra/conf/serial: Reading config: &{Name:<system-temp>/sepigs-compat-harness-T5gSN9/trojan-xray-sepigs-outbound-large/xray-trojan-server.json Format:json}\n2026/07/01 06:05:26.039512 [Warning] common/errors: The feature Trojan (with no Flow, etc.) is deprecated, not recommended for using and might be removed. Please migrate to VLESS with Flow & Seed as soon as possible.\n2026/07/01 06:05:26.040225 [Warning] core: Xray 26.3.27 started\n2026/07/01 06:05:26.078315 from 127.0.0.1:55901 accepted tcp:127.0.0.1:55897 [direct]",
       "stderrExcerpt": "",
       "reproductionCommand": "npm run compat:external:v1 -- --case trojan-xray-sepigs-outbound-large",
       "artifactPath": "system-temp/trojan-xray-sepigs-outbound-large",
-      "startedAt": "2026-06-28T17:16:03.717Z",
-      "completedAt": "2026-06-28T17:16:03.777Z"
+      "processCleanup": {
+        "graceful": true,
+        "forced": false,
+        "portsReleased": true
+      },
+      "startedAt": "2026-06-30T22:05:26.023Z",
+      "completedAt": "2026-06-30T22:05:26.084Z"
     },
     {
       "caseId": "trojan-xray-sepigs-inbound-large",
@@ -761,12 +1298,17 @@
       "command": "xray run -config <temp-config>",
       "result": "verified",
       "reason": "TLS payload integrity passed",
-      "stdoutExcerpt": "Xray 26.3.27 (Xray, Penetrates Everything.) Custom (go1.26.1 darwin/arm64)\nA unified platform for anti-censorship.\n2026/06/29 01:16:03.790207 [Info] infra/conf/serial: Reading config: &{Name:<system-temp>/sepigs-compat-harness-mtb3OY/trojan-xray-sepigs-inbound-large/xray-trojan-client.json Format:json}\n2026/06/29 01:16:03.790653 [Warning] common/errors: The feature Trojan (with no Flow, etc.) is deprecated, not recommended for using and might be removed. Please migrate to VLESS with Flow & Seed as soon as possible.\n2026/06/29 01:16:03.790923 [Warning] core: Xray 26.3.27 started\n2026/06/29 01:16:03.833504 from tcp:127.0.0.1:63294 accepted tcp:127.0.0.1:63289 [reference-out]",
+      "stdoutExcerpt": "Xray 26.3.27 (Xray, Penetrates Everything.) Custom (go1.26.1 darwin/arm64)\nA unified platform for anti-censorship.\n2026/07/01 06:05:26.102361 [Info] infra/conf/serial: Reading config: &{Name:<system-temp>/sepigs-compat-harness-T5gSN9/trojan-xray-sepigs-inbound-large/xray-trojan-client.json Format:json}\n2026/07/01 06:05:26.103159 [Warning] common/errors: The feature Trojan (with no Flow, etc.) is deprecated, not recommended for using and might be removed. Please migrate to VLESS with Flow & Seed as soon as possible.\n2026/07/01 06:05:26.103905 [Warning] core: Xray 26.3.27 started\n2026/07/01 06:05:26.139285 from tcp:127.0.0.1:55909 accepted tcp:127.0.0.1:55904 [reference-out]",
       "stderrExcerpt": "",
       "reproductionCommand": "npm run compat:external:v1 -- --case trojan-xray-sepigs-inbound-large",
       "artifactPath": "system-temp/trojan-xray-sepigs-inbound-large",
-      "startedAt": "2026-06-28T17:16:03.777Z",
-      "completedAt": "2026-06-28T17:16:03.841Z"
+      "processCleanup": {
+        "graceful": true,
+        "forced": false,
+        "portsReleased": true
+      },
+      "startedAt": "2026-06-30T22:05:26.084Z",
+      "completedAt": "2026-06-30T22:05:26.148Z"
     },
     {
       "caseId": "trojan-xray-sepigs-outbound-wrong-password",
@@ -778,12 +1320,17 @@
       "command": "xray run -config <temp-config>",
       "result": "verified",
       "reason": "wrong password was rejected",
-      "stdoutExcerpt": "Xray 26.3.27 (Xray, Penetrates Everything.) Custom (go1.26.1 darwin/arm64)\nA unified platform for anti-censorship.\n2026/06/29 01:16:03.853058 [Info] infra/conf/serial: Reading config: &{Name:<system-temp>/sepigs-compat-harness-mtb3OY/trojan-xray-sepigs-outbound-wrong-password/xray-trojan-server.json Format:json}\n2026/06/29 01:16:03.853772 [Warning] common/errors: The feature Trojan (with no Flow, etc.) is deprecated, not recommended for using and might be removed. Please migrate to VLESS with Flow & Seed as soon as possible.\n2026/06/29 01:16:03.854422 [Warning] core: Xray 26.3.27 started\n2026/06/29 01:16:03.897819 from 127.0.0.1:63302 rejected  proxy/trojan: not a valid user",
+      "stdoutExcerpt": "Xray 26.3.27 (Xray, Penetrates Everything.) Custom (go1.26.1 darwin/arm64)\nA unified platform for anti-censorship.\n2026/07/01 06:05:26.162732 [Info] infra/conf/serial: Reading config: &{Name:<system-temp>/sepigs-compat-harness-T5gSN9/trojan-xray-sepigs-outbound-wrong-password/xray-trojan-server.json Format:json}\n2026/07/01 06:05:26.163213 [Warning] common/errors: The feature Trojan (with no Flow, etc.) is deprecated, not recommended for using and might be removed. Please migrate to VLESS with Flow & Seed as soon as possible.\n2026/07/01 06:05:26.163922 [Warning] core: Xray 26.3.27 started\n2026/07/01 06:05:26.203494 from 127.0.0.1:55917 rejected  proxy/trojan: not a valid user",
       "stderrExcerpt": "",
       "reproductionCommand": "npm run compat:external:v1 -- --case trojan-xray-sepigs-outbound-wrong-password",
       "artifactPath": "system-temp/trojan-xray-sepigs-outbound-wrong-password",
-      "startedAt": "2026-06-28T17:16:03.841Z",
-      "completedAt": "2026-06-28T17:16:03.899Z"
+      "processCleanup": {
+        "graceful": true,
+        "forced": false,
+        "portsReleased": true
+      },
+      "startedAt": "2026-06-30T22:05:26.149Z",
+      "completedAt": "2026-06-30T22:05:26.205Z"
     },
     {
       "caseId": "trojan-xray-sepigs-inbound-wrong-password",
@@ -795,12 +1342,61 @@
       "command": "xray run -config <temp-config>",
       "result": "verified",
       "reason": "wrong password was rejected",
-      "stdoutExcerpt": "Xray 26.3.27 (Xray, Penetrates Everything.) Custom (go1.26.1 darwin/arm64)\nA unified platform for anti-censorship.\n2026/06/29 01:16:03.912589 [Info] infra/conf/serial: Reading config: &{Name:<system-temp>/sepigs-compat-harness-mtb3OY/trojan-xray-sepigs-inbound-wrong-password/xray-trojan-client.json Format:json}\n2026/06/29 01:16:03.913012 [Warning] common/errors: The feature Trojan (with no Flow, etc.) is deprecated, not recommended for using and might be removed. Please migrate to VLESS with Flow & Seed as soon as possible.\n2026/06/29 01:16:03.913291 [Warning] core: Xray 26.3.27 started\n2026/06/29 01:16:03.953751 from tcp:127.0.0.1:63309 accepted tcp:127.0.0.1:63304 [reference-out]",
+      "stdoutExcerpt": "Xray 26.3.27 (Xray, Penetrates Everything.) Custom (go1.26.1 darwin/arm64)\nA unified platform for anti-censorship.\n2026/07/01 06:05:26.219886 [Info] infra/conf/serial: Reading config: &{Name:<system-temp>/sepigs-compat-harness-T5gSN9/trojan-xray-sepigs-inbound-wrong-password/xray-trojan-client.json Format:json}\n2026/07/01 06:05:26.220445 [Warning] common/errors: The feature Trojan (with no Flow, etc.) is deprecated, not recommended for using and might be removed. Please migrate to VLESS with Flow & Seed as soon as possible.\n2026/07/01 06:05:26.220678 [Warning] core: Xray 26.3.27 started\n2026/07/01 06:05:26.258608 from tcp:127.0.0.1:55924 accepted tcp:127.0.0.1:55919 [reference-out]",
       "stderrExcerpt": "",
       "reproductionCommand": "npm run compat:external:v1 -- --case trojan-xray-sepigs-inbound-wrong-password",
       "artifactPath": "system-temp/trojan-xray-sepigs-inbound-wrong-password",
-      "startedAt": "2026-06-28T17:16:03.899Z",
-      "completedAt": "2026-06-28T17:16:04.964Z"
+      "processCleanup": {
+        "graceful": true,
+        "forced": false,
+        "portsReleased": true
+      },
+      "startedAt": "2026-06-30T22:05:26.205Z",
+      "completedAt": "2026-06-30T22:05:27.266Z"
+    },
+    {
+      "caseId": "trojan-xray-sepigs-outbound-remote-close",
+      "referenceImplementation": "xray",
+      "referenceVersion": "Xray 26.3.27 (Xray, Penetrates Everything.) Custom (go1.26.1 darwin/arm64) A unified platform for anti-censorship.",
+      "sepigsRole": "outbound",
+      "protocol": "trojan",
+      "payloadSize": 25,
+      "command": "xray run -config <temp-config>",
+      "result": "verified",
+      "reason": "TLS remote close propagated and resources were released",
+      "stdoutExcerpt": "Xray 26.3.27 (Xray, Penetrates Everything.) Custom (go1.26.1 darwin/arm64)\nA unified platform for anti-censorship.\n2026/07/01 06:05:27.294925 [Info] infra/conf/serial: Reading config: &{Name:<system-temp>/sepigs-compat-harness-T5gSN9/trojan-xray-sepigs-outbound-remote-close/xray-trojan-server.json Format:json}\n2026/07/01 06:05:27.295638 [Warning] common/errors: The feature Trojan (with no Flow, etc.) is deprecated, not recommended for using and might be removed. Please migrate to VLESS with Flow & Seed as soon as possible.\n2026/07/01 06:05:27.296631 [Warning] core: Xray 26.3.27 started\n2026/07/01 06:05:27.326841 from 127.0.0.1:55933 accepted tcp:127.0.0.1:55929 [direct]",
+      "stderrExcerpt": "",
+      "reproductionCommand": "npm run compat:external:v1 -- --case trojan-xray-sepigs-outbound-remote-close",
+      "artifactPath": "system-temp/trojan-xray-sepigs-outbound-remote-close",
+      "processCleanup": {
+        "graceful": true,
+        "forced": false,
+        "portsReleased": true
+      },
+      "startedAt": "2026-06-30T22:05:27.267Z",
+      "completedAt": "2026-06-30T22:05:28.435Z"
+    },
+    {
+      "caseId": "trojan-xray-sepigs-inbound-remote-close",
+      "referenceImplementation": "xray",
+      "referenceVersion": "Xray 26.3.27 (Xray, Penetrates Everything.) Custom (go1.26.1 darwin/arm64) A unified platform for anti-censorship.",
+      "sepigsRole": "inbound",
+      "protocol": "trojan",
+      "payloadSize": 25,
+      "command": "xray run -config <temp-config>",
+      "result": "verified",
+      "reason": "TLS remote close propagated and resources were released",
+      "stdoutExcerpt": "Xray 26.3.27 (Xray, Penetrates Everything.) Custom (go1.26.1 darwin/arm64)\nA unified platform for anti-censorship.\n2026/07/01 06:05:28.464009 [Info] infra/conf/serial: Reading config: &{Name:<system-temp>/sepigs-compat-harness-T5gSN9/trojan-xray-sepigs-inbound-remote-close/xray-trojan-client.json Format:json}\n2026/07/01 06:05:28.464741 [Warning] common/errors: The feature Trojan (with no Flow, etc.) is deprecated, not recommended for using and might be removed. Please migrate to VLESS with Flow & Seed as soon as possible.\n2026/07/01 06:05:28.465139 [Warning] core: Xray 26.3.27 started\n2026/07/01 06:05:28.493492 from tcp:127.0.0.1:55941 accepted tcp:127.0.0.1:55936 [reference-out]",
+      "stderrExcerpt": "",
+      "reproductionCommand": "npm run compat:external:v1 -- --case trojan-xray-sepigs-inbound-remote-close",
+      "artifactPath": "system-temp/trojan-xray-sepigs-inbound-remote-close",
+      "processCleanup": {
+        "graceful": true,
+        "forced": false,
+        "portsReleased": true
+      },
+      "startedAt": "2026-06-30T22:05:28.435Z",
+      "completedAt": "2026-06-30T22:05:29.604Z"
     },
     {
       "caseId": "trojan-trojan-go-sepigs-outbound-small",
@@ -816,8 +1412,8 @@
       "stderrExcerpt": "",
       "reproductionCommand": "npm run compat:external:v1 -- --case trojan-trojan-go-sepigs-outbound-small",
       "artifactPath": "none",
-      "startedAt": "2026-06-28T17:16:04.964Z",
-      "completedAt": "2026-06-28T17:16:04.964Z"
+      "startedAt": "2026-06-30T22:05:29.605Z",
+      "completedAt": "2026-06-30T22:05:29.605Z"
     },
     {
       "caseId": "trojan-trojan-go-sepigs-inbound-small",
@@ -833,8 +1429,8 @@
       "stderrExcerpt": "",
       "reproductionCommand": "npm run compat:external:v1 -- --case trojan-trojan-go-sepigs-inbound-small",
       "artifactPath": "none",
-      "startedAt": "2026-06-28T17:16:04.964Z",
-      "completedAt": "2026-06-28T17:16:04.964Z"
+      "startedAt": "2026-06-30T22:05:29.605Z",
+      "completedAt": "2026-06-30T22:05:29.605Z"
     },
     {
       "caseId": "trojan-trojan-go-sepigs-outbound-large",
@@ -850,8 +1446,8 @@
       "stderrExcerpt": "",
       "reproductionCommand": "npm run compat:external:v1 -- --case trojan-trojan-go-sepigs-outbound-large",
       "artifactPath": "none",
-      "startedAt": "2026-06-28T17:16:04.964Z",
-      "completedAt": "2026-06-28T17:16:04.964Z"
+      "startedAt": "2026-06-30T22:05:29.605Z",
+      "completedAt": "2026-06-30T22:05:29.605Z"
     },
     {
       "caseId": "trojan-trojan-go-sepigs-inbound-large",
@@ -867,8 +1463,8 @@
       "stderrExcerpt": "",
       "reproductionCommand": "npm run compat:external:v1 -- --case trojan-trojan-go-sepigs-inbound-large",
       "artifactPath": "none",
-      "startedAt": "2026-06-28T17:16:04.964Z",
-      "completedAt": "2026-06-28T17:16:04.964Z"
+      "startedAt": "2026-06-30T22:05:29.605Z",
+      "completedAt": "2026-06-30T22:05:29.605Z"
     },
     {
       "caseId": "trojan-trojan-go-sepigs-outbound-wrong-password",
@@ -884,8 +1480,8 @@
       "stderrExcerpt": "",
       "reproductionCommand": "npm run compat:external:v1 -- --case trojan-trojan-go-sepigs-outbound-wrong-password",
       "artifactPath": "none",
-      "startedAt": "2026-06-28T17:16:04.964Z",
-      "completedAt": "2026-06-28T17:16:04.964Z"
+      "startedAt": "2026-06-30T22:05:29.605Z",
+      "completedAt": "2026-06-30T22:05:29.605Z"
     },
     {
       "caseId": "trojan-trojan-go-sepigs-inbound-wrong-password",
@@ -901,8 +1497,8 @@
       "stderrExcerpt": "",
       "reproductionCommand": "npm run compat:external:v1 -- --case trojan-trojan-go-sepigs-inbound-wrong-password",
       "artifactPath": "none",
-      "startedAt": "2026-06-28T17:16:04.964Z",
-      "completedAt": "2026-06-28T17:16:04.964Z"
+      "startedAt": "2026-06-30T22:05:29.605Z",
+      "completedAt": "2026-06-30T22:05:29.605Z"
     },
     {
       "caseId": "ss-udp-inbound-external",
@@ -918,8 +1514,8 @@
       "stderrExcerpt": "",
       "reproductionCommand": "npm run compat:external:v1 -- --case ss-udp-inbound-external",
       "artifactPath": "none",
-      "startedAt": "2026-06-28T17:16:04.965Z",
-      "completedAt": "2026-06-28T17:16:04.965Z"
+      "startedAt": "2026-06-30T22:05:29.605Z",
+      "completedAt": "2026-06-30T22:05:29.605Z"
     },
     {
       "caseId": "trojan-public-plain-mode",
@@ -935,12 +1531,12 @@
       "stderrExcerpt": "",
       "reproductionCommand": "npm run compat:external:v1 -- --case trojan-public-plain-mode",
       "artifactPath": "none",
-      "startedAt": "2026-06-28T17:16:04.965Z",
-      "completedAt": "2026-06-28T17:16:04.965Z"
+      "startedAt": "2026-06-30T22:05:29.605Z",
+      "completedAt": "2026-06-30T22:05:29.605Z"
     }
   ],
   "summary": {
-    "verified": 23,
+    "verified": 44,
     "failed": 0,
     "skipped": 28,
     "blocked": 0,

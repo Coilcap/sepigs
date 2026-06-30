@@ -505,3 +505,31 @@ Remaining risk:
 
 Next:
 - In M2, install pinned missing references, add digest/provenance gates, and rerun skipped cases without changing protocol core behavior.
+
+## Stage 19 - Phase 13 M2 Compatibility Evidence Expansion
+
+Completed:
+- Added redacted binary fingerprints with SHA-256, file metadata, source classification, and symlink resolution.
+- Added Xray Shadowsocks bidirectional cases plus sing-box/Xray remote-close and sing-box 8-connection concurrency cases.
+- Added implementation-specific reports, a version/count regression gate, and a self-auditing evidence ZIP.
+- Extended security checks to compatibility reports, teardown evidence, bounded excerpts, and ZIP entries.
+
+Found:
+- The first remote-close scenario waited without writing, so Shadowsocks never emitted its destination header and the reference server never opened the target connection.
+- Existing beta-era compatibility reports retained local Homebrew paths.
+- A detected Homebrew command can be a wrapper or symlink, so the fingerprint report must retain the resolved entry path and source trust limitation.
+
+Fixed:
+- Remote-close cases send a recorded probe payload before waiting for closure; both sing-box and Xray cases then pass.
+- Historical paths were tokenized without changing their compatibility conclusions.
+- Evidence reports distinguish a reproducible local digest from upstream provenance or signature trust.
+- Wrapper launchers and their resolved execution targets are fingerprinted separately so a small package-manager shim cannot stand in for the executed payload.
+
+Remaining risk:
+- shadowsocks-rust, shadowsocks-libev, and Trojan-Go remain absent, leaving 28 cases skipped.
+- Homebrew automatic upgrades can invalidate a fingerprint and require a complete rerun.
+- Public-PKI Trojan validation and unsupported transport/protocol extensions remain outside M2.
+
+Next:
+- Review and safely install pinned missing reference implementations before expanding verified coverage.
+- Do not begin transactional reload implementation until M2 validation and evidence review are complete.

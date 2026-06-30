@@ -78,14 +78,14 @@ A reference case is verified only when the expected external binary actually
 started, reached ready state, exchanged the asserted payload, and cleaned up.
 A local mock or binary detection alone cannot satisfy this record.
 
-The M1 JSON record maps these fields as follows: `caseId`,
+The M2 JSON record maps these fields as follows: `caseId`,
 `referenceImplementation`, `referenceVersion`, `sepigsRole`, `protocol`,
-optional `cipher`, `payloadSize`, redacted `command`, `result`, `reason`,
+optional `cipher`, `payloadSize`, optional concurrency, redacted `command`, `result`, `reason`,
 bounded stdout/stderr excerpts, `reproductionCommand`, logical
-`artifactPath`, and timestamps. Binary path and version-command evidence live
-in the companion `reference-detection.json`. Raw temporary configs, logs,
-certificates, and keys are deleted after the bounded run and are not release
-artifacts.
+`artifactPath`, process-cleanup status, and timestamps. Binary path,
+version-command, and SHA-256 evidence live in the companion detection and
+fingerprint reports. Raw temporary configs, logs, certificates, and keys are
+deleted after the bounded run and are not release artifacts.
 
 ## Soak Evidence
 

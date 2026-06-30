@@ -49,3 +49,17 @@ Not yet supported:
   are the only retained evidence.
 - External binaries remain third-party test dependencies. Detection and a
   successful version command do not grant trust or imply interoperability.
+
+## M2 Compatibility Evidence
+
+- SHA-256 is computed from the locally executed reference entry point without
+  copying or packaging that file.
+- Committed paths use `${HOMEBREW_PREFIX}`, `${SYSTEM_ROOT}`, `${HOME}`, or a
+  `<local-only>` marker instead of machine-specific absolute paths.
+- Every verified row includes process cleanup evidence with released ports.
+- `compat:gate` rejects failed cases, missing capability reasons, version
+  mismatches, and verified-count regressions above the baseline budget.
+- `compat:evidence-pack` accepts only an explicit JSON/Markdown allowlist,
+  scans content before zipping, and emits per-file SHA-256 in `MANIFEST.json`.
+- `security:check` scans M2 reports and, when present, every text entry in the
+  ZIP. Binary-like entries, local paths, private keys, and test secrets fail.

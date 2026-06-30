@@ -26,14 +26,14 @@
       "candidates": [
         "sing-box"
       ],
-      "path": "/opt/homebrew/bin/sing-box"
+      "path": "${HOMEBREW_PREFIX}/bin/sing-box"
     },
     {
       "name": "xray",
       "candidates": [
         "xray"
       ],
-      "path": "/opt/homebrew/bin/xray"
+      "path": "${HOMEBREW_PREFIX}/bin/xray"
     }
   ],
   "installSuggestions": [
@@ -48,7 +48,7 @@
       "protocol": "shadowsocks",
       "case": "reference client -> sepigs inbound aes-128-gcm",
       "status": "blocked-with-reason",
-      "reason": "Blocked: external reference binary detected (/opt/homebrew/bin/sing-box) but this release has no vetted automatic launcher for it; no verified interoperability result is claimed.",
+      "reason": "Blocked: external reference binary detected (${HOMEBREW_PREFIX}/bin/sing-box) but this release has no vetted automatic launcher for it; no verified interoperability result is claimed.",
       "candidates": [
         "sslocal",
         "ssserver",
@@ -61,7 +61,7 @@
       "protocol": "shadowsocks",
       "case": "reference client -> sepigs inbound aes-256-gcm",
       "status": "blocked-with-reason",
-      "reason": "Blocked: external reference binary detected (/opt/homebrew/bin/sing-box) but this release has no vetted automatic launcher for it; no verified interoperability result is claimed.",
+      "reason": "Blocked: external reference binary detected (${HOMEBREW_PREFIX}/bin/sing-box) but this release has no vetted automatic launcher for it; no verified interoperability result is claimed.",
       "candidates": [
         "sslocal",
         "ssserver",
@@ -74,7 +74,7 @@
       "protocol": "shadowsocks",
       "case": "reference client -> sepigs inbound chacha20-ietf-poly1305",
       "status": "blocked-with-reason",
-      "reason": "Blocked: external reference binary detected (/opt/homebrew/bin/sing-box) but this release has no vetted automatic launcher for it; no verified interoperability result is claimed.",
+      "reason": "Blocked: external reference binary detected (${HOMEBREW_PREFIX}/bin/sing-box) but this release has no vetted automatic launcher for it; no verified interoperability result is claimed.",
       "candidates": [
         "sslocal",
         "ssserver",
@@ -87,7 +87,7 @@
       "protocol": "shadowsocks",
       "case": "wrong password",
       "status": "blocked-with-reason",
-      "reason": "Blocked: external reference binary detected (/opt/homebrew/bin/sing-box) but this release has no vetted automatic launcher for it; no verified interoperability result is claimed.",
+      "reason": "Blocked: external reference binary detected (${HOMEBREW_PREFIX}/bin/sing-box) but this release has no vetted automatic launcher for it; no verified interoperability result is claimed.",
       "candidates": [
         "sslocal",
         "ssserver",
@@ -100,7 +100,7 @@
       "protocol": "shadowsocks",
       "case": "large payload",
       "status": "blocked-with-reason",
-      "reason": "Blocked: external reference binary detected (/opt/homebrew/bin/sing-box) but this release has no vetted automatic launcher for it; no verified interoperability result is claimed.",
+      "reason": "Blocked: external reference binary detected (${HOMEBREW_PREFIX}/bin/sing-box) but this release has no vetted automatic launcher for it; no verified interoperability result is claimed.",
       "candidates": [
         "sslocal",
         "ssserver",
@@ -113,7 +113,7 @@
       "protocol": "shadowsocks",
       "case": "remote close",
       "status": "blocked-with-reason",
-      "reason": "Blocked: external reference binary detected (/opt/homebrew/bin/sing-box) but this release has no vetted automatic launcher for it; no verified interoperability result is claimed.",
+      "reason": "Blocked: external reference binary detected (${HOMEBREW_PREFIX}/bin/sing-box) but this release has no vetted automatic launcher for it; no verified interoperability result is claimed.",
       "candidates": [
         "sslocal",
         "ssserver",
@@ -126,7 +126,7 @@
       "protocol": "trojan",
       "case": "reference client -> sepigs inbound",
       "status": "blocked-with-reason",
-      "reason": "Blocked: external reference binary detected (/opt/homebrew/bin/sing-box, /opt/homebrew/bin/xray) but this release has no vetted automatic launcher for it; no verified interoperability result is claimed.",
+      "reason": "Blocked: external reference binary detected (${HOMEBREW_PREFIX}/bin/sing-box, ${HOMEBREW_PREFIX}/bin/xray) but this release has no vetted automatic launcher for it; no verified interoperability result is claimed.",
       "candidates": [
         "trojan-go",
         "sing-box",
@@ -137,7 +137,7 @@
       "protocol": "trojan",
       "case": "wrong password",
       "status": "blocked-with-reason",
-      "reason": "Blocked: external reference binary detected (/opt/homebrew/bin/sing-box, /opt/homebrew/bin/xray) but this release has no vetted automatic launcher for it; no verified interoperability result is claimed.",
+      "reason": "Blocked: external reference binary detected (${HOMEBREW_PREFIX}/bin/sing-box, ${HOMEBREW_PREFIX}/bin/xray) but this release has no vetted automatic launcher for it; no verified interoperability result is claimed.",
       "candidates": [
         "trojan-go",
         "sing-box",
@@ -148,7 +148,7 @@
       "protocol": "trojan",
       "case": "large payload",
       "status": "blocked-with-reason",
-      "reason": "Blocked: external reference binary detected (/opt/homebrew/bin/sing-box, /opt/homebrew/bin/xray) but this release has no vetted automatic launcher for it; no verified interoperability result is claimed.",
+      "reason": "Blocked: external reference binary detected (${HOMEBREW_PREFIX}/bin/sing-box, ${HOMEBREW_PREFIX}/bin/xray) but this release has no vetted automatic launcher for it; no verified interoperability result is claimed.",
       "candidates": [
         "trojan-go",
         "sing-box",
@@ -159,7 +159,7 @@
       "protocol": "trojan",
       "case": "remote close",
       "status": "blocked-with-reason",
-      "reason": "Blocked: external reference binary detected (/opt/homebrew/bin/sing-box, /opt/homebrew/bin/xray) but this release has no vetted automatic launcher for it; no verified interoperability result is claimed.",
+      "reason": "Blocked: external reference binary detected (${HOMEBREW_PREFIX}/bin/sing-box, ${HOMEBREW_PREFIX}/bin/xray) but this release has no vetted automatic launcher for it; no verified interoperability result is claimed.",
       "candidates": [
         "trojan-go",
         "sing-box",
@@ -170,7 +170,7 @@
       "protocol": "trojan",
       "case": "TLS termination and SNI",
       "status": "blocked-with-reason",
-      "reason": "Blocked: external reference binary detected (/opt/homebrew/bin/sing-box, /opt/homebrew/bin/xray) but this release has no vetted automatic launcher for it; no verified interoperability result is claimed.",
+      "reason": "Blocked: external reference binary detected (${HOMEBREW_PREFIX}/bin/sing-box, ${HOMEBREW_PREFIX}/bin/xray) but this release has no vetted automatic launcher for it; no verified interoperability result is claimed.",
       "candidates": [
         "trojan-go",
         "sing-box",

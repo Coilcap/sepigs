@@ -1,0 +1,100 @@
+{
+  "generatedAt": "2026-06-30T22:05:19.833Z",
+  "platform": "darwin",
+  "architecture": "arm64",
+  "fingerprints": [
+    {
+      "implementation": "shadowsocks-rust",
+      "binaryName": "ssserver",
+      "binaryPath": "missing",
+      "versionOutput": "",
+      "platform": "darwin",
+      "architecture": "arm64",
+      "status": "not-available",
+      "sourceType": "unknown",
+      "trustNote": "No digest computed because detection status is missing."
+    },
+    {
+      "implementation": "shadowsocks-rust",
+      "binaryName": "sslocal",
+      "binaryPath": "missing",
+      "versionOutput": "",
+      "platform": "darwin",
+      "architecture": "arm64",
+      "status": "not-available",
+      "sourceType": "unknown",
+      "trustNote": "No digest computed because detection status is missing."
+    },
+    {
+      "implementation": "shadowsocks-libev",
+      "binaryName": "ss-server",
+      "binaryPath": "missing",
+      "versionOutput": "",
+      "platform": "darwin",
+      "architecture": "arm64",
+      "status": "not-available",
+      "sourceType": "unknown",
+      "trustNote": "No digest computed because detection status is missing."
+    },
+    {
+      "implementation": "shadowsocks-libev",
+      "binaryName": "ss-local",
+      "binaryPath": "missing",
+      "versionOutput": "",
+      "platform": "darwin",
+      "architecture": "arm64",
+      "status": "not-available",
+      "sourceType": "unknown",
+      "trustNote": "No digest computed because detection status is missing."
+    },
+    {
+      "implementation": "sing-box",
+      "binaryName": "sing-box",
+      "binaryPath": "${HOMEBREW_PREFIX}/bin/sing-box",
+      "versionOutput": "sing-box version 1.13.14 Environment: go1.26.4 darwin/arm64 Tags: with_gvisor,with_quic,with_dhcp,with_wireguard,with_utls,with_acme,with_clash_api,with_tailscale,with_ccm,with_ocm,with_naive_outbound,badlinkname,tfogo_checklinkname0 CGO: enabled",
+      "platform": "darwin",
+      "architecture": "arm64",
+      "status": "fingerprinted",
+      "sha256": "5f2ac89b0bbb421059dba7e2b390dec78e662450159417b802df67e329d7398a",
+      "fileSize": 50007970,
+      "mtime": "2026-06-25T08:36:07.000Z",
+      "resolvedSymlinkPath": "${HOMEBREW_PREFIX}/Cellar/sing-box/1.13.14/bin/sing-box",
+      "executionTargetPath": "${HOMEBREW_PREFIX}/Cellar/sing-box/1.13.14/bin/sing-box",
+      "executionTargetSha256": "5f2ac89b0bbb421059dba7e2b390dec78e662450159417b802df67e329d7398a",
+      "executionTargetFileSize": 50007970,
+      "executionTargetMtime": "2026-06-25T08:36:07.000Z",
+      "sourceType": "brew",
+      "trustNote": "Local Homebrew installation; formula provenance and bottle checksum require separate review."
+    },
+    {
+      "implementation": "xray",
+      "binaryName": "xray",
+      "binaryPath": "${HOMEBREW_PREFIX}/bin/xray",
+      "versionOutput": "Xray 26.3.27 (Xray, Penetrates Everything.) Custom (go1.26.1 darwin/arm64) A unified platform for anti-censorship.",
+      "platform": "darwin",
+      "architecture": "arm64",
+      "status": "fingerprinted",
+      "sha256": "04e4f982f3026b039746c309205064eb8c656cf8f74a41ea0c74ee90b33a7d04",
+      "fileSize": 163,
+      "mtime": "2026-06-26T03:40:52.903Z",
+      "resolvedSymlinkPath": "${HOMEBREW_PREFIX}/Cellar/xray/26.3.27/bin/xray",
+      "executionTargetPath": "${HOMEBREW_PREFIX}/Cellar/xray/26.3.27/libexec/xray",
+      "executionTargetSha256": "95984ec72638f96f0c576246e91ad2fff978557cf8e37e3e6111ee595030b2f7",
+      "executionTargetFileSize": 29820546,
+      "executionTargetMtime": "2026-03-27T17:45:40.000Z",
+      "sourceType": "brew",
+      "trustNote": "Local Homebrew installation; formula provenance and bottle checksum require separate review. The detected entry is a wrapper; the separately fingerprinted execution target is the payload."
+    },
+    {
+      "implementation": "trojan-go",
+      "binaryName": "trojan-go",
+      "binaryPath": "missing",
+      "versionOutput": "",
+      "platform": "darwin",
+      "architecture": "arm64",
+      "status": "not-available",
+      "sourceType": "unknown",
+      "trustNote": "No digest computed because detection status is missing."
+    }
+  ]
+}
