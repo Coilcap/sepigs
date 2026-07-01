@@ -533,3 +533,40 @@ Remaining risk:
 Next:
 - Review and safely install pinned missing reference implementations before expanding verified coverage.
 - Do not begin transactional reload implementation until M2 validation and evidence review are complete.
+
+## Stage 20 - Phase 14 M3 Transactional Reload Design Review
+
+Completed:
+- Audited every current reload participant and documented mutation order, rollback gaps, race conditions, connection effects, and resource ownership.
+- Added isolated generation/transaction types, a validated state machine, a strict component contract, and bounded operation helper.
+- Added a side-effect-free dry-run planner with stable config hashes and component actions.
+- Added transaction design, risk matrix, observability contract, and M3 acceptance criteria.
+
+Found:
+- Current reload drains changed old inbounds before later components complete; a downstream failure can leave staged listeners unregistered and old listeners drained.
+- Metrics and Dashboard are stop-then-start with no old-server rollback.
+- Plugins and outbounds mutate destructively, while connection and UDP manager limit changes are not applied.
+- Reload calls are not serialized, allowing overlapping file/dashboard/test triggers.
+- The first contract timeout helper unreferenced its only timer, allowing an isolated pending operation to outlive the test event loop instead of deterministically settling.
+- An unkeyed full-config SHA-256 in a report could permit dictionary testing of low-entropy credentials.
+
+Fixed in M3:
+- No runtime behavior was changed. Risks are represented explicitly in types,
+  dry-run actions, restart-required results, contracts, and acceptance gates.
+- Dry-run validates and compares configs without opening listeners, stopping
+  components, or closing connections.
+- Reload operation deadlines now remain referenced until settlement and always
+  clear their timer/abort listener afterward.
+- Deadline and parent abort now propagate through an operation-scoped signal so
+  a timed-out prepare can stop work before rollback/cleanup.
+- Dry-run config identity uses an unpersisted run-local HMAC key; structural
+  diffing remains exact while report hashes are not useful for offline guesses.
+
+Remaining risk:
+- The production Engine path remains sequential and non-transactional.
+- Same-address listener replacement, plugin side effects, generation-owned UDP
+  sessions, and post-commit cleanup need prototype and fault-injection work.
+
+Next:
+- Review the M3 model and dry-run evidence before authorizing an isolated M4
+  prototype. Do not replace the current Engine reload path directly.

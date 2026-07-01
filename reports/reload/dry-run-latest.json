@@ -1,0 +1,119 @@
+{
+  "generatedAt": "2026-07-01T17:24:33.362Z",
+  "currentConfigPath": "examples/sepigs.json",
+  "candidateConfigPath": "examples/sepigs.safe.json",
+  "currentConfigHash": "160dc87551519ee89bf8c67be7f08ce096a21b9219f9eda2a46ea47980435d7b",
+  "candidateConfigHash": "a670e69df0b2b02abb45754bc2ae0f44df1f990e62ee7543f6761966d74854b0",
+  "configHashScope": "run-local-hmac",
+  "changedComponents": [
+    "router",
+    "policy-prober",
+    "metrics-server"
+  ],
+  "components": [
+    {
+      "component": "dns",
+      "changed": false,
+      "action": "reuse",
+      "rollback": "supported",
+      "opensListenerDuringPrepare": false,
+      "affectsExistingConnections": false,
+      "note": "Candidate resolver and caches must remain isolated until snapshot publication."
+    },
+    {
+      "component": "fake-ip-store",
+      "changed": false,
+      "action": "reuse",
+      "rollback": "supported",
+      "opensListenerDuringPrepare": false,
+      "affectsExistingConnections": false,
+      "note": "Compatible stores may be reused; range or persistence changes require explicit mapping migration."
+    },
+    {
+      "component": "router",
+      "changed": true,
+      "action": "atomic-snapshot",
+      "rollback": "supported",
+      "opensListenerDuringPrepare": false,
+      "affectsExistingConnections": false,
+      "note": "New requests use the published router snapshot; established streams keep their route."
+    },
+    {
+      "component": "policy-prober",
+      "changed": true,
+      "action": "stage-and-swap",
+      "rollback": "supported",
+      "opensListenerDuringPrepare": false,
+      "affectsExistingConnections": false,
+      "note": "Health and backoff migration must be keyed by unchanged outbound tags."
+    },
+    {
+      "component": "outbound-registry",
+      "changed": false,
+      "action": "reuse",
+      "rollback": "supported",
+      "opensListenerDuringPrepare": false,
+      "affectsExistingConnections": false,
+      "note": "Existing streams retain their outbound object; only new selection switches generation."
+    },
+    {
+      "component": "inbound-listeners",
+      "changed": false,
+      "action": "reuse",
+      "rollback": "supported",
+      "opensListenerDuringPrepare": false,
+      "affectsExistingConnections": false,
+      "note": "Changed listeners prepare before old listeners drain; same-address replacement needs a bounded gap strategy."
+    },
+    {
+      "component": "dashboard-server",
+      "changed": false,
+      "action": "reuse",
+      "rollback": "supported",
+      "opensListenerDuringPrepare": false,
+      "affectsExistingConnections": false,
+      "note": "Token and listener changes must not expose the old or new control plane without authentication."
+    },
+    {
+      "component": "metrics-server",
+      "changed": true,
+      "action": "restart-listener",
+      "rollback": "best-effort",
+      "opensListenerDuringPrepare": true,
+      "affectsExistingConnections": false,
+      "note": "A port conflict must leave the previous metrics endpoint available."
+    },
+    {
+      "component": "plugin-manager",
+      "changed": false,
+      "action": "reuse",
+      "rollback": "supported",
+      "opensListenerDuringPrepare": false,
+      "affectsExistingConnections": false,
+      "note": "Plugin setup and owner-scoped factories need isolated staging; irreversible plugin side effects require restart."
+    },
+    {
+      "component": "connection-manager",
+      "changed": false,
+      "action": "reuse",
+      "rollback": "supported",
+      "opensListenerDuringPrepare": false,
+      "affectsExistingConnections": false,
+      "note": "The current limiter and timeout ownership are immutable; runtime mutation is outside M3."
+    },
+    {
+      "component": "udp-session-manager",
+      "changed": false,
+      "action": "reuse",
+      "rollback": "supported",
+      "opensListenerDuringPrepare": false,
+      "affectsExistingConnections": false,
+      "note": "Existing UDP sessions retain their manager and timers; limit changes require a later generation-aware implementation."
+    }
+  ],
+  "sideEffects": {
+    "runtimeMutated": false,
+    "listenersOpened": 0,
+    "connectionsClosed": 0
+  }
+}
