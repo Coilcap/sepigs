@@ -1,0 +1,430 @@
+{
+  "generatedAt": "2026-07-01T23:17:10.222Z",
+  "mode": "shadow-prototype",
+  "currentConfigPath": "examples/sepigs.json",
+  "candidateConfigPath": "examples/sepigs.safe.json",
+  "plan": {
+    "generatedAt": "2026-07-01T23:17:10.220Z",
+    "currentConfigPath": "examples/sepigs.json",
+    "candidateConfigPath": "examples/sepigs.safe.json",
+    "currentConfigHash": "b58760627c4196ca7149f48366d9ab81142e9a8f962598316c755a4766736eac",
+    "candidateConfigHash": "6bc71002c57f48733c9ddca7c87dfc9d6b59844544be5793a08f35871d6618c0",
+    "configHashScope": "run-local-hmac",
+    "changedComponents": [
+      "router",
+      "policy-prober",
+      "metrics-server"
+    ],
+    "components": [
+      {
+        "component": "dns",
+        "changed": false,
+        "action": "reuse",
+        "rollback": "supported",
+        "opensListenerDuringPrepare": false,
+        "affectsExistingConnections": false,
+        "note": "Candidate resolver and caches must remain isolated until snapshot publication."
+      },
+      {
+        "component": "fake-ip-store",
+        "changed": false,
+        "action": "reuse",
+        "rollback": "supported",
+        "opensListenerDuringPrepare": false,
+        "affectsExistingConnections": false,
+        "note": "Compatible stores may be reused; range or persistence changes require explicit mapping migration."
+      },
+      {
+        "component": "router",
+        "changed": true,
+        "action": "atomic-snapshot",
+        "rollback": "supported",
+        "opensListenerDuringPrepare": false,
+        "affectsExistingConnections": false,
+        "note": "New requests use the published router snapshot; established streams keep their route."
+      },
+      {
+        "component": "policy-prober",
+        "changed": true,
+        "action": "stage-and-swap",
+        "rollback": "supported",
+        "opensListenerDuringPrepare": false,
+        "affectsExistingConnections": false,
+        "note": "Health and backoff migration must be keyed by unchanged outbound tags."
+      },
+      {
+        "component": "outbound-registry",
+        "changed": false,
+        "action": "reuse",
+        "rollback": "supported",
+        "opensListenerDuringPrepare": false,
+        "affectsExistingConnections": false,
+        "note": "Existing streams retain their outbound object; only new selection switches generation."
+      },
+      {
+        "component": "inbound-listeners",
+        "changed": false,
+        "action": "reuse",
+        "rollback": "supported",
+        "opensListenerDuringPrepare": false,
+        "affectsExistingConnections": false,
+        "note": "Changed listeners prepare before old listeners drain; same-address replacement needs a bounded gap strategy."
+      },
+      {
+        "component": "dashboard-server",
+        "changed": false,
+        "action": "reuse",
+        "rollback": "supported",
+        "opensListenerDuringPrepare": false,
+        "affectsExistingConnections": false,
+        "note": "Token and listener changes must not expose the old or new control plane without authentication."
+      },
+      {
+        "component": "metrics-server",
+        "changed": true,
+        "action": "restart-listener",
+        "rollback": "best-effort",
+        "opensListenerDuringPrepare": true,
+        "affectsExistingConnections": false,
+        "note": "A port conflict must leave the previous metrics endpoint available."
+      },
+      {
+        "component": "plugin-manager",
+        "changed": false,
+        "action": "reuse",
+        "rollback": "supported",
+        "opensListenerDuringPrepare": false,
+        "affectsExistingConnections": false,
+        "note": "Plugin setup and owner-scoped factories need isolated staging; irreversible plugin side effects require restart."
+      },
+      {
+        "component": "connection-manager",
+        "changed": false,
+        "action": "reuse",
+        "rollback": "supported",
+        "opensListenerDuringPrepare": false,
+        "affectsExistingConnections": false,
+        "note": "The current limiter and timeout ownership are immutable; runtime mutation is outside M3."
+      },
+      {
+        "component": "udp-session-manager",
+        "changed": false,
+        "action": "reuse",
+        "rollback": "supported",
+        "opensListenerDuringPrepare": false,
+        "affectsExistingConnections": false,
+        "note": "Existing UDP sessions retain their manager and timers; limit changes require a later generation-aware implementation."
+      }
+    ],
+    "sideEffects": {
+      "runtimeMutated": false,
+      "listenersOpened": 0,
+      "connectionsClosed": 0
+    }
+  },
+  "execution": {
+    "success": true,
+    "transaction": {
+      "id": "shadow-83a082f7-79ab-4e9b-a144-9fe4701f4ad8",
+      "oldGeneration": {
+        "id": "shadow-old-b58760627c41",
+        "createdAt": 1782947830220,
+        "configHash": "b58760627c4196ca7149f48366d9ab81142e9a8f962598316c755a4766736eac",
+        "state": "active",
+        "components": [],
+        "resources": []
+      },
+      "candidateGeneration": {
+        "id": "shadow-candidate-6bc71002c57f",
+        "createdAt": 1782947830220,
+        "configHash": "6bc71002c57f48733c9ddca7c87dfc9d6b59844544be5793a08f35871d6618c0",
+        "state": "candidate",
+        "components": [],
+        "resources": [],
+        "parentGenerationId": "shadow-old-b58760627c41"
+      },
+      "state": "committed",
+      "startedAt": 1782947830221,
+      "completedAt": 1782947830222
+    },
+    "componentErrors": [],
+    "preparedComponents": [
+      "router",
+      "policy-prober",
+      "metrics-server"
+    ],
+    "committedComponents": [
+      "router",
+      "policy-prober",
+      "metrics-server"
+    ],
+    "events": [
+      {
+        "type": "transaction.started",
+        "timestamp": "2026-07-01T23:17:10.221Z",
+        "transactionId": "shadow-83a082f7-79ab-4e9b-a144-9fe4701f4ad8",
+        "generationId": "shadow-candidate-6bc71002c57f"
+      },
+      {
+        "type": "transaction.phase.started",
+        "timestamp": "2026-07-01T23:17:10.221Z",
+        "transactionId": "shadow-83a082f7-79ab-4e9b-a144-9fe4701f4ad8",
+        "generationId": "shadow-candidate-6bc71002c57f",
+        "phase": "parse"
+      },
+      {
+        "type": "transaction.phase.completed",
+        "timestamp": "2026-07-01T23:17:10.221Z",
+        "transactionId": "shadow-83a082f7-79ab-4e9b-a144-9fe4701f4ad8",
+        "generationId": "shadow-candidate-6bc71002c57f",
+        "phase": "parse",
+        "durationMs": 0
+      },
+      {
+        "type": "transaction.phase.started",
+        "timestamp": "2026-07-01T23:17:10.221Z",
+        "transactionId": "shadow-83a082f7-79ab-4e9b-a144-9fe4701f4ad8",
+        "generationId": "shadow-candidate-6bc71002c57f",
+        "phase": "validate"
+      },
+      {
+        "type": "transaction.phase.completed",
+        "timestamp": "2026-07-01T23:17:10.221Z",
+        "transactionId": "shadow-83a082f7-79ab-4e9b-a144-9fe4701f4ad8",
+        "generationId": "shadow-candidate-6bc71002c57f",
+        "phase": "validate",
+        "durationMs": 0
+      },
+      {
+        "type": "transaction.phase.started",
+        "timestamp": "2026-07-01T23:17:10.222Z",
+        "transactionId": "shadow-83a082f7-79ab-4e9b-a144-9fe4701f4ad8",
+        "generationId": "shadow-candidate-6bc71002c57f",
+        "phase": "prepare"
+      },
+      {
+        "type": "component.prepare.started",
+        "timestamp": "2026-07-01T23:17:10.222Z",
+        "transactionId": "shadow-83a082f7-79ab-4e9b-a144-9fe4701f4ad8",
+        "generationId": "shadow-candidate-6bc71002c57f",
+        "component": "router",
+        "phase": "prepare"
+      },
+      {
+        "type": "component.prepare.completed",
+        "timestamp": "2026-07-01T23:17:10.222Z",
+        "transactionId": "shadow-83a082f7-79ab-4e9b-a144-9fe4701f4ad8",
+        "generationId": "shadow-candidate-6bc71002c57f",
+        "component": "router",
+        "phase": "prepare",
+        "durationMs": 0
+      },
+      {
+        "type": "component.prepare.started",
+        "timestamp": "2026-07-01T23:17:10.222Z",
+        "transactionId": "shadow-83a082f7-79ab-4e9b-a144-9fe4701f4ad8",
+        "generationId": "shadow-candidate-6bc71002c57f",
+        "component": "policy-prober",
+        "phase": "prepare"
+      },
+      {
+        "type": "component.prepare.completed",
+        "timestamp": "2026-07-01T23:17:10.222Z",
+        "transactionId": "shadow-83a082f7-79ab-4e9b-a144-9fe4701f4ad8",
+        "generationId": "shadow-candidate-6bc71002c57f",
+        "component": "policy-prober",
+        "phase": "prepare",
+        "durationMs": 0
+      },
+      {
+        "type": "component.prepare.started",
+        "timestamp": "2026-07-01T23:17:10.222Z",
+        "transactionId": "shadow-83a082f7-79ab-4e9b-a144-9fe4701f4ad8",
+        "generationId": "shadow-candidate-6bc71002c57f",
+        "component": "metrics-server",
+        "phase": "prepare"
+      },
+      {
+        "type": "component.prepare.completed",
+        "timestamp": "2026-07-01T23:17:10.222Z",
+        "transactionId": "shadow-83a082f7-79ab-4e9b-a144-9fe4701f4ad8",
+        "generationId": "shadow-candidate-6bc71002c57f",
+        "component": "metrics-server",
+        "phase": "prepare",
+        "durationMs": 0
+      },
+      {
+        "type": "transaction.phase.completed",
+        "timestamp": "2026-07-01T23:17:10.222Z",
+        "transactionId": "shadow-83a082f7-79ab-4e9b-a144-9fe4701f4ad8",
+        "generationId": "shadow-candidate-6bc71002c57f",
+        "phase": "prepare",
+        "durationMs": 0
+      },
+      {
+        "type": "transaction.phase.started",
+        "timestamp": "2026-07-01T23:17:10.222Z",
+        "transactionId": "shadow-83a082f7-79ab-4e9b-a144-9fe4701f4ad8",
+        "generationId": "shadow-candidate-6bc71002c57f",
+        "phase": "health"
+      },
+      {
+        "type": "transaction.phase.completed",
+        "timestamp": "2026-07-01T23:17:10.222Z",
+        "transactionId": "shadow-83a082f7-79ab-4e9b-a144-9fe4701f4ad8",
+        "generationId": "shadow-candidate-6bc71002c57f",
+        "phase": "health",
+        "durationMs": 0
+      },
+      {
+        "type": "transaction.phase.started",
+        "timestamp": "2026-07-01T23:17:10.222Z",
+        "transactionId": "shadow-83a082f7-79ab-4e9b-a144-9fe4701f4ad8",
+        "generationId": "shadow-candidate-6bc71002c57f",
+        "phase": "commit"
+      },
+      {
+        "type": "component.commit.started",
+        "timestamp": "2026-07-01T23:17:10.222Z",
+        "transactionId": "shadow-83a082f7-79ab-4e9b-a144-9fe4701f4ad8",
+        "generationId": "shadow-candidate-6bc71002c57f",
+        "component": "router",
+        "phase": "commit"
+      },
+      {
+        "type": "component.commit.completed",
+        "timestamp": "2026-07-01T23:17:10.222Z",
+        "transactionId": "shadow-83a082f7-79ab-4e9b-a144-9fe4701f4ad8",
+        "generationId": "shadow-candidate-6bc71002c57f",
+        "component": "router",
+        "phase": "commit",
+        "durationMs": 0
+      },
+      {
+        "type": "component.commit.started",
+        "timestamp": "2026-07-01T23:17:10.222Z",
+        "transactionId": "shadow-83a082f7-79ab-4e9b-a144-9fe4701f4ad8",
+        "generationId": "shadow-candidate-6bc71002c57f",
+        "component": "policy-prober",
+        "phase": "commit"
+      },
+      {
+        "type": "component.commit.completed",
+        "timestamp": "2026-07-01T23:17:10.222Z",
+        "transactionId": "shadow-83a082f7-79ab-4e9b-a144-9fe4701f4ad8",
+        "generationId": "shadow-candidate-6bc71002c57f",
+        "component": "policy-prober",
+        "phase": "commit",
+        "durationMs": 0
+      },
+      {
+        "type": "component.commit.started",
+        "timestamp": "2026-07-01T23:17:10.222Z",
+        "transactionId": "shadow-83a082f7-79ab-4e9b-a144-9fe4701f4ad8",
+        "generationId": "shadow-candidate-6bc71002c57f",
+        "component": "metrics-server",
+        "phase": "commit"
+      },
+      {
+        "type": "component.commit.completed",
+        "timestamp": "2026-07-01T23:17:10.222Z",
+        "transactionId": "shadow-83a082f7-79ab-4e9b-a144-9fe4701f4ad8",
+        "generationId": "shadow-candidate-6bc71002c57f",
+        "component": "metrics-server",
+        "phase": "commit",
+        "durationMs": 0
+      },
+      {
+        "type": "transaction.phase.completed",
+        "timestamp": "2026-07-01T23:17:10.222Z",
+        "transactionId": "shadow-83a082f7-79ab-4e9b-a144-9fe4701f4ad8",
+        "generationId": "shadow-candidate-6bc71002c57f",
+        "phase": "commit",
+        "durationMs": 0
+      },
+      {
+        "type": "transaction.committed",
+        "timestamp": "2026-07-01T23:17:10.222Z",
+        "transactionId": "shadow-83a082f7-79ab-4e9b-a144-9fe4701f4ad8",
+        "generationId": "shadow-candidate-6bc71002c57f"
+      },
+      {
+        "type": "transaction.phase.started",
+        "timestamp": "2026-07-01T23:17:10.222Z",
+        "transactionId": "shadow-83a082f7-79ab-4e9b-a144-9fe4701f4ad8",
+        "generationId": "shadow-candidate-6bc71002c57f",
+        "phase": "cleanup"
+      },
+      {
+        "type": "transaction.phase.completed",
+        "timestamp": "2026-07-01T23:17:10.222Z",
+        "transactionId": "shadow-83a082f7-79ab-4e9b-a144-9fe4701f4ad8",
+        "generationId": "shadow-candidate-6bc71002c57f",
+        "phase": "cleanup",
+        "durationMs": 0
+      },
+      {
+        "type": "transaction.cleaned_up",
+        "timestamp": "2026-07-01T23:17:10.222Z",
+        "transactionId": "shadow-83a082f7-79ab-4e9b-a144-9fe4701f4ad8",
+        "generationId": "shadow-candidate-6bc71002c57f"
+      }
+    ],
+    "metrics": {
+      "total": 1,
+      "success": 1,
+      "failure": 0,
+      "rollback": 0,
+      "componentRollback": {},
+      "prepareDurations": [
+        {
+          "component": "router",
+          "durationMs": 0
+        },
+        {
+          "component": "policy-prober",
+          "durationMs": 0
+        },
+        {
+          "component": "metrics-server",
+          "durationMs": 0
+        }
+      ],
+      "commitDurations": [
+        {
+          "component": "router",
+          "durationMs": 0
+        },
+        {
+          "component": "policy-prober",
+          "durationMs": 0
+        },
+        {
+          "component": "metrics-server",
+          "durationMs": 0
+        }
+      ],
+      "currentGeneration": "shadow-candidate-6bc71002c57f"
+    }
+  },
+  "adapterBoundaries": [
+    {
+      "component": "router",
+      "capabilityBoundary": "Does not publish a production routing snapshot."
+    },
+    {
+      "component": "policy-prober",
+      "capabilityBoundary": "Does not schedule probes or mutate production health state."
+    },
+    {
+      "component": "metrics-server",
+      "capabilityBoundary": "Does not bind or restart the metrics server."
+    }
+  ],
+  "sideEffects": {
+    "runtimeMutated": false,
+    "listenersOpened": 0,
+    "connectionsClosed": 0,
+    "productionEngineInvoked": false
+  }
+}

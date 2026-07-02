@@ -19,5 +19,22 @@
 ## Exit Rule
 
 Any Critical risk needs an automated fault-injection test before the
-corresponding component can join the M4 prototype. A documented mitigation
-without a test remains open.
+corresponding component can join a production transaction. A documented
+mitigation or prototype-only test without real resource ownership remains
+open.
+
+## M4 Evidence
+
+- Executor fixtures cover prepare, health, partial commit, rollback failure,
+  timeout, caller abort, reverse compensation, event ordering, and cleanup.
+- Rollback and cleanup use bounded recovery contexts independent of an
+  expired transaction signal.
+- Shadow mode processes real validated config differences while reporting
+  zero listeners opened, zero connections closed, and no Engine invocation.
+- Adapter skeletons own no production objects and explicitly state their
+  capability boundaries.
+- Event text is bounded and redacts credential-like values; metrics remain
+  transaction-local and are not exposed through Prometheus.
+
+The listener, DNS/fake-IP, plugin, outbound ownership, UDP migration, partial
+runtime commit, and concurrent reload risks remain open for M5 and later.

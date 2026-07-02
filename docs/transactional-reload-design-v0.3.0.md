@@ -1,7 +1,8 @@
 # Transactional Reload Design v0.3.0
 
-Status: design review. M3 adds types, a state model, contracts, and dry-run
-planning only. It is not connected to `Engine.reloadConfig`.
+Status: M4 isolated prototype. M3 types, state model, contracts, and dry-run
+planning now have a mock-safe executor, event log, metrics collector, adapter
+skeletons, and shadow runner. None are connected to `Engine.reloadConfig`.
 
 ## Invariants
 
@@ -121,9 +122,16 @@ outbound objects, DNS decisions, and plugin handles remain reachable until
 their generation reference count reaches zero. A drain deadline is a policy,
 not permission to silently terminate connections.
 
-## M3 Boundary
+## M4 Boundary
 
-`src/reload/` is currently isolated from Engine. The state model does not
-change hot reload behavior, metrics, listeners, connections, plugins, DNS,
-fake-IP, UDP, or routing. M4 requires a separate prototype review before any
-runtime integration.
+`src/reload/` remains isolated from Engine. M4 verifies coordinator ordering,
+abort propagation, reverse compensation, best-effort cleanup, original-error
+retention, redacted events, and transaction-local metrics with deterministic
+fixtures. Shadow mode validates configuration and plans real component
+differences, but all component work uses prototype adapters.
+
+M4 does not change hot reload behavior, Prometheus metrics, listeners,
+connections, plugins, DNS, fake-IP, UDP, or routing. It cannot prove listener
+migration, plugin hot swap, UDP session migration, or atomic runtime snapshot
+publication. M5 requires a separate small-scope integration review and may not
+replace the complete Engine path at once.

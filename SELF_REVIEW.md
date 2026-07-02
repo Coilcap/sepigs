@@ -570,3 +570,38 @@ Remaining risk:
 Next:
 - Review the M3 model and dry-run evidence before authorizing an isolated M4
   prototype. Do not replace the current Engine reload path directly.
+
+## Stage 21 - Phase 15 M4 Transactional Reload Prototype
+
+Completed:
+- Added an isolated transaction executor with parse, validate, prepare,
+  health, commit, rollback, cleanup, timeout, cancellation, events, and
+  transaction-local metrics.
+- Added deterministic mock components and fault tests for every requested
+  coordinator boundary.
+- Added ten capability-boundary adapters and shadow mode reports without
+  connecting any of them to Engine.
+
+Found:
+- Reusing the expired transaction signal for rollback would prevent recovery
+  after timeout.
+- The first adapter filenames did not match the requested `*Adapter.ts`
+  delivery paths.
+- Test-only delay listeners needed explicit removal on both resolve and abort.
+
+Fixed:
+- Rollback and cleanup now use fresh, bounded recovery contexts while all
+  primary operations retain the transaction deadline.
+- Adapter files and imports use the requested names.
+- Mock delays remove timers and abort listeners deterministically.
+
+Remaining risk:
+- Real listeners, plugins, DNS/fake-IP stores, outbounds, and UDP sessions are
+  not integrated and their rollback behavior is not proven.
+- The current Engine reload remains sequential and non-transactional.
+- Shadow commit proves coordinator semantics only; it does not publish a
+  runtime generation.
+
+Next:
+- Review M4 evidence before authorizing one small, reversible M5 runtime
+  integration. Do not replace the complete Engine reload path.
