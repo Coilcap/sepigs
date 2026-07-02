@@ -27,7 +27,7 @@ export class DashboardServer {
   private server: http.Server | undefined;
   private readonly requests = new Map<string, { count: number; resetsAt: number }>();
 
-  public constructor(private readonly config: DashboardConfig, private readonly runtime: DashboardRuntime, private readonly logger: Logger) {}
+  public constructor(private config: DashboardConfig, private readonly runtime: DashboardRuntime, private readonly logger: Logger) {}
 
   public async start(): Promise<void> {
     if (!this.config.enabled || this.server !== undefined) {
@@ -59,13 +59,26 @@ export class DashboardServer {
       });
     });
     this.server = server;
-    await new Promise<void>((resolve, reject) => {
-      server.once("error", reject);
-      server.listen(this.config.port, this.config.listen, () => {
-        server.removeListener("error", reject);
-        resolve();
+    try {
+      await new Promise<void>((resolve, reject) => {
+        server.once("error", reject);
+        server.listen(this.config.port, this.config.listen, () => {
+          server.removeListener("error", reject);
+          resolve();
+        });
       });
-    });
+    } catch (error) {
+      this.server = undefined;
+      server.removeAllListeners("listening");
+      if (server.listening) {
+        await new Promise<void>((resolve) => {
+          server.close(() => {
+            resolve();
+          });
+        });
+      }
+      throw error;
+    }
     this.logger.info("dashboard API listening", { listen: this.config.listen, port: this.addressPort() });
   }
 
@@ -81,6 +94,21 @@ export class DashboardServer {
 
   public address(): AddressInfo | string | null {
     return this.server?.address() ?? null;
+  }
+
+  public configuration(): DashboardConfig {
+    return { ...this.config };
+  }
+
+  public updateConfig(config: DashboardConfig): void {
+    if (
+      this.server !== undefined &&
+      (!config.enabled || config.listen !== this.config.listen || config.port !== this.config.port)
+    ) {
+      throw new Error("active dashboard server can only update non-listener settings in place");
+    }
+    this.config = { ...config };
+    this.requests.clear();
   }
 
   private addressPort(): number {

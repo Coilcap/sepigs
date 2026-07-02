@@ -1,0 +1,53 @@
+{
+  "generatedAt": "2026-07-02T22:07:26.196Z",
+  "mode": "transactional-experimental",
+  "enabledComponents": [
+    "metrics",
+    "dashboard"
+  ],
+  "transactionId": "runtime-reload-1783030046187-1",
+  "oldGeneration": "runtime-control-0",
+  "newGeneration": "runtime-control-1",
+  "componentResults": [
+    {
+      "component": "metrics",
+      "prepared": true,
+      "committed": true,
+      "rolledBack": false
+    },
+    {
+      "component": "dashboard",
+      "prepared": true,
+      "committed": true,
+      "rolledBack": false
+    }
+  ],
+  "rollbackStatus": {
+    "count": 0,
+    "transactionState": "committed"
+  },
+  "runtimeSideEffects": {
+    "dataPlaneMutated": false,
+    "legacyFallbackUsed": false,
+    "metricsChanged": true,
+    "dashboardChanged": true
+  },
+  "endpointChecks": {
+    "metrics": "passed",
+    "dashboard": "passed"
+  },
+  "finalControlPlane": {
+    "metricsAddress": "127.0.0.1:50693",
+    "dashboardAddress": "127.0.0.1:50694"
+  },
+  "resourceCleanup": {
+    "transactionCleanupCompleted": true,
+    "cleanupErrors": 0,
+    "afterStopMetricsAddress": null,
+    "afterStopDashboardAddress": null,
+    "activeConnections": 0,
+    "activeSockets": 0,
+    "activeTimers": 0,
+    "activeListeners": 0
+  }
+}

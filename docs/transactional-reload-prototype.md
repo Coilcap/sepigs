@@ -1,7 +1,8 @@
 # Transactional Reload Prototype
 
-Status: M4 isolated prototype. It is not connected to `Engine.reloadConfig` and
-does not replace the current hot-reload path.
+Status: M4 prototype retained. M5 now connects separate runtime adapters for
+Metrics and Dashboard only; the prototype adapters and shadow mode remain
+isolated and do not replace the legacy reload path.
 
 ## What M4 Proves
 
@@ -70,10 +71,12 @@ M4 does not verify:
 
 These remain open even when all M4 tests pass.
 
-## M5 Boundary
+## M5 Result
 
-M5 may propose one small, reversible runtime integration only after reviewing
-the M4 evidence. It must preserve the current Engine path behind an explicit
-fallback, add real resource fault injection, and prove rollback before a
-second component is admitted. M4 does not authorize wholesale Engine
-replacement.
+M5 added an explicitly enabled control-plane wrapper for Metrics and
+Dashboard. It rejects mixed data-plane changes, does not automatically fall
+back after a failed transaction, and keeps `reload.mode = "legacy"` as the
+default. See [transactional-reload-runtime-m5.md](transactional-reload-runtime-m5.md).
+
+Inbound, UDP, fake-IP, plugin, outbound, DNS, and routing remain outside the
+runtime transaction. M5 does not authorize wholesale Engine replacement.

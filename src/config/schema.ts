@@ -28,6 +28,7 @@ import type {
   PluginModuleConfig,
   PluginOutboundConfig,
   ProbingConfig,
+  ReloadConfig,
   RouteRuleConfig,
   RouteRuleSetFileConfig,
   RoutingPolicyConfig,
@@ -46,6 +47,7 @@ import type {
   WasmExtensionConfig,
   WorkerConfig,
   TunConfig,
+  TransactionalReloadComponent,
   WireGuardOutboundConfig
 } from "./types.js";
 import { isValidCidr } from "../router/matcher.js";
@@ -120,6 +122,16 @@ const DEFAULT_HOT_RELOAD: HotReloadConfig = {
   debounceMs: 250
 };
 
+const DEFAULT_RELOAD: ReloadConfig = {
+  mode: "legacy",
+  transactional: {
+    enabledComponents: [],
+    timeoutMs: 5_000,
+    shadowBeforeCommit: true,
+    rollbackOnFailure: true
+  }
+};
+
 const DEFAULT_PROBING: ProbingConfig = {
   enabled: false,
   intervalMs: 30_000,
@@ -166,6 +178,7 @@ const SHADOWSOCKS_METHODS = new Set<ShadowsocksOutboundConfig["method"]>([
 const ROUTING_POLICY_TYPES = new Set<RoutingPolicyType>(["loadBalance", "failover"]);
 const LOAD_BALANCE_STRATEGIES = new Set<LoadBalanceStrategy>(["roundRobin", "leastLatency", "random"]);
 const PUBLIC_LISTEN_ADDRESSES = new Set(["0.0.0.0", "::", "[::]"]);
+const TRANSACTIONAL_RELOAD_COMPONENTS = new Set<TransactionalReloadComponent>(["metrics", "dashboard"]);
 
 const isRecord = (value: unknown): value is Record<string, unknown> => {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -748,6 +761,69 @@ const parseHotReload = (root: Record<string, unknown>, errors: string[]): HotRel
   return {
     enabled: readOptionalBoolean(rawHotReload, "enabled", "hotReload", errors) ?? DEFAULT_HOT_RELOAD.enabled,
     debounceMs: readOptionalNumber(rawHotReload, "debounceMs", "hotReload", errors, 10, 60_000) ?? DEFAULT_HOT_RELOAD.debounceMs
+  };
+};
+
+const parseReload = (root: Record<string, unknown>, errors: string[]): ReloadConfig => {
+  const raw = root.reload;
+  if (raw === undefined) {
+    return DEFAULT_RELOAD;
+  }
+  if (!isRecord(raw)) {
+    errors.push("reload must be an object");
+    return DEFAULT_RELOAD;
+  }
+
+  const rawMode = readOptionalString(raw, "mode", "reload", errors) ?? DEFAULT_RELOAD.mode;
+  const mode = rawMode === "legacy" || rawMode === "transactional-experimental"
+    ? rawMode
+    : DEFAULT_RELOAD.mode;
+  if (rawMode !== "legacy" && rawMode !== "transactional-experimental") {
+    errors.push('reload.mode must be "legacy" or "transactional-experimental"');
+  }
+
+  const rawTransactional = raw.transactional;
+  if (rawTransactional !== undefined && !isRecord(rawTransactional)) {
+    errors.push("reload.transactional must be an object when provided");
+  }
+  const transactional = isRecord(rawTransactional) ? rawTransactional : {};
+  const rawComponents =
+    readStringArray(transactional, "enabledComponents", "reload.transactional", errors) ??
+    DEFAULT_RELOAD.transactional.enabledComponents;
+  const enabledComponents: TransactionalReloadComponent[] = [];
+  const seen = new Set<string>();
+  for (const component of rawComponents) {
+    if (!TRANSACTIONAL_RELOAD_COMPONENTS.has(component as TransactionalReloadComponent)) {
+      errors.push(`reload.transactional.enabledComponents contains unsupported component "${component}"`);
+      continue;
+    }
+    if (seen.has(component)) {
+      errors.push(`reload.transactional.enabledComponents contains duplicate component "${component}"`);
+      continue;
+    }
+    seen.add(component);
+    enabledComponents.push(component as TransactionalReloadComponent);
+  }
+
+  const rollbackOnFailure =
+    readOptionalBoolean(transactional, "rollbackOnFailure", "reload.transactional", errors) ??
+    DEFAULT_RELOAD.transactional.rollbackOnFailure;
+  if (mode === "transactional-experimental" && !rollbackOnFailure) {
+    errors.push("reload.transactional.rollbackOnFailure must be true in transactional-experimental mode");
+  }
+
+  return {
+    mode,
+    transactional: {
+      enabledComponents,
+      timeoutMs:
+        readOptionalNumber(transactional, "timeoutMs", "reload.transactional", errors, 100, 60_000) ??
+        DEFAULT_RELOAD.transactional.timeoutMs,
+      shadowBeforeCommit:
+        readOptionalBoolean(transactional, "shadowBeforeCommit", "reload.transactional", errors) ??
+        DEFAULT_RELOAD.transactional.shadowBeforeCommit,
+      rollbackOnFailure
+    }
   };
 };
 
@@ -1403,6 +1479,7 @@ export const parseConfig = (input: unknown): SepigsConfig => {
   const transport = parseTransport(input, errors);
   const connectionPool = parseConnectionPool(input, errors);
   const hotReload = parseHotReload(input, errors);
+  const reload = parseReload(input, errors);
   const probing = parseProbing(input, errors);
   const observability = parseObservability(input, errors);
   const dashboard = parseDashboard(input, errors);
@@ -1440,6 +1517,7 @@ export const parseConfig = (input: unknown): SepigsConfig => {
     transport,
     connectionPool,
     hotReload,
+    reload,
     probing,
     observability,
     dashboard,

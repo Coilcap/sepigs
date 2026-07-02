@@ -6,7 +6,7 @@ import type { Logger } from "../logger/logger.js";
 export type MetricsRenderer = () => string;
 
 export class PrometheusMetricsServer {
-  private readonly config: MetricsServerConfig;
+  private config: MetricsServerConfig;
   private readonly logger: Logger;
   private readonly render: MetricsRenderer;
   private server: http.Server | undefined;
@@ -37,12 +37,9 @@ export class PrometheusMetricsServer {
       this.logger.error("metrics server error", { error: error.message });
     });
 
-    await new Promise<void>((resolve, reject) => {
-      const server = this.server;
-      if (server === undefined) {
-        resolve();
-        return;
-      }
+    const server = this.server;
+    try {
+      await new Promise<void>((resolve, reject) => {
       const onError = (error: Error): void => {
         server.removeListener("listening", onListening);
         reject(error);
@@ -54,7 +51,19 @@ export class PrometheusMetricsServer {
       server.once("error", onError);
       server.once("listening", onListening);
       server.listen(this.config.port, this.config.listen);
-    });
+      });
+    } catch (error) {
+      this.server = undefined;
+      server.removeAllListeners("listening");
+      if (server.listening) {
+        await new Promise<void>((resolve) => {
+          server.close(() => {
+            resolve();
+          });
+        });
+      }
+      throw error;
+    }
 
     const address = this.address();
     this.logger.info("metrics server started", {
@@ -83,5 +92,19 @@ export class PrometheusMetricsServer {
 
   public address(): AddressInfo | string | null {
     return this.server?.address() ?? null;
+  }
+
+  public configuration(): MetricsServerConfig {
+    return { ...this.config };
+  }
+
+  public updateConfig(config: MetricsServerConfig): void {
+    if (
+      this.server !== undefined &&
+      (!config.enabled || config.listen !== this.config.listen || config.port !== this.config.port)
+    ) {
+      throw new Error("active metrics server can only update path in place");
+    }
+    this.config = { ...config };
   }
 }

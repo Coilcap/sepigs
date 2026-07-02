@@ -1,5 +1,11 @@
 import type { AddressInfo } from "node:net";
-import type { InboundConfig, OutboundConfig, SepigsConfig } from "../config/types.js";
+import type {
+  DashboardConfig,
+  InboundConfig,
+  MetricsServerConfig,
+  OutboundConfig,
+  SepigsConfig
+} from "../config/types.js";
 import { SystemDnsResolver } from "../dns/resolver.js";
 import { DashboardServer } from "../dashboard/server.js";
 import type { Inbound, InboundContext } from "../inbound/inbound.js";
@@ -28,6 +34,11 @@ import { ResourceLimiter, type ResourceLimiterSnapshot } from "./resourceLimiter
 import { StatsTracker, type StatsSnapshot } from "./stats.js";
 import { TimeoutManager, type ManagedTimer } from "./timeout.js";
 import { UdpSessionManager } from "./udpSessionManager.js";
+import { ReloadMetrics, type ReloadMetricsSnapshot } from "../reload/metrics.js";
+import {
+  RuntimeReloadIntegration,
+  type RuntimeReloadOutcome
+} from "../reload/runtimeIntegration.js";
 
 export class Engine {
   private config: SepigsConfig;
@@ -53,6 +64,8 @@ export class Engine {
   private readonly gcMonitor = new GcMonitor();
   private metricsServer: PrometheusMetricsServer;
   private dashboardServer: DashboardServer;
+  private readonly reloadMetrics = new ReloadMetrics("runtime-control-0");
+  private readonly runtimeReloadIntegration: RuntimeReloadIntegration;
   private configReloader: (() => Promise<void>) | undefined;
   private leakReportTimer: ManagedTimer | undefined;
   private runtimeLoaded = false;
@@ -95,6 +108,26 @@ export class Engine {
     }, config.plugins.isolation);
     this.metricsServer = this.createMetricsServer(config);
     this.dashboardServer = this.createDashboardServer(config);
+    this.runtimeReloadIntegration = new RuntimeReloadIntegration(
+      {
+        currentMetricsServer: () => this.metricsServer,
+        createMetricsServer: (metricsConfig) => this.createMetricsServerFromConfig(metricsConfig),
+        replaceMetricsServer: (server) => {
+          this.metricsServer = server;
+        },
+        currentDashboardServer: () => this.dashboardServer,
+        createDashboardServer: (dashboardConfig) => this.createDashboardServerFromConfig(dashboardConfig),
+        replaceDashboardServer: (server) => {
+          this.dashboardServer = server;
+        },
+        runtimeStarted: () => this.started,
+        commitRuntimeConfig: (nextConfig) => {
+          this.config = nextConfig;
+        }
+      },
+      this.reloadMetrics,
+      this.logger.child("transactional-reload")
+    );
   }
 
   public async start(): Promise<void> {
@@ -180,6 +213,14 @@ export class Engine {
     return this.dashboardServer.address();
   }
 
+  public getReloadMetricsSnapshot(): ReloadMetricsSnapshot {
+    return this.runtimeReloadIntegration.snapshot();
+  }
+
+  public getLastRuntimeReloadOutcome(): RuntimeReloadOutcome | undefined {
+    return this.runtimeReloadIntegration.latestOutcome();
+  }
+
   public async allocateFakeIp(domain: string): Promise<string> {
     return await this.dnsResolver.resolveForClient(domain);
   }
@@ -210,7 +251,11 @@ export class Engine {
 
   public async reloadConfig(config: SepigsConfig): Promise<void> {
     try {
-      await this.applyReloadConfig(config);
+      if (config.reload.mode === "transactional-experimental") {
+        await this.runtimeReloadIntegration.reload(this.config, config);
+      } else {
+        await this.applyReloadConfig(config);
+      }
       this.stats.recordHotReload(true);
     } catch (error) {
       this.stats.recordHotReload(false);
@@ -460,15 +505,22 @@ export class Engine {
   }
 
   private createMetricsServer(config: SepigsConfig): PrometheusMetricsServer {
+    return this.createMetricsServerFromConfig(config.observability.metrics);
+  }
+
+  private createMetricsServerFromConfig(config: MetricsServerConfig): PrometheusMetricsServer {
     return new PrometheusMetricsServer(
-      config.observability.metrics,
+      config,
       () =>
         renderPrometheusMetrics({
           stats: this.stats.snapshot(),
           leaks: this.leakDetector.snapshot(),
           eventLoop: this.eventLoopMonitor.snapshot(),
           gc: this.gcMonitor.snapshot(),
-          memory: process.memoryUsage()
+          memory: process.memoryUsage(),
+          ...(this.config.reload.mode === "transactional-experimental"
+            ? { reload: this.reloadMetrics.snapshot() }
+            : {})
         }),
       this.logger.child("metrics")
     );
@@ -480,13 +532,20 @@ export class Engine {
       leaks: this.leakDetector.snapshot(),
       eventLoop: this.eventLoopMonitor.snapshot(),
       gc: this.gcMonitor.snapshot(),
-      memory: process.memoryUsage()
+      memory: process.memoryUsage(),
+      ...(this.config.reload.mode === "transactional-experimental"
+        ? { reload: this.reloadMetrics.snapshot() }
+        : {})
     });
   }
 
   private createDashboardServer(config: SepigsConfig): DashboardServer {
+    return this.createDashboardServerFromConfig(config.dashboard);
+  }
+
+  private createDashboardServerFromConfig(config: DashboardConfig): DashboardServer {
     return new DashboardServer(
-      config.dashboard,
+      config,
       {
         stats: () => this.stats.snapshot(),
         resources: () => this.resourceLimiter.snapshot(),

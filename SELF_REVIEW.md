@@ -605,3 +605,42 @@ Remaining risk:
 Next:
 - Review M4 evidence before authorizing one small, reversible M5 runtime
   integration. Do not replace the complete Engine reload path.
+
+## Stage 22 - Phase 16 M5 Small-Scope Runtime Integration
+
+Completed:
+- Added a default-off reload mode and explicit Metrics/Dashboard allowlist.
+- Added real Metrics and Dashboard runtime adapters with candidate-first
+  replacement, same-address updates, rollback, and cleanup.
+- Added an Engine wrapper that rejects mixed data-plane changes and never
+  performs automatic legacy fallback after transaction failure.
+- Exposed bounded reload metrics only in experimental mode and added a real
+  runtime smoke report.
+
+Found:
+- Existing Metrics and Dashboard reload stopped the old endpoint before the
+  new endpoint had started.
+- Port availability can change between prepare and commit.
+- Reusing M4 duration arrays indefinitely would create an observability memory
+  leak after runtime integration.
+- A mixed data-plane/control-plane transaction cannot be made coherent without
+  broader generation ownership.
+
+Fixed:
+- Different endpoints now start candidate-first; same endpoint settings update
+  in place; failed candidate startup restores the old server.
+- Candidate start handles the port race as a transaction failure with no
+  legacy fallback.
+- Duration samples are capped at 256, and metric labels remain fixed and
+  secret-free.
+- M5 rejects non-control-plane differences before preparation.
+
+Remaining risk:
+- The wrapper is experimental and does not serialize concurrent reloads.
+- Inbound, UDP, fake-IP, plugin, outbound, DNS, router, and policy state remain
+  outside transactional runtime integration.
+- Port probing is advisory and cannot reserve an address across phases.
+
+Next:
+- Review M5 evidence before an M6 design decision. Do not broaden runtime
+  integration automatically.

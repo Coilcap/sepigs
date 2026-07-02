@@ -48,6 +48,7 @@
     "compat:evidence-pack": "node --import tsx tools/compat/evidence-pack.ts",
     "reload:dry-run": "node --import tsx src/reload/dryRun.ts",
     "reload:shadow": "node --import tsx src/reload/shadow.ts",
+    "reload:runtime-smoke": "node --import tsx src/reload/runtimeSmoke.ts",
     "docs:check": "node --import tsx tools/docs/check.ts",
     "pack:tar": "tsx scripts/pack.ts tar",
     "pack:zip": "tsx scripts/pack.ts zip",

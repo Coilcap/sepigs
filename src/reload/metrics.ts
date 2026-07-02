@@ -12,6 +12,7 @@ export interface ReloadMetricsSnapshot {
   readonly failure: number;
   readonly rollback: number;
   readonly componentRollback: Readonly<Partial<Record<ReloadComponentName, number>>>;
+  readonly transactionDurations: readonly number[];
   readonly prepareDurations: readonly ReloadDurationMetric[];
   readonly commitDurations: readonly ReloadDurationMetric[];
   readonly currentGeneration: string;
@@ -24,6 +25,7 @@ export class ReloadMetrics {
   private failure = 0;
   private rollback = 0;
   private readonly componentRollback = new Map<ReloadComponentName, number>();
+  private readonly transactionDurations: number[] = [];
   private readonly prepareDurations: ReloadDurationMetric[] = [];
   private readonly commitDurations: ReloadDurationMetric[] = [];
   private currentGeneration: string;
@@ -56,11 +58,15 @@ export class ReloadMetrics {
   }
 
   public recordPrepareDuration(component: ReloadComponentName, durationMs: number): void {
-    this.prepareDurations.push({ component, durationMs: Math.max(0, durationMs) });
+    pushBounded(this.prepareDurations, { component, durationMs: Math.max(0, durationMs) });
   }
 
   public recordCommitDuration(component: ReloadComponentName, durationMs: number): void {
-    this.commitDurations.push({ component, durationMs: Math.max(0, durationMs) });
+    pushBounded(this.commitDurations, { component, durationMs: Math.max(0, durationMs) });
+  }
+
+  public recordTransactionDuration(durationMs: number): void {
+    pushBounded(this.transactionDurations, Math.max(0, durationMs));
   }
 
   public snapshot(): ReloadMetricsSnapshot {
@@ -70,6 +76,7 @@ export class ReloadMetrics {
       failure: this.failure,
       rollback: this.rollback,
       componentRollback: Object.fromEntries(this.componentRollback),
+      transactionDurations: [...this.transactionDurations],
       prepareDurations: this.prepareDurations.map((metric) => ({ ...metric })),
       commitDurations: this.commitDurations.map((metric) => ({ ...metric })),
       currentGeneration: this.currentGeneration,
@@ -77,3 +84,10 @@ export class ReloadMetrics {
     };
   }
 }
+
+const MAX_DURATION_SAMPLES = 256;
+
+const pushBounded = <Value>(values: Value[], value: Value): void => {
+  values.push(value);
+  if (values.length > MAX_DURATION_SAMPLES) values.shift();
+};

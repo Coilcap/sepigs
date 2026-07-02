@@ -1,8 +1,8 @@
 # Transactional Reload Design v0.3.0
 
-Status: M4 isolated prototype. M3 types, state model, contracts, and dry-run
-planning now have a mock-safe executor, event log, metrics collector, adapter
-skeletons, and shadow runner. None are connected to `Engine.reloadConfig`.
+Status: M5 experimental control-plane integration. Metrics and Dashboard have
+real runtime adapters behind an explicit feature flag. All other component
+adapters remain prototype-only, and legacy reload remains the default.
 
 ## Invariants
 
@@ -122,16 +122,18 @@ outbound objects, DNS decisions, and plugin handles remain reachable until
 their generation reference count reaches zero. A drain deadline is a policy,
 not permission to silently terminate connections.
 
-## M4 Boundary
+## M5 Boundary
 
-`src/reload/` remains isolated from Engine. M4 verifies coordinator ordering,
-abort propagation, reverse compensation, best-effort cleanup, original-error
-retention, redacted events, and transaction-local metrics with deterministic
-fixtures. Shadow mode validates configuration and plans real component
-differences, but all component work uses prototype adapters.
+`src/reload/runtimeIntegration.ts` joins Metrics and Dashboard only when the
+candidate selects `transactional-experimental` and explicitly enables each
+changed component. It rejects mixed data-plane changes and does not invoke
+legacy fallback on failure.
 
-M4 does not change hot reload behavior, Prometheus metrics, listeners,
-connections, plugins, DNS, fake-IP, UDP, or routing. It cannot prove listener
-migration, plugin hot swap, UDP session migration, or atomic runtime snapshot
-publication. M5 requires a separate small-scope integration review and may not
-replace the complete Engine path at once.
+Different control-plane addresses use candidate-first replacement.
+Same-address Metrics path and Dashboard auth/policy changes update in place.
+The runtime collector is exposed by Metrics only while experimental mode is
+active.
+
+Inbound listeners, connections, outbounds, plugins, DNS, fake-IP, UDP, policy,
+and routing still use legacy behavior or are rejected in experimental mode.
+M5 cannot prove their migration or an atomic whole-Engine snapshot.

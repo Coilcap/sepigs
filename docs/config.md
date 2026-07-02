@@ -55,6 +55,15 @@ sepigs supports JSON and YAML config.
     "enabled": false,
     "debounceMs": 250
   },
+  "reload": {
+    "mode": "legacy",
+    "transactional": {
+      "enabledComponents": [],
+      "timeoutMs": 5000,
+      "shadowBeforeCommit": true,
+      "rollbackOnFailure": true
+    }
+  },
   "inbounds": [
     { "type": "http", "tag": "http-in", "listen": "127.0.0.1", "port": 8080 },
     { "type": "socks5", "tag": "socks-in", "listen": "127.0.0.1", "port": 1080 }
@@ -95,6 +104,22 @@ sepigs supports JSON and YAML config.
 `dns.cacheMaxEntries` bounds positive and negative cache entries; `dns.negativeTtlMs` controls failure caching. Fake-IP options are documented in [fake-ip.md](fake-ip.md).
 
 `dashboard` and `tun` are disabled by default. Dashboard requires a local address and a token of at least 16 characters. TUN must remain marked experimental. Shadowsocks and Trojan TCP inbound examples:
+
+## Reload Mode
+
+`reload.mode` defaults to `legacy`, including when the `reload` object is
+absent. `transactional-experimental` must be explicitly selected.
+
+M5 accepts only `metrics` and `dashboard` in
+`reload.transactional.enabledComponents`. `rollbackOnFailure` must be `true`.
+`shadowBeforeCommit` runs a prototype-only preflight before real adapters.
+Mixed data-plane changes are rejected and are not automatically retried
+through legacy reload.
+
+The runnable local-only example is
+`examples/sepigs.transactional-reload.experimental.json`. It uses loopback and
+ephemeral ports. Dashboard remains disabled with a placeholder token in the
+file; `reload:runtime-smoke` enables it in memory with an ephemeral test token.
 
 ```json
 {"type":"shadowsocks","tag":"ss-in","listen":"127.0.0.1","port":8388,"method":"aes-128-gcm","password":"change-me","udp":false}

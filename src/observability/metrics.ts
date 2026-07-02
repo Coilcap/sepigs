@@ -2,6 +2,7 @@ import type { LeakDetectorSnapshot } from "../core/leakDetector.js";
 import type { StatsSnapshot } from "../core/stats.js";
 import type { EventLoopDelaySnapshot } from "./eventLoop.js";
 import type { GcSnapshot } from "./gc.js";
+import type { ReloadMetricsSnapshot } from "../reload/metrics.js";
 
 export interface MetricsSnapshot {
   readonly stats: StatsSnapshot;
@@ -9,6 +10,7 @@ export interface MetricsSnapshot {
   readonly eventLoop: EventLoopDelaySnapshot;
   readonly gc: GcSnapshot;
   readonly memory: NodeJS.MemoryUsage;
+  readonly reload?: ReloadMetricsSnapshot;
 }
 
 const metric = (name: string, value: number, help: string): string => {
@@ -20,8 +22,8 @@ const counter = (name: string, value: number, help: string): string => {
 };
 
 export const renderPrometheusMetrics = (snapshot: MetricsSnapshot): string => {
-  const { stats, leaks, eventLoop, gc, memory } = snapshot;
-  return [
+  const { stats, leaks, eventLoop, gc, memory, reload } = snapshot;
+  const metrics = [
     metric("sepigs_uptime_seconds", stats.uptimeMs / 1_000, "Sepigs process uptime in seconds."),
     counter("sepigs_connections_total", stats.totalConnections, "Total accepted connections."),
     metric("sepigs_connections_active", stats.activeConnections, "Currently active connections."),
@@ -50,5 +52,55 @@ export const renderPrometheusMetrics = (snapshot: MetricsSnapshot): string => {
     metric("sepigs_active_listeners", leaks.activeListeners, "Tracked active event listeners."),
     counter("sepigs_gc_events_total", gc.count, "Observed GC events."),
     counter("sepigs_gc_duration_ms_total", gc.totalDurationMs, "Total observed GC duration in milliseconds.")
-  ].join("\n\n") + "\n";
+  ];
+  if (reload !== undefined) metrics.push(...renderReloadMetrics(reload));
+  return metrics.join("\n\n") + "\n";
+};
+
+const renderReloadMetrics = (reload: ReloadMetricsSnapshot): readonly string[] => [
+  counter("sepigs_reload_total", reload.total, "Transactional reload attempts."),
+  counter("sepigs_reload_success_total", reload.success, "Successful transactional reloads."),
+  counter("sepigs_reload_failure_total", reload.failure, "Failed transactional reloads."),
+  counter("sepigs_reload_rollback_total", reload.rollback, "Transactional reload rollbacks."),
+  metric(
+    "sepigs_reload_duration_ms",
+    reload.transactionDurations.at(-1) ?? 0,
+    "Most recent transactional reload duration in milliseconds."
+  ),
+  componentGauge(
+    "sepigs_reload_component_prepare_duration_ms",
+    latestDurations(reload.prepareDurations),
+    "Most recent component prepare duration in milliseconds."
+  ),
+  componentGauge(
+    "sepigs_reload_component_commit_duration_ms",
+    latestDurations(reload.commitDurations),
+    "Most recent component commit duration in milliseconds."
+  ),
+  componentGauge(
+    "sepigs_reload_component_rollback_total",
+    Object.entries(reload.componentRollback),
+    "Component rollback count.",
+    "counter"
+  )
+];
+
+const latestDurations = (
+  durations: ReloadMetricsSnapshot["prepareDurations"]
+): readonly [string, number][] => {
+  const latest = new Map<string, number>();
+  for (const duration of durations) latest.set(duration.component, duration.durationMs);
+  return [...latest];
+};
+
+const componentGauge = (
+  name: string,
+  values: readonly (readonly [string, number | undefined])[],
+  help: string,
+  type: "gauge" | "counter" = "gauge"
+): string => {
+  const rows = values.length === 0
+    ? [`${name}{component="none"} 0`]
+    : values.map(([component, value]) => `${name}{component="${component}"} ${value ?? 0}`);
+  return [`# HELP ${name} ${help}`, `# TYPE ${name} ${type}`, ...rows].join("\n");
 };

@@ -38,3 +38,19 @@ open.
 
 The listener, DNS/fake-IP, plugin, outbound ownership, UDP migration, partial
 runtime commit, and concurrent reload risks remain open for M5 and later.
+
+## M5 Evidence
+
+- Metrics and Dashboard use real loopback listeners under an explicit,
+  default-off feature flag.
+- Port conflicts fail during prepare and leave old endpoints reachable.
+- Disabled/enabled transitions, same-address path/token updates, endpoint
+  replacement, cleanup, redaction, and no-fallback behavior have real tests.
+- The wrapper rejects any non-control-plane difference before adapter prepare.
+- Runtime smoke verifies both endpoints and final tracked resources at
+  `0/0/0`.
+- Reload metric samples are bounded and expose no error text or identifiers as
+  labels.
+
+Open M5 risks include the prepare-to-commit port race, whole-runtime atomicity,
+reload serialization, and every non-control-plane component.

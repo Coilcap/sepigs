@@ -11,6 +11,7 @@ export interface SepigsConfig {
   readonly transport: TransportConfig;
   readonly connectionPool: ConnectionPoolConfig;
   readonly hotReload: HotReloadConfig;
+  readonly reload: ReloadConfig;
   readonly probing: ProbingConfig;
   readonly observability: ObservabilityConfig;
   readonly dashboard: DashboardConfig;
@@ -151,6 +152,20 @@ export interface ConnectionPoolConfig {
 export interface HotReloadConfig {
   readonly enabled: boolean;
   readonly debounceMs: number;
+}
+
+export type TransactionalReloadComponent = "metrics" | "dashboard";
+
+export interface TransactionalReloadConfig {
+  readonly enabledComponents: readonly TransactionalReloadComponent[];
+  readonly timeoutMs: number;
+  readonly shadowBeforeCommit: boolean;
+  readonly rollbackOnFailure: boolean;
+}
+
+export interface ReloadConfig {
+  readonly mode: "legacy" | "transactional-experimental";
+  readonly transactional: TransactionalReloadConfig;
 }
 
 export interface ProbingConfig {
@@ -348,6 +363,7 @@ export interface RawSepigsConfig {
   readonly transport?: unknown;
   readonly connectionPool?: Partial<ConnectionPoolConfig>;
   readonly hotReload?: Partial<HotReloadConfig>;
+  readonly reload?: unknown;
   readonly probing?: Partial<ProbingConfig>;
   readonly inbounds?: readonly unknown[];
   readonly outbounds?: readonly unknown[];

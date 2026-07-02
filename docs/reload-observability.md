@@ -1,6 +1,8 @@
 # Reload Observability Plan
 
-Status: metric contract only. M3 does not emit these metrics.
+Status: M5 emits a bounded subset with the listed metric names only in
+`transactional-experimental` mode. The table describes the target contract;
+generation/draining series, result labels, and histograms remain design only.
 
 | Metric | Type | Labels | Meaning |
 | --- | --- | --- | --- |
@@ -46,6 +48,17 @@ Events:
   is not rewritten as rollback.
 - Dashboard should expose active/draining generation IDs only after the
   runtime model exists and authentication/redaction checks pass.
+
+## M5 Runtime Hook
+
+M5 exports unlabeled total/success/failure/rollback counters, the most recent
+transaction duration, latest per-component prepare/commit durations, and
+component-only rollback counters. Trigger/result labels are not emitted yet.
+Duration values are gauges in M5 rather than full histograms. The in-memory
+sample lists are capped at 256 entries.
+
+Failure reason, transaction ID, generation ID, token, config path, and target
+metadata are never labels. Legacy mode emits none of the reload metric series.
 
 ## Alerts
 

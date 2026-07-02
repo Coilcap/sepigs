@@ -126,6 +126,7 @@ export class ReloadExecutor {
       await this.runCleanup();
       this.unbindAbort();
     }
+    this.metrics.recordTransactionDuration(Date.now() - this.model.snapshot().startedAt);
     return this.result();
   }
 
