@@ -6,6 +6,19 @@ M5 connects the transaction executor to the Metrics and Dashboard control
 plane only. The default remains `legacy`, and the existing reload path remains
 available unchanged.
 
+## M6 Guardrail
+
+After the M6 design review, the runtime allow-list is still exactly:
+
+- `metrics`
+- `dashboard`
+
+Router, policy/prober, DNS, fake-IP, outbound registry, inbound listeners, UDP
+sessions, connection manager, plugins, remote plugin RPC, and WASM remain
+rejected or legacy-only. M6 documentation does not authorize a schema or
+runtime allow-list change. The next expansion requires explicit M7
+authorization and its tests before code integration.
+
 ## Enable
 
 Use the experimental example:
