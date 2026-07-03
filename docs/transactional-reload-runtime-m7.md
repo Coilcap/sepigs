@@ -12,6 +12,17 @@ M7 does not transactionally reload DNS, fake-IP, inbound listeners, outbound
 registry entries, UDP sessions, connection-manager state, plugins, RPC, WASM,
 TUN, QUIC, Hysteria2, or WireGuard.
 
+The current allow-list remains exactly:
+
+- `metrics`
+- `dashboard`
+- `router`
+- `policy`
+
+M8 DNS design documents a possible future generation/adapter but does not add
+`dns`. DNS implementation and allow-list admission require separate M8.5
+authorization. Fake-IP pool/store runtime reload remains deferred to M10.
+
 ## Generation Model
 
 `RouterGeneration` contains immutable metadata, rules, default target, config
@@ -93,3 +104,4 @@ Reports:
 - Rule-set files must already be expanded by config loading.
 - The runtime smoke is not a long-duration mixed reload soak.
 - M7 is not production-stable and is not a whole-runtime transaction.
+- M8 design documents do not change this runtime boundary.

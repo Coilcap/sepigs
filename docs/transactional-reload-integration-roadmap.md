@@ -1,7 +1,8 @@
 # Transactional Reload Integration Roadmap
 
 Status: M7 Router/Policy runtime integration is implemented behind the
-explicit experimental allow-list. M8-M11 remain unimplemented plans.
+explicit experimental allow-list. M8 DNS design is complete; M8.5 and M9-M11
+remain unimplemented plans.
 
 ## M7: Router And Policy Decisions
 
@@ -27,12 +28,14 @@ No `v0.2.0-beta.1` or beta.2 branch is needed for M7 feature work. A v0.2
 maintenance release is created only if testing discovers an independently
 backportable bug or security issue.
 
-## M8: DNS State And Fake-IP Classification
+## M8: DNS State Design And Fake-IP Classification
 
-Allow-list proposal:
+M8 is design-only and does not change the allow-list. It defines:
 
 - DNS resolver/upstream generation;
-- compatible positive and negative cache migration;
+- conditional positive cache carry-over and conservative negative-cache rules;
+- generation-local single-flight and in-flight draining;
+- DoH/UDP resource and health-check boundaries;
 - fake-IP compatibility dry-run and shadow classification only.
 
 Prohibited:
@@ -42,12 +45,30 @@ Prohibited:
 
 Rollback must leave old resolver in-flight work and caches readable until
 references drain. DoH/UDP upstream failure must not publish the candidate.
-Smoke must resolve through old and candidate upstreams with controlled
-answers. Soak must cover cache hits, misses, negative TTL, single-flight, DoH
-failure, and memory bounds. Compatibility remains 44 verified/zero failed.
+M8 documents these requirements but performs no runtime publication.
 
 No v0.2 beta branch is needed unless an M8 test reveals a v0.2 DNS defect that
 meets the maintenance policy.
+
+## M8.5: DNS Generation And Adapter
+
+Entry requires separate authorization after M8 review. Proposed allow-list
+addition is `dns` only; fake-IP remains excluded.
+
+Implementation gates:
+
+- immutable generation plus active/draining ownership;
+- isolated bounded caches and conditional carry-over;
+- no cross-generation single-flight join or cache write;
+- structural/local-only health checks by default;
+- atomic publication and rollback with old queries completing normally;
+- dry-run, shadow, loopback runtime smoke, fault injection, metrics, and
+  cache/in-flight/resource tests;
+- one-hour DNS reload soak covering positive/negative cache, DoH/UDP/system,
+  timeout, fallback, repeated candidate failure, and memory bounds;
+- compatibility remains at least 44 verified and zero failed.
+
+Any fake-IP difference rejects the DNS transaction and remains M10 work.
 
 ## M9: Limited Outbound Work, Inbound Prototype
 
@@ -132,6 +153,6 @@ Every stage requires:
    checks;
 7. updated reality check and no production-stable claim.
 
-M7 authorizes only Router, Policy, and read-only health carry-over. The next
-allow-list change requires explicit M8 authorization and must not be inferred
-from a green M7 smoke report.
+M7 authorizes only Router, Policy, and read-only health carry-over. M8 is
+design evidence only. The next allow-list change requires explicit M8.5
+authorization and must not be inferred from a green M7 smoke or M8 document.

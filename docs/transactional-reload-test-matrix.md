@@ -1,7 +1,7 @@
 # Transactional Reload Test Matrix
 
-Status: M7 Router/Policy unit, rollback, runtime, metrics, and loopback smoke
-evidence is implemented. M8-M11 rows remain future gates.
+Status: M7 Router/Policy runtime evidence is implemented. M8 DNS design gates
+are defined; M8.5 and M9-M11 runtime rows remain future work.
 
 ## Required Evidence By Component
 
@@ -38,7 +38,7 @@ HTTP/SOCKS connections, policy selection, and probes. Error and resource
 budgets must be specified before execution. This soak is not part of the M7
 runtime smoke claim and has not been recorded as completed.
 
-## M8 DNS And Fake-IP Shadow
+## M8 DNS Design And M8.5 Runtime Gate
 
 Required scenarios:
 
@@ -52,8 +52,22 @@ Required scenarios:
   restart-required;
 - prove fake-IP data never enters real DNS cache.
 
-Minimum soak: one hour of positive, negative, fallback, DoH, UDP, cache
-pressure, and repeated candidate failure. Fake-IP remains shadow-only in M8.
+M8 produces design/audit evidence only. Before M8.5 runtime admission, tests
+must additionally prove:
+
+- active generation changes only after candidate health succeeds;
+- old in-flight queries complete and populate only old cache;
+- candidate rollback preserves old positive/negative cache;
+- system resolver late results cannot cross generation;
+- DoH bodies/logs are bounded and endpoint secrets are redacted;
+- UDP response source, ID, question, and answer bounds are validated;
+- every fake-IP config change rejects before DNS prepare;
+- repeated successful/failed generations retire without cache, socket, timer,
+  listener, or single-flight residue.
+
+Minimum M8.5 soak: one hour of positive, negative, fallback, DoH, UDP/system,
+cache pressure, old/new query overlap, and repeated candidate failure.
+Fake-IP remains runtime-excluded until M10.
 
 ## M9 Outbound And Inbound Prototype
 
