@@ -22,6 +22,14 @@ fake-IP, outbound registry, inbound listeners, UDP sessions, connection
 manager, plugins, remote plugin RPC, and WASM remain rejected or legacy-only.
 See `transactional-reload-runtime-m7.md` for the M7 ownership boundary.
 
+## Current M9 Guardrail
+
+M8.5 subsequently admitted `dns` under explicit opt-in. The current runtime
+allow-list is exactly `metrics`, `dashboard`, `router`, `policy`, and `dns`.
+M9 is an Outbound/Inbound design review only and does not add either component.
+Fake-IP, UDP sessions, connection-manager, plugins, RPC, WASM, and experimental
+transports also remain excluded.
+
 ## Enable
 
 Use the experimental example:
@@ -50,9 +58,9 @@ The checked-in example keeps Dashboard disabled and contains no usable
 credential. The smoke runner enables Dashboard only in memory with an
 ephemeral test token, then destroys the server during teardown.
 
-Transactional mode accepts only explicitly enabled M5/M7 components. A mixed
-DNS, outbound, inbound, plugin, worker, connection, fake-IP, UDP, or other
-unsupported change is rejected before preparation. There is no automatic
+Transactional mode accepts only explicitly enabled current allow-list
+components. A mixed outbound, inbound, plugin, worker, connection, fake-IP,
+UDP, or other unsupported change is rejected before preparation. There is no automatic
 legacy fallback after transaction failure because running both paths could
 repeat side effects.
 

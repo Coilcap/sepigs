@@ -1,6 +1,7 @@
 # Inbound And Outbound Transactional Reload Design
 
-Status: M9 design/prototype only. Inbound and outbound are forbidden in M7.
+Status: M9 design only. Inbound and outbound remain outside the current
+runtime allow-list.
 
 ## Outbound Registry
 
@@ -18,8 +19,8 @@ it. Removing or changing an outbound prevents new selection after commit but
 does not destroy the old object until its active stream/reference count
 reaches zero or an explicit drain deadline expires.
 
-M9 runtime scope should initially permit only direct, block, and TCP relay
-outbounds with no plugin or external process ownership. Shadowsocks/Trojan
+Future M11 runtime scope should initially permit only direct, block, and TCP
+relay outbounds with no plugin or external process ownership. Shadowsocks/Trojan
 admission requires renewed external compatibility evidence for reload
 boundaries.
 
@@ -92,5 +93,5 @@ an unavoidable same-port gap. Tests must record:
 - long-lived stream survival;
 - reconnect success without duplicate or leaked sessions.
 
-Inbound remains prototype-only in M9 until this matrix passes on supported
-desktop/mobile clients.
+Inbound remains design-only in M9. M12 may begin a separately authorized
+HTTP/SOCKS TCP prototype after the generation/contract gates pass.

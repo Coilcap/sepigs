@@ -1,7 +1,7 @@
 # Transactional Reload Test Matrix
 
-Status: M8.5 DNS runtime evidence is implemented. M9-M11 runtime rows remain
-future work.
+Status: M8.5 DNS runtime evidence is implemented. M9 Outbound/Inbound design
+evidence is complete; M10-M14 runtime rows remain future work.
 
 ## Required Evidence By Component
 
@@ -90,7 +90,7 @@ Minimum soak: long-lived and short-lived TCP traffic through repeated
 successful/failed registry changes. Inbound remains prototype-only until real
 client reconnect evidence exists.
 
-## M10 UDP And Fake-IP Runtime
+## M14 UDP And Fake-IP Runtime
 
 Required scenarios:
 

@@ -1,7 +1,8 @@
 # Transactional Reload Integration Roadmap
 
 Status: M8.5 DNS runtime integration is implemented behind the explicit
-experimental allow-list. M9-M11 remain unimplemented plans.
+experimental allow-list. M9 Outbound/Inbound design review is complete;
+M10-M14 remain separately authorized future work.
 
 ## M7: Router And Policy Decisions
 
@@ -66,7 +67,7 @@ Implementation gates:
   timeout, fallback, repeated candidate failure, and memory bounds;
 - compatibility remains at least 44 verified and zero failed.
 
-Any fake-IP difference rejects the DNS transaction and remains M10 work.
+Any fake-IP difference rejects the DNS transaction and remains M14 work.
 
 Implemented evidence includes generation/store ownership, conditional
 positive-cache carry-over, generation-scoped single-flight, structural
@@ -74,75 +75,51 @@ DoH/UDP validation, rollback, experimental metrics, and a local-only runtime
 smoke. The one-hour mixed DNS reload soak remains a promotion gate and is not
 claimed by M8.5.
 
-## M9: Limited Outbound Work, Inbound Prototype
+## M9: Outbound/Inbound Design Review
 
-Allow-list proposal:
+M9 audits the current mutable outbound registry, legacy listener reload,
+connection binding, policy/health dependencies, protocol identities, public
+bind rules, and rollback limits. It defines separate Outbound and Inbound
+generation models, contract extensions, risk matrix, future tests, and staged
+implementation.
 
-- outbound registry changes restricted to direct/block/tcp-relay instances
-  with generation-owned drain behavior;
-- inbound drain-and-rebind remains design/prototype and is not runtime
-  admitted by default.
+M9 changes no runtime code or allow-list. Existing connections are never
+migrated, re-routed, or killed. UDP, fake-IP, plugins, connection-manager, and
+experimental transports remain excluded.
 
-Prohibited:
+## M10: Outbound Generation Prototype
 
-- plugin-provided outbounds, active connection migration, same-address inbound
-  replacement without rollback proof, UDP/fake-IP runtime migration, plugins.
+M10 may implement immutable registry generations, identity classification,
+references, draining, dry-run, and shadow adapters. It does not switch the
+Engine registry and does not add `outbound` to the runtime allow-list.
 
-Rollback must preserve removed outbound objects until their active reference
-count reaches zero. Inbound prototypes must keep old listeners accepting if
-candidate bind/readiness fails. Smoke must include removed-unused outbound,
-active stream retention, port conflict, and auth change. Soak must maintain
-long-lived TCP streams during repeated candidate success/failure. External
-protocol compatibility remains a mandatory gate.
+## M11: Limited Outbound Runtime
 
-No v0.2 beta branch is planned for feature work. A maintenance branch receives
-only independently justified fixes.
+After separate authorization, M11 may admit direct, block, and TCP relay only.
+Router/Policy/Outbound must publish as one compatible snapshot. Shadowsocks,
+Trojan, UDP, plugins, WireGuard, and active connection migration remain
+excluded. Runtime smoke, fault injection, compatibility, and soak gates are
+mandatory.
 
-## M10: Fake-IP And UDP Strategy
+## M12: HTTP/SOCKS TCP Inbound Prototype
 
-Allow-list proposal, only after separate authorization:
+M12 may prototype different-address/port candidate-first listeners for HTTP
+and SOCKS5 TCP. It requires protocol/auth readiness, old listener drain,
+active-connection references, port-conflict rollback, and visible degraded
+state. Same-address changes remain unsupported/restart-required until a
+reviewed strategy exists.
 
-- compatible fake-IP store generation;
-- UDP session manager generation binding and drain.
+## M13: Shadowsocks/Trojan Admission
 
-Prohibited:
+Protocol-specific outbound/inbound reload may be considered only after external
+compatibility covers cipher, password, TLS/SNI/trust, large payload, remote
+close, and long-stream behavior. Mobile reconnect evidence is required.
 
-- silent pool remap, active session transfer without identity proof, plugin
-  reload, and privileged transport work.
+## M14: UDP And Fake-IP Strategy
 
-Rollback must preserve every active reverse mapping and UDP session owner.
-Pool range changes default to restart-required or staged drain. Smoke must
-prove reverse lookup and UDP reply continuity. Soak must include TTL expiry,
-pool pressure, DNS-over-UDP, fake-IP UDP routing, malformed datagrams, and
-final timer/socket/session zero. Compatibility must remain non-regressed.
-
-No automatic v0.2 beta.2 is created. A v0.2 hotfix follows the established
-maintenance triggers only.
-
-## M11: Plugin Lifecycle Transaction
-
-Allow-list proposal:
-
-- owner-scoped plugin manager generation;
-- remote factory namespace swap;
-- bounded worker/child RPC drain;
-- WASM only when the module declares a supported reversible lifecycle.
-
-Prohibited:
-
-- arbitrary in-process external side effects;
-- permission expansion without revalidation;
-- socket-handle transfer;
-- claiming rollback for modules that cannot unload safely.
-
-Rollback must unregister candidate-owned factories, retain old runners until
-in-flight RPC settles or times out, and contain candidate crashes. Smoke must
-cover load, replacement, removal, permission rejection, crash, and timeout.
-Soak must repeat worker/child/WASM cycles with zero process, worker, listener,
-timer, and factory residue. Security and compatibility gates are mandatory.
-
-M11 feature work remains on main or an isolated experimental branch. It does
-not create a v0.2 beta branch.
+M14 designs UDP operation/session generation ownership, SOCKS5 UDP ASSOCIATE,
+Shadowsocks UDP, and DNS/fake-IP reverse mapping continuity. No mapping or
+active session is silently migrated.
 
 ## Stage Gates
 

@@ -21,7 +21,8 @@ The current allow-list remains exactly:
 
 M8 DNS design documents a possible future generation/adapter but does not add
 `dns`. DNS implementation and allow-list admission require separate M8.5
-authorization. Fake-IP pool/store runtime reload remains deferred to M10.
+authorization. Fake-IP pool/store runtime reload is now deferred to the M14
+UDP/fake-IP strategy.
 
 ## Generation Model
 
@@ -113,3 +114,7 @@ adds `dns` only when explicitly enabled. The current runtime allow-list is
 therefore `metrics`, `dashboard`, `router`, `policy`, and `dns`. Fake-IP,
 inbound, outbound, UDP sessions, connection-manager, and plugins remain
 rejected. Default `legacy` behavior is unchanged.
+
+M9 adds design evidence for outbound and inbound ownership but does not change
+this list. M10 requires separate authorization and begins with an outbound
+generation prototype only, not runtime publication.
