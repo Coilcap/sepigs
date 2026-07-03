@@ -1,0 +1,39 @@
+{
+  "generatedAt": "2026-07-03T08:11:56.355Z",
+  "transactionState": "committed",
+  "generation": {
+    "old": "dns-generation-0",
+    "active": "runtime-control-1-dns",
+    "switched": true,
+    "drainingAfterOldCompletion": 0
+  },
+  "queryChecks": {
+    "cachedBeforeReload": "192.0.2.10",
+    "oldInFlightResult": "192.0.2.10",
+    "newGenerationResult": "192.0.2.20",
+    "crossGenerationMerged": false
+  },
+  "cachePolicy": {
+    "carried": 0,
+    "dropped": 1
+  },
+  "fakeIpChange": {
+    "rejected": true,
+    "activeGenerationUnchanged": true,
+    "rejectionCount": 1
+  },
+  "existingConnection": {
+    "survivedReload": true,
+    "connectionsClosedByReload": 0
+  },
+  "sideEffects": {
+    "listenersChanged": 0,
+    "fakeIpChanged": false
+  },
+  "resources": {
+    "activeConnections": 0,
+    "activeSockets": 0,
+    "activeTimers": 0,
+    "activeListeners": 0
+  }
+}

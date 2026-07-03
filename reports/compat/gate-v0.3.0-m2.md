@@ -1,6 +1,6 @@
 # External Compatibility Gate v0.3.0 M2
 
-- Generated: 2026-07-03T01:18:51.104Z
+- Generated: 2026-07-03T08:12:32.633Z
 - Baseline: v0.3.0-m2
 - Status: passed
 - Current summary: {"verified":44,"failed":0,"skipped":28,"blocked":0,"unsupported":2}

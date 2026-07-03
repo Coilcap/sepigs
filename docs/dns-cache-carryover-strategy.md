@@ -1,7 +1,7 @@
 # DNS Cache Carry-Over Strategy
 
-Status: M8 design recommendation. Current runtime always starts an empty
-ordinary cache after legacy DNS replacement.
+Status: M8.5 implemented for experimental DNS transactions. Legacy DNS
+replacement retains its previous empty-cache behavior.
 
 ## Options
 
@@ -77,6 +77,21 @@ must come from a completed result captured before candidate publication, not
 from an in-flight promise. Old query completion writes only to the old cache.
 
 ## Recommendation
+
+M8.5 uses generation-owned caches and a bounded copy during prepare:
+
+- compatible resolver mode and compatibility hash: copy unexpired positive
+  entries by value;
+- expiry is never extended and is capped by the candidate positive TTL;
+- negative entries are dropped unless an explicit future safe policy enables
+  them;
+- expired, sensitive, and synthetic entries are dropped;
+- upstream identity or system/UDP/DoH mode changes drop all ordinary cache;
+- every fake-IP config difference rejects the whole DNS-only transaction.
+
+The candidate cache is never shared with the active generation. In-flight
+promises are never copied. Metrics count carried and dropped entries only
+when the DNS adapter commits.
 
 Use isolated per-generation caches with conditional positive carry-over:
 

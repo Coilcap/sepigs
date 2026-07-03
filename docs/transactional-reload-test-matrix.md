@@ -1,7 +1,7 @@
 # Transactional Reload Test Matrix
 
-Status: M7 Router/Policy runtime evidence is implemented. M8 DNS design gates
-are defined; M8.5 and M9-M11 runtime rows remain future work.
+Status: M8.5 DNS runtime evidence is implemented. M9-M11 runtime rows remain
+future work.
 
 ## Required Evidence By Component
 
@@ -52,8 +52,7 @@ Required scenarios:
   restart-required;
 - prove fake-IP data never enters real DNS cache.
 
-M8 produces design/audit evidence only. Before M8.5 runtime admission, tests
-must additionally prove:
+M8 produced design/audit evidence. M8.5 runtime tests prove:
 
 - active generation changes only after candidate health succeeds;
 - old in-flight queries complete and populate only old cache;
@@ -64,6 +63,10 @@ must additionally prove:
 - every fake-IP config change rejects before DNS prepare;
 - repeated successful/failed generations retire without cache, socket, timer,
   listener, or single-flight residue.
+
+The local runtime smoke covers old/new UDP answers, an established CONNECT,
+fake-IP rejection, and final resource counts. The long-duration mixed DNS
+reload soak below remains pending and blocks promotion beyond experimental.
 
 Minimum M8.5 soak: one hour of positive, negative, fallback, DoH, UDP/system,
 cache pressure, old/new query overlap, and repeated candidate failure.

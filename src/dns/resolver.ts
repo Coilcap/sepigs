@@ -6,12 +6,8 @@ import type { Logger } from "../logger/logger.js";
 import { queryDohA } from "./doh.js";
 import { FakeIpService } from "./fakeIp.js";
 import { NetworkError, TimeoutError } from "../utils/errors.js";
-
-interface CacheEntry {
-  readonly address?: string;
-  readonly error?: Error;
-  readonly expiresAt: number;
-}
+import { DNSGeneration, type DnsCacheSource } from "./generation.js";
+import { DNSGenerationStore } from "./generationStore.js";
 
 export interface DnsAResult {
   readonly address: string;
@@ -33,9 +29,8 @@ export class SystemDnsResolver implements DnsResolver {
   private readonly config: DnsConfig;
   private readonly logger: Logger;
   private readonly metrics: DnsMetricsRecorder | undefined;
-  private readonly cache = new Map<string, CacheEntry>();
-  private readonly inFlight = new Map<string, Promise<string>>();
   private readonly fakeIp: FakeIpService | undefined;
+  private readonly generations: DNSGenerationStore;
 
   public constructor(config: DnsConfig, logger: Logger, metrics?: DnsMetricsRecorder, reusableFakeIp?: FakeIpService) {
     this.config = config;
@@ -44,6 +39,19 @@ export class SystemDnsResolver implements DnsResolver {
     this.fakeIp = config.fakeIp.enabled
       ? reusableFakeIp ?? new FakeIpService(config.fakeIp, () => this.metrics?.recordFakeIpAssignment?.())
       : undefined;
+    this.generations = new DNSGenerationStore(new DNSGeneration({
+      id: "dns-generation-0",
+      sequence: 0,
+      config
+    }));
+  }
+
+  public generationStore(): DNSGenerationStore {
+    return this.generations;
+  }
+
+  public stop(): void {
+    this.generations.shutdown();
   }
 
   public fakeIpForReload(nextConfig: DnsConfig): FakeIpService | undefined {
@@ -71,73 +79,95 @@ export class SystemDnsResolver implements DnsResolver {
       return host;
     }
 
-    const normalizedHost = host.toLowerCase();
-    const staticHost = this.config.hosts[normalizedHost];
-    if (staticHost !== undefined) {
-      return staticHost;
-    }
-
-    const cached = this.cache.get(normalizedHost);
-    if (cached !== undefined && cached.expiresAt > Date.now()) {
-      this.touchCache(normalizedHost, cached);
-      if (cached.error !== undefined) {
-        throw cached.error;
-      }
-      if (cached.address !== undefined) {
-        return cached.address;
-      }
-    }
-
-    const existing = this.inFlight.get(normalizedHost);
-    if (existing !== undefined) {
-      return await existing;
-    }
-
-    const pending = this.resolveUncached(host, normalizedHost);
-    this.inFlight.set(normalizedHost, pending);
+    const handle = this.generations.acquire();
+    const generation = handle.generation;
     try {
-      return await pending;
+      const normalizedHost = host.toLowerCase();
+      const staticHost = generation.config.hosts[normalizedHost];
+      if (staticHost !== undefined) {
+        return staticHost;
+      }
+
+      const positive = generation.getPositive(normalizedHost);
+      if (positive !== undefined) {
+        return positive.address;
+      }
+      const negative = generation.getNegative(normalizedHost);
+      if (negative !== undefined) {
+        throw new NetworkError(negative.message);
+      }
+
+      return await generation.runSingleFlight(
+        `A:${normalizedHost}`,
+        async (signal) =>
+          await this.resolveUncached(generation, host, normalizedHost, signal)
+      );
     } finally {
-      this.inFlight.delete(normalizedHost);
+      handle.release();
     }
   }
 
-  private async resolveUncached(host: string, normalizedHost: string): Promise<string> {
-
+  private async resolveUncached(
+    generation: DNSGeneration,
+    host: string,
+    normalizedHost: string,
+    signal: AbortSignal
+  ): Promise<string> {
+    const config = generation.config;
+    const source: DnsCacheSource = generation.mode;
     this.metrics?.recordDnsQuery();
     try {
-      if (this.config.doh.enabled && this.config.doh.endpoints.length > 0 && this.config.strategy !== "prefer-ipv6") {
-        const result = await queryDohA(host, this.config.doh, this.logger);
-        this.setCache(normalizedHost, {
+      if (generation.mode === "doh") {
+        const result = await queryDohA(host, config.doh, this.logger, signal);
+        generation.setPositive({
+          host: normalizedHost,
           address: result.address,
-          expiresAt: Date.now() + Math.min(result.ttlMs, this.config.cacheTtlMs)
+          expiresAt: Date.now() + Math.min(result.ttlMs, config.cacheTtlMs),
+          touchedAt: Date.now(),
+          source,
+          sensitive: false,
+          synthetic: false
         });
         this.logger.debug("dns resolved by DoH", { host, address: result.address });
         return result.address;
       }
 
-      const udpServer = this.selectUdpServer(normalizedHost);
-      if (udpServer !== undefined && this.config.strategy !== "prefer-ipv6") {
-        const result = await queryUdpA(host, udpServer);
-        this.setCache(normalizedHost, {
+      const udpServer = this.selectUdpServer(config, normalizedHost);
+      if (generation.mode === "udp" && udpServer !== undefined) {
+        const result = await queryUdpA(host, udpServer, signal);
+        generation.setPositive({
+          host: normalizedHost,
           address: result.address,
-          expiresAt: Date.now() + Math.min(result.ttlMs, this.config.cacheTtlMs)
+          expiresAt: Date.now() + Math.min(result.ttlMs, config.cacheTtlMs),
+          touchedAt: Date.now(),
+          source,
+          sensitive: false,
+          synthetic: false
         });
         this.logger.debug("dns resolved by UDP", { host, address: result.address, server: udpServer.tag });
         return result.address;
       }
 
-      const family = this.config.strategy === "prefer-ipv4" ? 4 : this.config.strategy === "prefer-ipv6" ? 6 : 0;
+      const family = config.strategy === "prefer-ipv4" ? 4 : config.strategy === "prefer-ipv6" ? 6 : 0;
       const result = await dns.lookup(host, { family });
-      this.setCache(normalizedHost, {
+      if (signal.aborted) throw new NetworkError(`DNS query aborted for ${host}`);
+      generation.setPositive({
+        host: normalizedHost,
         address: result.address,
-        expiresAt: Date.now() + this.config.cacheTtlMs
+        expiresAt: Date.now() + config.cacheTtlMs,
+        touchedAt: Date.now(),
+        source,
+        sensitive: false,
+        synthetic: false
       });
       this.logger.debug("dns resolved", { host, address: result.address, family: result.family });
       return result.address;
     } catch (error) {
+      if (signal.aborted) {
+        throw error instanceof Error ? error : new NetworkError(`DNS query aborted for ${host}`);
+      }
       this.metrics?.recordDnsFailure();
-      const fallback = this.config.fallbackHosts[normalizedHost];
+      const fallback = config.fallbackHosts[normalizedHost];
       if (fallback !== undefined) {
         this.logger.warn("dns resolution failed; using fallback host", {
           host,
@@ -147,75 +177,97 @@ export class SystemDnsResolver implements DnsResolver {
         return fallback;
       }
       const failure = error instanceof Error ? error : new NetworkError(String(error));
-      const negativeTtlMs = this.config.negativeTtlMs ?? 5_000;
+      const negativeTtlMs = config.negativeTtlMs ?? 5_000;
       if (negativeTtlMs > 0) {
-        this.setCache(normalizedHost, { error: failure, expiresAt: Date.now() + negativeTtlMs });
+        generation.setNegative({
+          host: normalizedHost,
+          message: failure.message,
+          expiresAt: Date.now() + negativeTtlMs,
+          touchedAt: Date.now(),
+          source,
+          sensitive: false,
+          synthetic: false
+        });
       }
       throw failure;
     }
   }
 
-  private setCache(host: string, entry: CacheEntry): void {
-    this.cache.delete(host);
-    this.cache.set(host, entry);
-    while (this.cache.size > (this.config.cacheMaxEntries ?? 4_096)) {
-      const oldest = this.cache.keys().next().value;
-      if (oldest === undefined) {
-        break;
-      }
-      this.cache.delete(oldest);
-    }
-  }
-
-  private touchCache(host: string, entry: CacheEntry): void {
-    this.cache.delete(host);
-    this.cache.set(host, entry);
-  }
-
-  private selectUdpServer(host: string): DnsUdpServerConfig | undefined {
-    if (this.config.udpServers.length === 0) {
+  private selectUdpServer(config: DnsConfig, host: string): DnsUdpServerConfig | undefined {
+    if (config.udpServers.length === 0) {
       return undefined;
     }
-    const matchedRule = this.config.rules.find((rule) => rule.domainSuffix.some((suffix) => host === suffix || host.endsWith(`.${suffix}`)));
+    const matchedRule = config.rules.find((rule) =>
+      rule.domainSuffix.some((suffix) => host === suffix || host.endsWith(`.${suffix}`))
+    );
     if (matchedRule !== undefined) {
-      return this.config.udpServers.find((server) => server.tag === matchedRule.serverTag);
+      return config.udpServers.find((server) => server.tag === matchedRule.serverTag);
     }
-    return this.config.udpServers[0];
+    return config.udpServers[0];
   }
 }
 
-const queryUdpA = async (host: string, server: DnsUdpServerConfig): Promise<DnsAResult> => {
+const queryUdpA = async (
+  host: string,
+  server: DnsUdpServerConfig,
+  signal?: AbortSignal
+): Promise<DnsAResult> => {
   const socket = dgram.createSocket(net.isIP(server.address) === 6 ? "udp6" : "udp4");
   const id = Math.floor(Math.random() * 0xffff);
   const packet = encodeDnsQuery(id, host);
   return await new Promise<DnsAResult>((resolve, reject) => {
+    let settled = false;
     const cleanup = (): void => {
       clearTimeout(timer);
       socket.removeListener("message", onMessage);
       socket.removeListener("error", onError);
-      socket.close();
+      signal?.removeEventListener("abort", onAbort);
+      try {
+        socket.close();
+      } catch {
+        // The socket may have failed before it was bound.
+      }
     };
-    const onMessage = (message: Buffer): void => {
+    const fail = (error: Error): void => {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      reject(error);
+    };
+    const onMessage = (message: Buffer, rinfo: dgram.RemoteInfo): void => {
+      if (
+        rinfo.port !== server.port ||
+        (net.isIP(server.address) !== 0 && rinfo.address !== server.address)
+      ) {
+        return;
+      }
       try {
         const result = decodeDnsAResponse(message, id);
+        if (settled) return;
+        settled = true;
         cleanup();
         resolve(result);
       } catch (error) {
-        cleanup();
-        reject(error instanceof Error ? error : new NetworkError(String(error)));
+        fail(error instanceof Error ? error : new NetworkError(String(error)));
       }
     };
     const onError = (error: Error): void => {
-      cleanup();
-      reject(new NetworkError("UDP DNS socket error", { cause: error }));
+      fail(new NetworkError("UDP DNS socket error", { cause: error }));
+    };
+    const onAbort = (): void => {
+      fail(new NetworkError(`UDP DNS query aborted for ${host}`));
     };
     const timer = setTimeout(() => {
-      cleanup();
-      reject(new TimeoutError(`UDP DNS query timeout after ${server.timeoutMs}ms for ${host}`));
+      fail(new TimeoutError(`UDP DNS query timeout after ${server.timeoutMs}ms for ${host}`));
     }, server.timeoutMs);
     timer.unref();
     socket.once("message", onMessage);
     socket.once("error", onError);
+    signal?.addEventListener("abort", onAbort, { once: true });
+    if (signal?.aborted === true) {
+      onAbort();
+      return;
+    }
     socket.send(packet, server.port, server.address, (error) => {
       if (error !== null) {
         onError(error);

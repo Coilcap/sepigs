@@ -1,5 +1,42 @@
 # SELF REVIEW
 
+## Stage 24 - Phase 20 M8.5 DNS Runtime Integration
+
+Completed:
+- Added immutable DNS descriptors with generation-owned cache, single-flight,
+  active-query references, atomic publication, draining, rollback, and release.
+- Added conditional positive-cache carry-over, hard fake-IP rejection, a real
+  DNS runtime adapter, experimental metrics, and local-only runtime smoke.
+- Expanded only the explicit experimental allow-list with `dns`; legacy
+  behavior and all other data-plane exclusions remain unchanged.
+
+Found:
+- Existing outbounds retain the resolver object, so replacing only the Engine
+  resolver field would leave old outbounds on stale DNS configuration.
+- Shutdown needed to reject generation work even when an underlying operation
+  ignored its abort signal.
+- DNS commit metrics could become misleading if DNS published before a later
+  Router/Policy adapter failed.
+
+Fixed:
+- `SystemDnsResolver` keeps stable identity and switches its internal
+  `DNSGenerationStore`; every query captures one generation.
+- Single-flight races each operation against generation abort and keeps
+  cleanup generation-local.
+- DNS publishes last among current runtime adapters, and rollback restores the
+  old generation and cache.
+
+Remaining risk:
+- System `dns.lookup()` cannot cancel the operating-system call itself.
+- Whole-runtime publication is still sequential with rollback rather than one
+  composite pointer.
+- Public resolver health probing, negative-cache carry-over, fake-IP reload,
+  and long-duration mixed DNS reload soak remain outside M8.5.
+
+Next:
+- Complete all validation and runtime smoke evidence. Do not begin M9 without
+  separate authorization.
+
 ## Stage 23 - Phase 18 M7 Router/Policy Runtime Integration
 
 Completed:

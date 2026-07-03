@@ -103,6 +103,61 @@ void test("transactional mode atomically reloads router and policy", async () =>
   }
 });
 
+void test("transactional mode can reload DNS only", async () => {
+  const engine = new Engine(runtimeConfig());
+  await engine.start();
+  try {
+    await engine.reloadConfig(runtimeConfig({
+      mode: "transactional-experimental",
+      enabledComponents: ["dns"],
+      dns: { hosts: { "runtime-dns.test": "192.0.2.70" } }
+    }));
+    assert.deepEqual(engine.getLastRuntimeReloadOutcome()?.changedComponents, ["dns"]);
+    assert.equal(engine.getActiveDnsGeneration().sequence, 1);
+    assert.equal(await engine.resolveDns("runtime-dns.test"), "192.0.2.70");
+  } finally {
+    await engine.stop();
+  }
+});
+
+void test("transactional mode can reload DNS with router and policy", async () => {
+  const engine = new Engine(runtimeConfig());
+  await engine.start();
+  try {
+    await engine.reloadConfig(runtimeConfig({
+      mode: "transactional-experimental",
+      enabledComponents: ["router", "policy", "dns"],
+      defaultOutbound: "auto",
+      policies: [testPolicy("auto", ["direct", "block"])],
+      dns: { hosts: { "combined.test": "192.0.2.71" } }
+    }));
+    assert.deepEqual(
+      engine.getLastRuntimeReloadOutcome()?.changedComponents,
+      ["router", "policy", "dns"]
+    );
+    assert.equal(engine.getActiveRouterGeneration().sequence, 1);
+    assert.equal(engine.getActivePolicyGeneration().sequence, 1);
+    assert.equal(engine.getActiveDnsGeneration().sequence, 1);
+  } finally {
+    await engine.stop();
+  }
+});
+
+void test("transactional mode rejects fake-IP changes as high risk", async () => {
+  const engine = new Engine(runtimeConfig());
+  await engine.start();
+  try {
+    await assert.rejects(engine.reloadConfig(runtimeConfig({
+      mode: "transactional-experimental",
+      enabledComponents: ["dns"],
+      dns: { fakeIp: { enabled: true } }
+    })), /unsupported high-risk fake-IP configuration change/u);
+    assert.equal(engine.getActiveDnsGeneration().sequence, 0);
+  } finally {
+    await engine.stop();
+  }
+});
+
 void test("transactional mode rejects unsupported data-plane changes", async () => {
   const initial = runtimeConfig();
   const engine = new Engine(initial);
@@ -114,11 +169,11 @@ void test("transactional mode rejects unsupported data-plane changes", async () 
     });
     await assert.rejects(engine.reloadConfig({
       ...candidate,
-      dns: {
-        ...candidate.dns,
-        cacheTtlMs: candidate.dns.cacheTtlMs + 1
+      limits: {
+        ...candidate.limits,
+        connectTimeoutMs: candidate.limits.connectTimeoutMs + 1
       }
-    }), /only supports metrics\/dashboard\/router\/policy changes/u);
+    }), /only supports metrics\/dashboard\/router\/policy\/dns changes/u);
     assert.equal(engine.getMetricsAddress(), null);
   } finally {
     await engine.stop();

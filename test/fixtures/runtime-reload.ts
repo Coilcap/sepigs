@@ -2,6 +2,7 @@ import http from "node:http";
 import net from "node:net";
 import type {
   DashboardConfig,
+  DnsConfig,
   MetricsServerConfig,
   RoutingPolicyConfig,
   SepigsConfig,
@@ -18,6 +19,10 @@ export interface RuntimeConfigOptions {
   readonly routeSuffix?: string;
   readonly defaultOutbound?: string;
   readonly policies?: readonly RoutingPolicyConfig[];
+  readonly dns?: Partial<Omit<DnsConfig, "fakeIp" | "doh">> & {
+    readonly fakeIp?: Partial<DnsConfig["fakeIp"]>;
+    readonly doh?: Partial<DnsConfig["doh"]>;
+  };
 }
 
 export const runtimeConfig = (options: RuntimeConfigOptions = {}): SepigsConfig =>
@@ -50,6 +55,22 @@ export const runtimeConfig = (options: RuntimeConfigOptions = {}): SepigsConfig 
       rateLimitPerMinute: 120,
       cors: false,
       ...options.dashboard
+    },
+    dns: {
+      ...options.dns,
+      fakeIp: {
+        enabled: false,
+        range: "198.18.0.0/15",
+        size: 32,
+        ttlSeconds: 60,
+        ...options.dns?.fakeIp
+      },
+      doh: {
+        enabled: false,
+        endpoints: [],
+        timeoutMs: 1_000,
+        ...options.dns?.doh
+      }
     },
     inbounds: [{ type: "http", tag: "http", listen: "127.0.0.1", port: 0 }],
     outbounds: [

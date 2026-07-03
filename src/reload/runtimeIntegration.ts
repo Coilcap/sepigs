@@ -5,6 +5,7 @@ import type {
 import type { Logger } from "../logger/logger.js";
 import { ConfigError } from "../utils/errors.js";
 import { DashboardRuntimeAdapter, type DashboardRuntimeHost } from "./adapters/dashboardRuntimeAdapter.js";
+import { DnsRuntimeAdapter, type DnsRuntimeHost } from "./adapters/dnsRuntimeAdapter.js";
 import { MetricsRuntimeAdapter, type MetricsRuntimeHost } from "./adapters/metricsRuntimeAdapter.js";
 import { PolicyRuntimeAdapter } from "./adapters/policyRuntimeAdapter.js";
 import {
@@ -12,6 +13,7 @@ import {
   type RouterPolicyRuntimeHost
 } from "./adapters/routerRuntimeAdapter.js";
 import { createDashboardReloadAdapter } from "./adapters/dashboardAdapter.js";
+import { createDnsReloadAdapter } from "./adapters/dnsAdapter.js";
 import { createMetricsReloadAdapter } from "./adapters/metricsAdapter.js";
 import { createProberReloadAdapter } from "./adapters/proberAdapter.js";
 import { createRouterReloadAdapter } from "./adapters/routerAdapter.js";
@@ -21,7 +23,10 @@ import { createReloadGeneration } from "./generation.js";
 import { ReloadMetrics, type ReloadMetricsSnapshot } from "./metrics.js";
 
 export interface RuntimeReloadHost
-  extends MetricsRuntimeHost, DashboardRuntimeHost, RouterPolicyRuntimeHost {
+  extends MetricsRuntimeHost,
+    DashboardRuntimeHost,
+    RouterPolicyRuntimeHost,
+    DnsRuntimeHost {
   commitRuntimeConfig(config: SepigsConfig): void;
 }
 
@@ -41,7 +46,7 @@ export interface RuntimeReloadOutcome {
     readonly policyChanged: boolean;
     readonly connectionsClosed: 0;
     readonly listenersChanged: 0;
-    readonly dnsChanged: false;
+    readonly dnsChanged: boolean;
     readonly fakeIpChanged: false;
   };
   readonly resourceCleanup: {
@@ -64,7 +69,7 @@ export class RuntimeReloadIntegration {
     if (candidate.reload.mode !== "transactional-experimental") {
       throw new ConfigError("runtime transactional integration requires transactional-experimental mode");
     }
-    assertM7SupportedChange(previous, candidate);
+    assertM85SupportedChange(previous, candidate, this.host);
     const changedComponents = changedRuntimeComponents(previous, candidate);
     const enabledComponents = new Set(candidate.reload.transactional.enabledComponents);
     for (const component of changedComponents) {
@@ -121,7 +126,9 @@ export class RuntimeReloadIntegration {
       ...(shadowExecution === undefined ? {} : { shadowExecution }),
       runtimeSideEffects: {
         dataPlaneMutated:
-          changedComponents.includes("router") || changedComponents.includes("policy"),
+          changedComponents.includes("router") ||
+          changedComponents.includes("policy") ||
+          changedComponents.includes("dns"),
         routingDecisionChanged:
           changedComponents.includes("router") || changedComponents.includes("policy"),
         legacyFallbackUsed: false,
@@ -131,7 +138,7 @@ export class RuntimeReloadIntegration {
         policyChanged: changedComponents.includes("policy"),
         connectionsClosed: 0,
         listenersChanged: 0,
-        dnsChanged: false,
+        dnsChanged: changedComponents.includes("dns"),
         fakeIpChanged: false
       },
       resourceCleanup: {
@@ -186,6 +193,9 @@ const createRuntimeComponents = (
   if (changed.includes("policy")) {
     components.push(new PolicyRuntimeAdapter(host, expectedRoutingComponents));
   }
+  // Publish DNS last so its committed carry-over counters cannot outlive a
+  // later router or policy commit failure.
+  if (changed.includes("dns")) components.push(new DnsRuntimeAdapter(host));
   return components;
 };
 
@@ -195,6 +205,7 @@ const createShadowComponents = (
   const components: ReloadableComponent[] = [];
   if (changed.includes("metrics")) components.push(createMetricsReloadAdapter());
   if (changed.includes("dashboard")) components.push(createDashboardReloadAdapter());
+  if (changed.includes("dns")) components.push(createDnsReloadAdapter());
   if (changed.includes("router")) components.push(createRouterReloadAdapter());
   if (changed.includes("policy")) components.push(createProberReloadAdapter());
   return components;
@@ -217,29 +228,44 @@ const changedRuntimeComponents = (
   if (stableJson(previous.route.policies) !== stableJson(candidate.route.policies)) {
     changed.push("policy");
   }
+  if (stableJson(dnsConfigView(previous)) !== stableJson(dnsConfigView(candidate))) {
+    changed.push("dns");
+  }
   return changed;
 };
 
-const assertM7SupportedChange = (previous: SepigsConfig, candidate: SepigsConfig): void => {
-  if (stableJson(withoutM7Components(previous)) !== stableJson(withoutM7Components(candidate))) {
+const assertM85SupportedChange = (
+  previous: SepigsConfig,
+  candidate: SepigsConfig,
+  host: DnsRuntimeHost
+): void => {
+  if (stableJson(previous.dns.fakeIp) !== stableJson(candidate.dns.fakeIp)) {
+    host.dnsGenerationStore().recordRejectedFakeIpChange();
     throw new ConfigError(
-      "transactional-experimental M7 only supports metrics/dashboard/router/policy changes; use legacy mode for other changes"
+      "transactional-experimental DNS reload rejected unsupported high-risk fake-IP configuration change"
+    );
+  }
+  if (stableJson(withoutM85Components(previous)) !== stableJson(withoutM85Components(candidate))) {
+    throw new ConfigError(
+      "transactional-experimental M8.5 only supports metrics/dashboard/router/policy/dns changes; use legacy mode for other changes"
     );
   }
 };
 
-const withoutM7Components = (config: SepigsConfig): unknown => {
+const withoutM85Components = (config: SepigsConfig): unknown => {
   const {
     observability,
     dashboard,
     reload,
     route,
+    dns,
     ...unsupported
   } = config;
   void observability;
   void dashboard;
   void reload;
   void route;
+  void dns;
   return unsupported;
 };
 
@@ -248,6 +274,12 @@ const routerConfigView = (config: SepigsConfig): unknown => ({
   rules: config.route.rules,
   ruleSetFiles: config.route.ruleSetFiles
 });
+
+const dnsConfigView = (config: SepigsConfig): unknown => {
+  const { fakeIp, ...dns } = config.dns;
+  void fakeIp;
+  return dns;
+};
 
 const stableJson = (value: unknown): string => JSON.stringify(sortValue(value));
 

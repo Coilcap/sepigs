@@ -3,6 +3,7 @@ import type { StatsSnapshot } from "../core/stats.js";
 import type { EventLoopDelaySnapshot } from "./eventLoop.js";
 import type { GcSnapshot } from "./gc.js";
 import type { ReloadMetricsSnapshot } from "../reload/metrics.js";
+import type { DNSGenerationStoreMetrics } from "../dns/generationStore.js";
 
 export interface MetricsSnapshot {
   readonly stats: StatsSnapshot;
@@ -15,6 +16,7 @@ export interface MetricsSnapshot {
     readonly router: number;
     readonly policy: number;
   };
+  readonly dnsGenerations?: DNSGenerationStoreMetrics;
 }
 
 const metric = (name: string, value: number, help: string): string => {
@@ -26,7 +28,16 @@ const counter = (name: string, value: number, help: string): string => {
 };
 
 export const renderPrometheusMetrics = (snapshot: MetricsSnapshot): string => {
-  const { stats, leaks, eventLoop, gc, memory, reload, routingGenerations } = snapshot;
+  const {
+    stats,
+    leaks,
+    eventLoop,
+    gc,
+    memory,
+    reload,
+    routingGenerations,
+    dnsGenerations
+  } = snapshot;
   const metrics = [
     metric("sepigs_uptime_seconds", stats.uptimeMs / 1_000, "Sepigs process uptime in seconds."),
     counter("sepigs_connections_total", stats.totalConnections, "Total accepted connections."),
@@ -72,6 +83,35 @@ export const renderPrometheusMetrics = (snapshot: MetricsSnapshot): string => {
       )
     );
   }
+  if (dnsGenerations !== undefined) {
+    metrics.push(
+      metric(
+        "sepigs_reload_active_dns_generation_id",
+        dnsGenerations.activeGeneration,
+        "Active experimental DNS generation sequence."
+      ),
+      metric(
+        "sepigs_reload_dns_generation_draining",
+        dnsGenerations.drainingGenerations,
+        "Draining experimental DNS generations."
+      ),
+      counter(
+        "sepigs_reload_dns_cache_carry_over_total",
+        dnsGenerations.cacheCarriedOver,
+        "DNS cache entries copied into committed candidate generations."
+      ),
+      counter(
+        "sepigs_reload_dns_cache_dropped_total",
+        dnsGenerations.cacheDropped,
+        "DNS cache entries dropped by reload carry-over policy."
+      ),
+      counter(
+        "sepigs_reload_dns_rejected_fake_ip_change_total",
+        dnsGenerations.rejectedFakeIpChanges,
+        "DNS transactional reloads rejected because fake-IP configuration changed."
+      )
+    );
+  }
   return metrics.join("\n\n") + "\n";
 };
 
@@ -97,11 +137,32 @@ const renderReloadMetrics = (reload: ReloadMetricsSnapshot): readonly string[] =
   ),
   componentGauge(
     "sepigs_reload_component_rollback_total",
-    Object.entries(reload.componentRollback),
+    componentRollbackValues(reload),
     "Component rollback count.",
     "counter"
   )
 ];
+
+const componentRollbackValues = (
+  reload: ReloadMetricsSnapshot
+): readonly [string, number][] => {
+  const values = new Map<string, number>(
+    Object.entries(reload.componentRollback).map(([component, value]) => [
+      component,
+      value
+    ])
+  );
+  for (const component of [
+    "metrics-server",
+    "dashboard-server",
+    "router",
+    "policy-prober",
+    "dns"
+  ]) {
+    if (!values.has(component)) values.set(component, 0);
+  }
+  return [...values];
+};
 
 const latestDurations = (
   durations: ReloadMetricsSnapshot["prepareDurations"]

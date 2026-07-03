@@ -1,17 +1,17 @@
 # DNS Runtime Adapter Design
 
-Status: interface design only. `dnsRuntimeAdapter` does not exist in the
-production runtime and DNS is not in the allow-list.
+Status: implemented in M8.5 behind explicit
+`transactional-experimental.enabledComponents: ["dns"]`.
 
-## Future Contract
+## Runtime Contract
 
-The adapter will implement `ReloadableComponent` and own one candidate
+The adapter implements `ReloadableComponent` and owns one candidate
 `DNSGeneration`, carry-over plan, local validation evidence, and candidate
 resources. It must not mutate `SystemDnsResolver` in place.
 
 ## Prepare
 
-`prepare(config, context)` will:
+`prepare(config, context)`:
 
 1. isolate DNS config from fake-IP config;
 2. reject any fake-IP difference from the active config;
@@ -76,6 +76,19 @@ Cleanup:
 - records cleanup timeout/leak evidence.
 
 Cleanup never deletes fake-IP persistence or closes shared process resources.
+
+## Implemented Limits
+
+- Health checks are structural and local-only; reload sends no public probe.
+- DoH endpoints require HTTP or HTTPS, reject credentials/fragments, and only
+  allow plaintext HTTP on loopback.
+- DNS is published last among the currently supported runtime adapters so a
+  later Router/Policy commit cannot invalidate committed DNS carry metrics.
+- The existing executor still commits component adapters in sequence and
+  rolls them back on failure; whole-runtime snapshot publication remains
+  future work.
+- No inbound, outbound registry, UDP session, connection-manager, plugin, or
+  fake-IP runtime state participates.
 
 ## Required Host API
 

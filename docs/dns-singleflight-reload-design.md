@@ -1,6 +1,6 @@
 # DNS Single-Flight Reload Design
 
-Status: M8 design only.
+Status: M8.5 generation boundary implemented.
 
 ## Ownership
 
@@ -42,8 +42,10 @@ and transaction/shutdown constraints.
 Caller cancellation removes only that waiter. Shared upstream work continues
 while another waiter exists. If every waiter cancels and the resolver supports
 safe abort, the generation may abort the upstream request. System
-`dns.lookup()` needs an explicit bounded wrapper before runtime integration
-because it is not currently cancellable by sepigs.
+`dns.lookup()` remains non-cancellable at the operating-system call boundary.
+Sepigs bounds the waiter and prevents late completion from crossing generation
+ownership; shutdown rejects the generation waiter even when the underlying
+lookup ignores its signal.
 
 Commit never supplies a cancellation signal to old queries. Shutdown may
 cancel active and draining generations after the normal shutdown deadline.
@@ -78,3 +80,8 @@ probes do not join ordinary DNS single-flight work.
 - timeout and cancellation remove Map entries and resources;
 - shutdown aborts bounded work without an unhandled rejection;
 - repeated failed reloads leave zero in-flight entries, sockets, and timers.
+
+M8.5 tests prove same-generation merging, cross-generation isolation,
+generation-local cache writes, timeout isolation, and old-generation abort
+without affecting the candidate. Commit never aborts old work; only shutdown
+uses `abortAll()`.

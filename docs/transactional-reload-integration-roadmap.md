@@ -1,8 +1,7 @@
 # Transactional Reload Integration Roadmap
 
-Status: M7 Router/Policy runtime integration is implemented behind the
-explicit experimental allow-list. M8 DNS design is complete; M8.5 and M9-M11
-remain unimplemented plans.
+Status: M8.5 DNS runtime integration is implemented behind the explicit
+experimental allow-list. M9-M11 remain unimplemented plans.
 
 ## M7: Router And Policy Decisions
 
@@ -52,8 +51,7 @@ meets the maintenance policy.
 
 ## M8.5: DNS Generation And Adapter
 
-Entry requires separate authorization after M8 review. Proposed allow-list
-addition is `dns` only; fake-IP remains excluded.
+M8.5 was separately authorized and adds `dns` only; fake-IP remains excluded.
 
 Implementation gates:
 
@@ -69,6 +67,12 @@ Implementation gates:
 - compatibility remains at least 44 verified and zero failed.
 
 Any fake-IP difference rejects the DNS transaction and remains M10 work.
+
+Implemented evidence includes generation/store ownership, conditional
+positive-cache carry-over, generation-scoped single-flight, structural
+DoH/UDP validation, rollback, experimental metrics, and a local-only runtime
+smoke. The one-hour mixed DNS reload soak remains a promotion gate and is not
+claimed by M8.5.
 
 ## M9: Limited Outbound Work, Inbound Prototype
 
@@ -153,6 +157,6 @@ Every stage requires:
    checks;
 7. updated reality check and no production-stable claim.
 
-M7 authorizes only Router, Policy, and read-only health carry-over. M8 is
-design evidence only. The next allow-list change requires explicit M8.5
-authorization and must not be inferred from a green M7 smoke or M8 document.
+The current allow-list is
+`metrics/dashboard/router/policy/dns`. Any further allow-list change requires
+separate authorization and must not be inferred from green M8.5 evidence.

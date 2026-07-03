@@ -50,6 +50,7 @@
     "reload:shadow": "node --import tsx src/reload/shadow.ts",
     "reload:runtime-smoke": "node --import tsx src/reload/runtimeSmoke.ts",
     "reload:runtime-smoke:m7": "node --import tsx src/reload/runtimeSmokeM7.ts",
+    "reload:runtime-smoke:dns": "node --import tsx src/reload/runtimeSmokeDns.ts",
     "docs:check": "node --import tsx tools/docs/check.ts",
     "pack:tar": "tsx scripts/pack.ts tar",
     "pack:zip": "tsx scripts/pack.ts zip",

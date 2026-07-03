@@ -110,16 +110,31 @@ sepigs supports JSON and YAML config.
 `reload.mode` defaults to `legacy`, including when the `reload` object is
 absent. `transactional-experimental` must be explicitly selected.
 
-M5 accepts only `metrics` and `dashboard` in
-`reload.transactional.enabledComponents`. `rollbackOnFailure` must be `true`.
+M8.5 accepts `metrics`, `dashboard`, `router`, `policy`, and `dns` in
+`reload.transactional.enabledComponents`. Every changed component must be
+listed explicitly. `rollbackOnFailure` must be `true`.
 `shadowBeforeCommit` runs a prototype-only preflight before real adapters.
-Mixed data-plane changes are rejected and are not automatically retried
+Unsupported data-plane changes are rejected and are not automatically retried
 through legacy reload.
+
+DNS reload applies only to new queries. Existing in-flight queries complete
+against their captured generation. Compatible unexpired positive cache may be
+copied by value with shortened TTL; negative, sensitive, synthetic, expired,
+upstream-changed, or mode-changed entries are dropped. Any fake-IP config
+difference rejects the transaction as unsupported/high-risk.
 
 The runnable local-only example is
 `examples/sepigs.transactional-reload.experimental.json`. It uses loopback and
 ephemeral ports. Dashboard remains disabled with a placeholder token in the
 file; `reload:runtime-smoke` enables it in memory with an ephemeral test token.
+
+The DNS-specific local-only example is
+`examples/sepigs.transactional-dns.experimental.json`:
+
+```bash
+npm run reload:runtime-smoke:dns -- \
+  --config examples/sepigs.transactional-dns.experimental.json
+```
 
 ```json
 {"type":"shadowsocks","tag":"ss-in","listen":"127.0.0.1","port":8388,"method":"aes-128-gcm","password":"change-me","udp":false}

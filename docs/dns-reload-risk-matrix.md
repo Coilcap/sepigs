@@ -1,7 +1,7 @@
 # DNS Reload Risk Matrix
 
-Status: M8 design review. Every row remains open until implementation evidence
-exists.
+Status: M8.5 implementation evidence added. Soak and full composite
+transaction risks remain open.
 
 | ID | Risk | Severity | Likelihood | Detection | Mitigation | Rollback strategy | Test needed |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -28,7 +28,25 @@ exists.
 
 ## Promotion Rule
 
-Critical rows require automated failure-injection evidence before DNS enters
-the runtime allow-list. High risks require a documented mitigation plus unit
+Critical rows require automated failure-injection evidence before promotion
+beyond experimental. High risks require a documented mitigation plus unit
 or runtime evidence. A dry-run or shadow result alone does not close a runtime
 ownership risk.
+
+## M8.5 Evidence
+
+- D1/D2: adapter tests reject invalid UDP and DoH configuration before
+  publication.
+- D5/D6: carry-over tests cover compatibility, expiry, TTL shortening,
+  sensitive/synthetic entries, and default negative-cache discard.
+- D7-D9/D16: generation and single-flight tests cover drain, timeout,
+  cancellation, and old/new cache ownership.
+- D12/D13: runtime integration rejects fake-IP changes before DNS prepare and
+  leaves the mapping service untouched.
+- D15: adapter and Engine tests restore the old generation and cache after
+  rollback.
+- D17: generation release and runtime smoke assert drained state and final
+  resource cleanup.
+
+D3/D4/D10/D11/D14/D18 and long-duration memory behavior remain promotion
+risks. M8.5 is experimental, not production-ready.

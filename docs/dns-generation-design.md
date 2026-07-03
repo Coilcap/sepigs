@@ -1,10 +1,11 @@
 # DNS Generation Design
 
-Status: M8 design only. No generation type or runtime adapter is implemented.
+Status: M8.5 implemented behind the explicit, default-off
+`transactional-experimental` DNS allow-list.
 
 ## Model
 
-A future immutable `DNSGeneration` descriptor should contain:
+The immutable `DNSGeneration` descriptor contains:
 
 ```text
 id
@@ -40,6 +41,12 @@ The immutable descriptor is paired with generation-owned runtime state:
 Mutable runtime state is encapsulated and cannot alter descriptor fields.
 Process-wide cumulative DNS counters remain monotonic.
 
+The implementation is in `src/dns/generation.ts` and
+`src/dns/generationStore.ts`. Descriptor arrays and policies are cloned and
+frozen. Cache, single-flight, reference counts, and draining state are
+generation-owned mutable runtime state and are not exposed for direct
+mutation.
+
 ## Publication And Lifetime
 
 New DNS queries acquire the active generation exactly once. Cache lookup,
@@ -63,6 +70,18 @@ Rollback never copies candidate query results into the old generation.
 
 Shutdown is the only normal operation allowed to cancel both active and
 draining generations.
+
+## M8.5 Runtime Evidence
+
+`SystemDnsResolver` keeps a stable object identity because existing outbound
+instances retain that resolver. Reload atomically switches the resolver's
+internal `DNSGenerationStore`; replacing only the Engine field would not
+affect those outbounds. A query acquires one generation handle before cache
+lookup and releases it in a `finally` block.
+
+Unit and runtime tests cover active switching, rollback, query references,
+single-flight drain, cache isolation, and old/new local UDP answers across a
+commit. No fake-IP store reference is held by a generation.
 
 ## Resolver Identity
 

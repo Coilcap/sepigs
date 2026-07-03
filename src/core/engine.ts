@@ -7,6 +7,7 @@ import type {
   SepigsConfig
 } from "../config/types.js";
 import { SystemDnsResolver } from "../dns/resolver.js";
+import type { DNSGenerationStoreMetrics } from "../dns/generationStore.js";
 import { DashboardServer } from "../dashboard/server.js";
 import type { Inbound, InboundContext } from "../inbound/inbound.js";
 import { inboundConfigsChanged, reloadInbounds } from "../inbound/reload.js";
@@ -128,6 +129,14 @@ export class Engine {
         },
         routingRuntime: () => this.routingRuntime,
         outboundTags: () => new Set(this.config.outbounds.map((outbound) => outbound.tag)),
+        dnsGenerationStore: () => this.dnsResolver.generationStore(),
+        dnsFailureCountersSnapshot: () => {
+          const stats = this.stats.snapshot();
+          return {
+            queries: stats.dnsQueriesTotal,
+            failures: stats.dnsFailuresTotal
+          };
+        },
         runtimeStarted: () => this.started,
         commitRuntimeConfig: (nextConfig) => {
           this.config = nextConfig;
@@ -178,6 +187,7 @@ export class Engine {
     this.gcMonitor.stop();
     await this.lifecycle.stopAll(this.config.limits.shutdownTimeoutMs);
     this.connectionPool.closeAll();
+    this.dnsResolver.stop();
     await this.quicTransport.close();
     await this.pluginManager.stop();
     await this.workerPool.stop();
@@ -233,6 +243,10 @@ export class Engine {
     return await this.dnsResolver.resolveForClient(domain);
   }
 
+  public async resolveDns(host: string): Promise<string> {
+    return await this.dnsResolver.resolve(host);
+  }
+
   public setConfigReloader(reloader: () => Promise<void>): void {
     this.configReloader = reloader;
   }
@@ -253,6 +267,30 @@ export class Engine {
   public getActivePolicyGeneration(): { readonly id: string; readonly sequence: number } {
     const generation = this.routingRuntime.active().policy;
     return { id: generation.id, sequence: generation.sequence };
+  }
+
+  public getActiveDnsGeneration(): {
+    readonly id: string;
+    readonly sequence: number;
+    readonly cacheEntries: number;
+    readonly negativeCacheEntries: number;
+    readonly inFlight: number;
+    readonly drainingGenerations: number;
+  } {
+    const store = this.dnsResolver.generationStore();
+    const generation = store.active();
+    return {
+      id: generation.id,
+      sequence: generation.sequence,
+      cacheEntries: generation.positiveCacheSize,
+      negativeCacheEntries: generation.negativeCacheSize,
+      inFlight: generation.inFlight,
+      drainingGenerations: store.draining().length
+    };
+  }
+
+  public getDnsReloadMetricsSnapshot(): DNSGenerationStoreMetrics {
+    return this.dnsResolver.generationStore().metrics();
   }
 
   public getWasmExtensions(): readonly WasmExtensionSnapshot[] {
@@ -564,7 +602,8 @@ export class Engine {
                 routingGenerations: {
                   router: this.routingRuntime.active().router.sequence,
                   policy: this.routingRuntime.active().policy.sequence
-                }
+                },
+                dnsGenerations: this.dnsResolver.generationStore().metrics()
               }
             : {})
         }),
@@ -585,7 +624,8 @@ export class Engine {
             routingGenerations: {
               router: this.routingRuntime.active().router.sequence,
               policy: this.routingRuntime.active().policy.sequence
-            }
+            },
+            dnsGenerations: this.dnsResolver.generationStore().metrics()
           }
         : {})
     });

@@ -62,7 +62,7 @@ void test("reload defaults to legacy and transactional mode requires an explicit
     reload: {
       mode: "transactional-experimental",
       transactional: {
-        enabledComponents: ["metrics", "dashboard", "router", "policy"],
+        enabledComponents: ["metrics", "dashboard", "router", "policy", "dns"],
         timeoutMs: 2_000,
         shadowBeforeCommit: true,
         rollbackOnFailure: true
@@ -74,7 +74,7 @@ void test("reload defaults to legacy and transactional mode requires an explicit
   });
   assert.deepEqual(
     experimental.reload.transactional.enabledComponents,
-    ["metrics", "dashboard", "router", "policy"]
+    ["metrics", "dashboard", "router", "policy", "dns"]
   );
 });
 

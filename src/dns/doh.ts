@@ -5,15 +5,23 @@ import type { Logger } from "../logger/logger.js";
 import { NetworkError, TimeoutError } from "../utils/errors.js";
 import type { DnsAResult } from "./resolver.js";
 
-export const queryDohA = async (host: string, config: DohConfig, logger: Logger): Promise<DnsAResult> => {
+export const queryDohA = async (
+  host: string,
+  config: DohConfig,
+  logger: Logger,
+  signal?: AbortSignal
+): Promise<DnsAResult> => {
   let lastError: unknown;
   for (const endpoint of config.endpoints) {
+    if (signal?.aborted === true) {
+      throw new NetworkError(`DoH query aborted for ${host}`);
+    }
     try {
-      return await queryOneDohEndpoint(host, endpoint, config.timeoutMs);
+      return await queryOneDohEndpoint(host, endpoint, config.timeoutMs, signal);
     } catch (error) {
       lastError = error;
       logger.warn("DoH upstream failed", {
-        endpoint,
+        endpoint: redactEndpoint(endpoint),
         host,
         error: error instanceof Error ? error.message : String(error)
       });
@@ -22,12 +30,18 @@ export const queryDohA = async (host: string, config: DohConfig, logger: Logger)
   throw lastError instanceof Error ? lastError : new NetworkError(`DoH query failed for ${host}`);
 };
 
-const queryOneDohEndpoint = async (host: string, endpoint: string, timeoutMs: number): Promise<DnsAResult> => {
+const queryOneDohEndpoint = async (
+  host: string,
+  endpoint: string,
+  timeoutMs: number,
+  signal?: AbortSignal
+): Promise<DnsAResult> => {
   const url = new URL(endpoint);
   const body = encodeDnsQuery(Math.floor(Math.random() * 0xffff), host);
   const client = url.protocol === "http:" ? http : https;
 
   return await new Promise<DnsAResult>((resolve, reject) => {
+    let responseBytes = 0;
     const request = client.request(
       url,
       {
@@ -42,6 +56,11 @@ const queryOneDohEndpoint = async (host: string, endpoint: string, timeoutMs: nu
       (response) => {
         const chunks: Buffer[] = [];
         response.on("data", (chunk: Buffer) => {
+          responseBytes += chunk.byteLength;
+          if (responseBytes > MAX_DOH_RESPONSE_BYTES) {
+            request.destroy(new NetworkError("DoH response exceeded size limit"));
+            return;
+          }
           chunks.push(chunk);
         });
         response.once("error", reject);
@@ -62,9 +81,34 @@ const queryOneDohEndpoint = async (host: string, endpoint: string, timeoutMs: nu
     request.once("timeout", () => {
       request.destroy(new TimeoutError(`DoH query timeout after ${timeoutMs}ms for ${host}`));
     });
-    request.once("error", reject);
+    const onAbort = (): void => {
+      request.destroy(new NetworkError(`DoH query aborted for ${host}`));
+    };
+    request.once("error", (error) => {
+      signal?.removeEventListener("abort", onAbort);
+      reject(error);
+    });
+    request.once("close", () => {
+      signal?.removeEventListener("abort", onAbort);
+    });
+    signal?.addEventListener("abort", onAbort, { once: true });
+    if (signal?.aborted === true) {
+      onAbort();
+      return;
+    }
     request.end(body);
   });
+};
+
+const MAX_DOH_RESPONSE_BYTES = 65_535;
+
+const redactEndpoint = (endpoint: string): string => {
+  try {
+    const url = new URL(endpoint);
+    return `${url.protocol}//${url.host}${url.pathname}`;
+  } catch {
+    return "<invalid-doh-endpoint>";
+  }
 };
 
 const encodeDnsQuery = (id: number, host: string): Buffer => {

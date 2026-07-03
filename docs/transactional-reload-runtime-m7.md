@@ -105,3 +105,11 @@ Reports:
 - The runtime smoke is not a long-duration mixed reload soak.
 - M7 is not production-stable and is not a whole-runtime transaction.
 - M8 design documents do not change this runtime boundary.
+
+## Post-M8.5 Boundary
+
+M7's allow-list above is preserved as its milestone record. M8.5 subsequently
+adds `dns` only when explicitly enabled. The current runtime allow-list is
+therefore `metrics`, `dashboard`, `router`, `policy`, and `dns`. Fake-IP,
+inbound, outbound, UDP sessions, connection-manager, and plugins remain
+rejected. Default `legacy` behavior is unchanged.

@@ -1,6 +1,7 @@
 # DNS And Fake-IP Reload Boundary
 
-Status: M8 boundary design. Fake-IP runtime reload remains deferred to M10.
+Status: M8.5 boundary enforced in runtime. Fake-IP runtime reload remains
+deferred to M10.
 
 ## Ownership Split
 
@@ -9,7 +10,7 @@ Ordinary DNS cache maps a domain to a real upstream/system address.
 reverse address-to-domain mapping. They are separate stores and must never
 share entries or migration code.
 
-M8 DNS generation may own resolver config, ordinary cache, single-flight, and
+M8.5 DNS generation owns resolver config, ordinary cache, single-flight, and
 resolver resources. It does not own:
 
 - fake-IP range/pool cursor;
@@ -75,4 +76,7 @@ ownership.
 Future fake-IP runtime work requires mapping snapshots, compatibility
 classification, bidirectional uniqueness checks, persistent-store atomicity,
 active connection/session ownership, range-change drain behavior, and reverse
-lookup continuity under rollback. None is claimed by M8.
+lookup continuity under rollback. None is claimed by M8.5. The runtime
+compares the complete fake-IP config before adapter prepare, increments a
+dedicated rejection metric, and returns an unsupported/high-risk error without
+publishing a DNS generation.

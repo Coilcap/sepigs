@@ -1,0 +1,67 @@
+{
+  "configVersion": 1,
+  "log": {
+    "level": "info"
+  },
+  "reload": {
+    "mode": "transactional-experimental",
+    "transactional": {
+      "enabledComponents": ["dns"],
+      "timeoutMs": 5000,
+      "shadowBeforeCommit": true,
+      "rollbackOnFailure": true
+    }
+  },
+  "observability": {
+    "metrics": {
+      "enabled": true,
+      "listen": "127.0.0.1",
+      "port": 0,
+      "path": "/metrics"
+    }
+  },
+  "inbounds": [
+    {
+      "type": "http",
+      "tag": "http-in",
+      "listen": "127.0.0.1",
+      "port": 0
+    }
+  ],
+  "outbounds": [
+    {
+      "type": "direct",
+      "tag": "direct"
+    }
+  ],
+  "dns": {
+    "strategy": "prefer-ipv4",
+    "cacheTtlMs": 30000,
+    "cacheMaxEntries": 128,
+    "negativeTtlMs": 1000,
+    "udpServers": [
+      {
+        "tag": "candidate-local",
+        "address": "127.0.0.1",
+        "port": 9,
+        "timeoutMs": 500
+      }
+    ],
+    "rules": [],
+    "fakeIp": {
+      "enabled": false,
+      "range": "198.18.0.0/15",
+      "size": 128,
+      "ttlSeconds": 60
+    },
+    "doh": {
+      "enabled": false,
+      "endpoints": [],
+      "timeoutMs": 500
+    }
+  },
+  "route": {
+    "defaultOutbound": "direct",
+    "rules": []
+  }
+}
