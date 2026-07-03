@@ -10,7 +10,13 @@ import { auditEvidenceText } from "../compat/evidence-pack.js";
 import type { ExternalCompatibilityCase } from "../compat/types.js";
 
 const findings: string[] = [];
-const files = await walk(["docs", "examples", "verification/manual-pack", "reports/compat"]);
+const files = await walk([
+  "docs",
+  "examples",
+  "verification/manual-pack",
+  "reports/compat",
+  "reports/outbound"
+]);
 for (const file of files) {
   const text = await readFile(file, "utf8");
   if (/\/Users\/[A-Za-z0-9._-]+\//u.test(text)) findings.push(`local absolute path: ${file}`);
@@ -26,6 +32,21 @@ for (const file of files.filter((item) => /^examples\/sepigs.*\.(json|ya?ml)$/u.
   if (config.dashboard.enabled) findings.push(`dashboard enabled by default in ${file}`);
   if (config.observability.metrics.listen !== "127.0.0.1") findings.push(`metrics not loopback in ${file}`);
   for (const inbound of config.inbounds) if ((inbound.listen === "0.0.0.0" || inbound.listen === "::") && !hasAuth(inbound)) findings.push(`unauthenticated public inbound in ${file}`);
+}
+
+for (const file of files.filter((item) => item.startsWith("reports/outbound/"))) {
+  const text = await readFile(file, "utf8");
+  if (
+    /"(?:password|token|privateKey)"\s*:\s*"(?!\[REDACTED\])/u.test(text)
+  ) {
+    findings.push(`unredacted outbound report credential field: ${file}`);
+  }
+  if (file.endsWith(".json") && !/"secretRedaction"\s*:/u.test(text)) {
+    findings.push(`outbound JSON report lacks redaction proof: ${file}`);
+  }
+  if (file.endsWith(".json") && !/"status"\s*:\s*"passed"/u.test(text)) {
+    findings.push(`outbound JSON report redaction proof did not pass: ${file}`);
+  }
 }
 
 const secret = "phase9-subscription-secret"; const uri = `trojan://${secret}@example.test:443#node`; const dryRun = JSON.stringify(redactSubscriptionOutbounds(parseSubscription(uri).outbounds));

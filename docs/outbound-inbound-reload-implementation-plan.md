@@ -1,6 +1,7 @@
 # Outbound And Inbound Reload Implementation Plan
 
-Status: M9 staged recommendation. No stage is authorized by this document.
+Status: M10 outbound generation prototype implemented. Runtime stages remain
+separately authorized.
 
 ## Principles
 
@@ -13,6 +14,9 @@ Status: M9 staged recommendation. No stage is authorized by this document.
 - Require compatibility and soak gates at every runtime admission.
 
 ## M10: Outbound Generation Prototype
+
+Implementation status: complete as a pure-data model, validator, dry-run, and
+shadow simulation. It does not publish to Engine.
 
 Scope:
 
@@ -32,9 +36,9 @@ Prohibited:
 - no Shadowsocks/Trojan runtime claim;
 - no UDP, plugin, WireGuard, QUIC, or pool ownership.
 
-Exit: unit/contract/shadow tests pass, existing runtime smokes and
-`compat:gate` remain green, and the design can prove how routing and registry
-will publish together.
+Exit: focused unit/dry-run/shadow tests pass, existing runtime behavior remains
+unchanged, and `compat:gate` remains green. M10 completion permits an M11
+review only; it does not authorize runtime publication.
 
 ## M11: Limited Outbound Runtime Integration
 

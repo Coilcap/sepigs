@@ -1,6 +1,6 @@
 # Outbound And Inbound Reload Risk Matrix
 
-Status: M9 design review. No row authorizes runtime integration.
+Status: M10 prototype evidence added. No row authorizes runtime integration.
 
 Likelihood and severity are Low, Medium, High, or Critical. Critical severity
 or High/High blocks runtime admission until automated evidence exists.
@@ -46,3 +46,17 @@ or High/High blocks runtime admission until automated evidence exists.
 
 Rollback failure always sets an observable degraded state. A report that omits
 or converts degraded to success is an acceptance failure.
+
+## M10 Prototype Evidence
+
+- O2: rename is emitted as remove plus add, with no implicit in-place identity.
+- O3: missing default and policy references reject the candidate.
+- O4: health snapshots copy by value; changed secret/endpoint identity is
+  classified without exposing values.
+- O6/O7: Shadowsocks/Trojan are medium risk and excluded from M11 assessment.
+- O10/O11: the prototype creates no runtime object/resource, and tests prove
+  the registered factory is not invoked.
+- O1: shadow warns when a removed tag has an active simulated reference.
+
+O1 runtime drain, O5 prober ownership, O8 TCP relay continuity, O9 composite
+publication, O10 rollback, and O11 resource cleanup remain open for M11.

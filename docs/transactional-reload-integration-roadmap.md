@@ -1,8 +1,8 @@
 # Transactional Reload Integration Roadmap
 
 Status: M8.5 DNS runtime integration is implemented behind the explicit
-experimental allow-list. M9 Outbound/Inbound design review is complete;
-M10-M14 remain separately authorized future work.
+experimental allow-list. M9 design and M10 Outbound generation prototype are
+complete; M11-M14 remain separately authorized future work.
 
 ## M7: Router And Policy Decisions
 
@@ -89,9 +89,10 @@ experimental transports remain excluded.
 
 ## M10: Outbound Generation Prototype
 
-M10 may implement immutable registry generations, identity classification,
-references, draining, dry-run, and shadow adapters. It does not switch the
-Engine registry and does not add `outbound` to the runtime allow-list.
+M10 implements immutable registry descriptors, identity/risk classification,
+reference simulation, validation, dry-run, and shadow evidence. It stores no
+live outbound objects, invokes no factory/network path, does not switch the
+Engine registry, and does not add `outbound` to the runtime allow-list.
 
 ## M11: Limited Outbound Runtime
 

@@ -1,5 +1,40 @@
 # SELF REVIEW
 
+## Stage 25 - Phase 20 M10 Outbound Generation Prototype
+
+Completed:
+- Added immutable, redacted outbound generation descriptors, builder/diff,
+  validator, dry-run, shadow simulation, reports, and security checks.
+- Classified core/protocol/experimental risk and modeled old/new generation
+  usage without importing or mutating the production Engine registry.
+- Kept the runtime allow-list and legacy behavior unchanged.
+
+Found:
+- A Proxy-based read-only Map weakened ESLint type guarantees and could expose
+  mutation through reflective access.
+- Parsed config alone cannot prove raw unknown fields were absent before the
+  schema removed them.
+- A report can look redacted while still leaking an exact credential through a
+  less obvious field.
+
+Fixed:
+- Replaced Proxy storage with an explicit `ReadonlyMap` view backed by an
+  ECMAScript private field; generation usage is private as well.
+- Validator rejects unexpected direct/block fields when called with typed or
+  manually constructed values; raw-input validation remains a documented M11
+  consideration.
+- Report generation scans serialized output for every credential value from
+  current/candidate configs, and `security:check` audits checked-in reports.
+
+Remaining risk:
+- No Engine registry pointer, `ManagedConnection`, prober, drain, rollback,
+  resource cleanup, or composite Router/Policy/Outbound publication exists.
+- Shadowsocks/Trojan and all UDP/plugin/experimental outbounds remain outside
+  runtime reload.
+
+Next:
+- Complete all M10 gates. Do not begin M11 without separate authorization.
+
 ## Stage 24 - Phase 20 M8.5 DNS Runtime Integration
 
 Completed:

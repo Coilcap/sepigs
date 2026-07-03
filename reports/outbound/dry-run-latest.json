@@ -1,0 +1,135 @@
+{
+  "generatedAt": "2026-07-03T16:05:53.249Z",
+  "mode": "outbound-generation-prototype-dry-run",
+  "currentConfigPath": "examples/sepigs.json",
+  "candidateConfigPath": "examples/sepigs.safe.json",
+  "currentGeneration": {
+    "id": "outbound-current-0",
+    "configHash": "fde4a6f200672472415922a2664375550377d205a8d436b95c1b00558aaff5a1",
+    "state": "active",
+    "entryCount": 2,
+    "referenceCount": 0,
+    "entries": [
+      {
+        "tag": "direct",
+        "type": "direct",
+        "configHash": "0e36a6fdc81da19fb07420e4265493fe3451528c3601c6adb009e66e57a47ca3",
+        "riskLevel": "low",
+        "experimental": false,
+        "capabilities": {
+          "tcp": true,
+          "udp": true,
+          "stateless": true
+        },
+        "dependencies": [
+          "dns",
+          "policy"
+        ]
+      },
+      {
+        "tag": "block",
+        "type": "block",
+        "configHash": "00af70c288325bcfb7cafdd4f0c92d1f7e5390cafbad703000d30bb8d6ae4c33",
+        "riskLevel": "low",
+        "experimental": false,
+        "capabilities": {
+          "tcp": true,
+          "udp": true,
+          "stateless": true
+        },
+        "dependencies": [
+          "policy"
+        ]
+      }
+    ]
+  },
+  "candidateGeneration": {
+    "id": "outbound-candidate-1",
+    "configHash": "c5b171303c7db6f0e53a7a87a05d3c09b9b1ecdfed44a35dc6e30944f2fc29af",
+    "state": "candidate",
+    "parentGenerationId": "outbound-current-0",
+    "entryCount": 2,
+    "referenceCount": 0,
+    "entries": [
+      {
+        "tag": "direct",
+        "type": "direct",
+        "configHash": "0e36a6fdc81da19fb07420e4265493fe3451528c3601c6adb009e66e57a47ca3",
+        "riskLevel": "low",
+        "experimental": false,
+        "capabilities": {
+          "tcp": true,
+          "udp": true,
+          "stateless": true
+        },
+        "dependencies": [
+          "dns",
+          "policy"
+        ]
+      },
+      {
+        "tag": "block",
+        "type": "block",
+        "configHash": "00af70c288325bcfb7cafdd4f0c92d1f7e5390cafbad703000d30bb8d6ae4c33",
+        "riskLevel": "low",
+        "experimental": false,
+        "capabilities": {
+          "tcp": true,
+          "udp": true,
+          "stateless": true
+        },
+        "dependencies": [
+          "policy"
+        ]
+      }
+    ]
+  },
+  "diff": {
+    "added": [],
+    "removed": [],
+    "modified": [],
+    "renamed": [],
+    "typeChanged": [],
+    "targetChanged": [],
+    "secretChanged": [],
+    "policyReferencedTags": {
+      "direct": [
+        "default"
+      ],
+      "block": [
+        "block-telnet"
+      ]
+    },
+    "missingPolicyReferences": []
+  },
+  "validation": {
+    "errors": [],
+    "warnings": [],
+    "riskSummary": {
+      "low": 2,
+      "medium": 0,
+      "high": 0,
+      "highest": "low"
+    },
+    "requiresRuntimeRestart": false,
+    "unsupportedChanges": []
+  },
+  "m11RuntimeAssessment": {
+    "allowed": true,
+    "reason": "candidate contains only validated direct/block/tcpRelay entries"
+  },
+  "sideEffects": {
+    "runtimeMutated": false,
+    "registryFactoriesInvoked": 0,
+    "outboundInstancesCreated": 0,
+    "networkConnectionsOpened": 0,
+    "listenersOpened": 0,
+    "connectionsClosed": 0
+  },
+  "secretRedaction": {
+    "status": "passed",
+    "checkedSecretFields": 0,
+    "leakedValues": 0,
+    "changedSecretsRenderedAs": "[REDACTED]"
+  }
+}
