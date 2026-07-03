@@ -1,0 +1,57 @@
+{
+  "generatedAt": "2026-07-03T01:19:41.414Z",
+  "mode": "transactional-experimental",
+  "transactionId": "runtime-reload-1783041581409-1",
+  "transactionState": "committed",
+  "components": [
+    {
+      "name": "router",
+      "prepared": true,
+      "committed": true,
+      "rolledBack": false
+    },
+    {
+      "name": "policy",
+      "prepared": true,
+      "committed": true,
+      "rolledBack": false
+    }
+  ],
+  "generations": {
+    "router": {
+      "old": "runtime-routing-0-router",
+      "active": "runtime-control-1-router",
+      "switched": true
+    },
+    "policy": {
+      "old": "runtime-routing-0-policy",
+      "active": "runtime-control-1-policy",
+      "switched": true
+    }
+  },
+  "connectionChecks": {
+    "oldDecisionBeforeReload": "direct",
+    "oldDecisionAfterReload": "direct",
+    "establishedConnectionSurvived": true,
+    "newDecisionAfterReload": "block",
+    "rejectedHttpStatus": 403
+  },
+  "sideEffects": {
+    "connectionsClosedByReload": 0,
+    "listenersChanged": 0,
+    "dnsChanged": false,
+    "fakeIpChanged": false
+  },
+  "metricsChecks": {
+    "routerGenerationExposed": true,
+    "policyGenerationExposed": true
+  },
+  "resourceCleanup": {
+    "transactionCleanupCompleted": true,
+    "cleanupErrors": 0,
+    "activeConnections": 0,
+    "activeSockets": 0,
+    "activeTimers": 0,
+    "activeListeners": 0
+  }
+}

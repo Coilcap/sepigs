@@ -6,18 +6,21 @@ M5 connects the transaction executor to the Metrics and Dashboard control
 plane only. The default remains `legacy`, and the existing reload path remains
 available unchanged.
 
-## M6 Guardrail
+## M7 Boundary Update
 
-After the M6 design review, the runtime allow-list is still exactly:
+M5 itself remains the Metrics/Dashboard control-plane integration. M7 extends
+the explicit experimental allow-list with:
 
 - `metrics`
 - `dashboard`
+- `router`
+- `policy`
 
-Router, policy/prober, DNS, fake-IP, outbound registry, inbound listeners, UDP
-sessions, connection manager, plugins, remote plugin RPC, and WASM remain
-rejected or legacy-only. M6 documentation does not authorize a schema or
-runtime allow-list change. The next expansion requires explicit M7
-authorization and its tests before code integration.
+Router and policy publication changes only decisions for new connection
+setup. Established streams retain their already selected outbound. DNS,
+fake-IP, outbound registry, inbound listeners, UDP sessions, connection
+manager, plugins, remote plugin RPC, and WASM remain rejected or legacy-only.
+See `transactional-reload-runtime-m7.md` for the M7 ownership boundary.
 
 ## Enable
 
@@ -47,9 +50,9 @@ The checked-in example keeps Dashboard disabled and contains no usable
 credential. The smoke runner enables Dashboard only in memory with an
 ephemeral test token, then destroys the server during teardown.
 
-Transactional mode accepts only Metrics and Dashboard changes in M5. A mixed
-DNS, route, outbound, inbound, plugin, worker, connection, fake-IP, UDP, or
-other data-plane change is rejected before preparation. There is no automatic
+Transactional mode accepts only explicitly enabled M5/M7 components. A mixed
+DNS, outbound, inbound, plugin, worker, connection, fake-IP, UDP, or other
+unsupported change is rejected before preparation. There is no automatic
 legacy fallback after transaction failure because running both paths could
 repeat side effects.
 
@@ -82,6 +85,8 @@ Transactional mode adds:
 - `sepigs_reload_component_prepare_duration_ms`
 - `sepigs_reload_component_commit_duration_ms`
 - `sepigs_reload_component_rollback_total`
+- `sepigs_reload_active_router_generation_id`
+- `sepigs_reload_active_policy_generation_id`
 
 Transaction IDs, generation IDs, config values, tokens, and failure text are
 not metric labels. Duration sample storage is bounded to 256 entries. Legacy
@@ -99,7 +104,7 @@ mode does not expose these metrics.
 
 ## Known Limits
 
-- This is experimental, not a complete atomic Engine generation switch.
+- This is experimental, not a complete whole-Engine generation switch.
 - Concurrent reload serialization remains outside M5.
 - Inbound, outbound registry, DNS, fake-IP, plugins, policy/prober, connection
   manager, and UDP session manager are not transactional.

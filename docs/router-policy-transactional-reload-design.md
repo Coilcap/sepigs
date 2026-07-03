@@ -1,6 +1,7 @@
 # Router And Policy Transactional Reload Design
 
-Status: M7 candidate design only. M6 does not implement or enable it.
+Status: M7 experimental runtime integration implemented. It remains
+default-off and affects new connection decisions only.
 
 ## Scope And Invariants
 
@@ -78,9 +79,10 @@ ordered member list are identical. Otherwise they reset to zero. Failover
 ordering comes from candidate config, while health values follow outbound
 identity.
 
-Active probes write to the generation that scheduled them. A late old probe
-must not mutate candidate health. Candidate probing starts only after commit;
-old probing stops scheduling at commit and drains bounded in-flight work.
+M7 does not schedule, stop, or mutate active probes. Prepare copies the
+current health values by value into the candidate policy generation. Later
+updates to either policy manager cannot mutate the other snapshot. Active
+prober lifecycle integration remains outside M7.
 
 ## Commit And Rollback
 
@@ -106,7 +108,16 @@ show that a new connection follows the candidate while the old stream remains
 usable. A forced candidate failure must keep both old and new connection
 attempts on the old route.
 
-The M7 soak should run repeated valid/invalid route and policy candidates under
+The checked-in M7 smoke holds a real HTTP CONNECT stream across publication,
+then proves that a new connection follows the candidate block route:
+
+```bash
+npm run reload:runtime-smoke:m7 -- \
+  --config examples/sepigs.transactional-router-policy.experimental.json
+```
+
+Evidence is written to `reports/reload/runtime-smoke-m7-latest.json` and
+`.md`. The broader M7 soak should run repeated valid/invalid route and policy candidates under
 continuous HTTP and SOCKS connection creation, active probes, and failover.
 It must report zero killed established streams, zero mixed-generation
 decisions, bounded generation retention, and final resources at zero.

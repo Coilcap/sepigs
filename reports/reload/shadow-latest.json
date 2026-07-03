@@ -1,14 +1,14 @@
 {
-  "generatedAt": "2026-07-01T23:17:10.222Z",
+  "generatedAt": "2026-07-03T01:19:10.278Z",
   "mode": "shadow-prototype",
   "currentConfigPath": "examples/sepigs.json",
   "candidateConfigPath": "examples/sepigs.safe.json",
   "plan": {
-    "generatedAt": "2026-07-01T23:17:10.220Z",
+    "generatedAt": "2026-07-03T01:19:10.276Z",
     "currentConfigPath": "examples/sepigs.json",
     "candidateConfigPath": "examples/sepigs.safe.json",
-    "currentConfigHash": "b58760627c4196ca7149f48366d9ab81142e9a8f962598316c755a4766736eac",
-    "candidateConfigHash": "6bc71002c57f48733c9ddca7c87dfc9d6b59844544be5793a08f35871d6618c0",
+    "currentConfigHash": "5670a5d750bfc1392d314091ff77c3bbf9931c79aba01748ab977e8c48c5dc60",
+    "candidateConfigHash": "b48e74e8e82e0d049469226071c9617335e42624ecd57eecde9d5dccf0d20022",
     "configHashScope": "run-local-hmac",
     "changedComponents": [
       "router",
@@ -125,27 +125,27 @@
   "execution": {
     "success": true,
     "transaction": {
-      "id": "shadow-83a082f7-79ab-4e9b-a144-9fe4701f4ad8",
+      "id": "shadow-48572128-ed77-4253-8d69-3cb14e4961ff",
       "oldGeneration": {
-        "id": "shadow-old-b58760627c41",
-        "createdAt": 1782947830220,
-        "configHash": "b58760627c4196ca7149f48366d9ab81142e9a8f962598316c755a4766736eac",
+        "id": "shadow-old-5670a5d750bf",
+        "createdAt": 1783041550277,
+        "configHash": "5670a5d750bfc1392d314091ff77c3bbf9931c79aba01748ab977e8c48c5dc60",
         "state": "active",
         "components": [],
         "resources": []
       },
       "candidateGeneration": {
-        "id": "shadow-candidate-6bc71002c57f",
-        "createdAt": 1782947830220,
-        "configHash": "6bc71002c57f48733c9ddca7c87dfc9d6b59844544be5793a08f35871d6618c0",
+        "id": "shadow-candidate-b48e74e8e82e",
+        "createdAt": 1783041550277,
+        "configHash": "b48e74e8e82e0d049469226071c9617335e42624ecd57eecde9d5dccf0d20022",
         "state": "candidate",
         "components": [],
         "resources": [],
-        "parentGenerationId": "shadow-old-b58760627c41"
+        "parentGenerationId": "shadow-old-5670a5d750bf"
       },
       "state": "committed",
-      "startedAt": 1782947830221,
-      "completedAt": 1782947830222
+      "startedAt": 1783041550277,
+      "completedAt": 1783041550278
     },
     "componentErrors": [],
     "preparedComponents": [
@@ -161,213 +161,213 @@
     "events": [
       {
         "type": "transaction.started",
-        "timestamp": "2026-07-01T23:17:10.221Z",
-        "transactionId": "shadow-83a082f7-79ab-4e9b-a144-9fe4701f4ad8",
-        "generationId": "shadow-candidate-6bc71002c57f"
+        "timestamp": "2026-07-03T01:19:10.277Z",
+        "transactionId": "shadow-48572128-ed77-4253-8d69-3cb14e4961ff",
+        "generationId": "shadow-candidate-b48e74e8e82e"
       },
       {
         "type": "transaction.phase.started",
-        "timestamp": "2026-07-01T23:17:10.221Z",
-        "transactionId": "shadow-83a082f7-79ab-4e9b-a144-9fe4701f4ad8",
-        "generationId": "shadow-candidate-6bc71002c57f",
+        "timestamp": "2026-07-03T01:19:10.277Z",
+        "transactionId": "shadow-48572128-ed77-4253-8d69-3cb14e4961ff",
+        "generationId": "shadow-candidate-b48e74e8e82e",
         "phase": "parse"
       },
       {
         "type": "transaction.phase.completed",
-        "timestamp": "2026-07-01T23:17:10.221Z",
-        "transactionId": "shadow-83a082f7-79ab-4e9b-a144-9fe4701f4ad8",
-        "generationId": "shadow-candidate-6bc71002c57f",
+        "timestamp": "2026-07-03T01:19:10.277Z",
+        "transactionId": "shadow-48572128-ed77-4253-8d69-3cb14e4961ff",
+        "generationId": "shadow-candidate-b48e74e8e82e",
         "phase": "parse",
         "durationMs": 0
       },
       {
         "type": "transaction.phase.started",
-        "timestamp": "2026-07-01T23:17:10.221Z",
-        "transactionId": "shadow-83a082f7-79ab-4e9b-a144-9fe4701f4ad8",
-        "generationId": "shadow-candidate-6bc71002c57f",
+        "timestamp": "2026-07-03T01:19:10.277Z",
+        "transactionId": "shadow-48572128-ed77-4253-8d69-3cb14e4961ff",
+        "generationId": "shadow-candidate-b48e74e8e82e",
         "phase": "validate"
       },
       {
         "type": "transaction.phase.completed",
-        "timestamp": "2026-07-01T23:17:10.221Z",
-        "transactionId": "shadow-83a082f7-79ab-4e9b-a144-9fe4701f4ad8",
-        "generationId": "shadow-candidate-6bc71002c57f",
+        "timestamp": "2026-07-03T01:19:10.278Z",
+        "transactionId": "shadow-48572128-ed77-4253-8d69-3cb14e4961ff",
+        "generationId": "shadow-candidate-b48e74e8e82e",
         "phase": "validate",
-        "durationMs": 0
+        "durationMs": 1
       },
       {
         "type": "transaction.phase.started",
-        "timestamp": "2026-07-01T23:17:10.222Z",
-        "transactionId": "shadow-83a082f7-79ab-4e9b-a144-9fe4701f4ad8",
-        "generationId": "shadow-candidate-6bc71002c57f",
+        "timestamp": "2026-07-03T01:19:10.278Z",
+        "transactionId": "shadow-48572128-ed77-4253-8d69-3cb14e4961ff",
+        "generationId": "shadow-candidate-b48e74e8e82e",
         "phase": "prepare"
       },
       {
         "type": "component.prepare.started",
-        "timestamp": "2026-07-01T23:17:10.222Z",
-        "transactionId": "shadow-83a082f7-79ab-4e9b-a144-9fe4701f4ad8",
-        "generationId": "shadow-candidate-6bc71002c57f",
+        "timestamp": "2026-07-03T01:19:10.278Z",
+        "transactionId": "shadow-48572128-ed77-4253-8d69-3cb14e4961ff",
+        "generationId": "shadow-candidate-b48e74e8e82e",
         "component": "router",
         "phase": "prepare"
       },
       {
         "type": "component.prepare.completed",
-        "timestamp": "2026-07-01T23:17:10.222Z",
-        "transactionId": "shadow-83a082f7-79ab-4e9b-a144-9fe4701f4ad8",
-        "generationId": "shadow-candidate-6bc71002c57f",
+        "timestamp": "2026-07-03T01:19:10.278Z",
+        "transactionId": "shadow-48572128-ed77-4253-8d69-3cb14e4961ff",
+        "generationId": "shadow-candidate-b48e74e8e82e",
         "component": "router",
         "phase": "prepare",
         "durationMs": 0
       },
       {
         "type": "component.prepare.started",
-        "timestamp": "2026-07-01T23:17:10.222Z",
-        "transactionId": "shadow-83a082f7-79ab-4e9b-a144-9fe4701f4ad8",
-        "generationId": "shadow-candidate-6bc71002c57f",
+        "timestamp": "2026-07-03T01:19:10.278Z",
+        "transactionId": "shadow-48572128-ed77-4253-8d69-3cb14e4961ff",
+        "generationId": "shadow-candidate-b48e74e8e82e",
         "component": "policy-prober",
         "phase": "prepare"
       },
       {
         "type": "component.prepare.completed",
-        "timestamp": "2026-07-01T23:17:10.222Z",
-        "transactionId": "shadow-83a082f7-79ab-4e9b-a144-9fe4701f4ad8",
-        "generationId": "shadow-candidate-6bc71002c57f",
+        "timestamp": "2026-07-03T01:19:10.278Z",
+        "transactionId": "shadow-48572128-ed77-4253-8d69-3cb14e4961ff",
+        "generationId": "shadow-candidate-b48e74e8e82e",
         "component": "policy-prober",
         "phase": "prepare",
         "durationMs": 0
       },
       {
         "type": "component.prepare.started",
-        "timestamp": "2026-07-01T23:17:10.222Z",
-        "transactionId": "shadow-83a082f7-79ab-4e9b-a144-9fe4701f4ad8",
-        "generationId": "shadow-candidate-6bc71002c57f",
+        "timestamp": "2026-07-03T01:19:10.278Z",
+        "transactionId": "shadow-48572128-ed77-4253-8d69-3cb14e4961ff",
+        "generationId": "shadow-candidate-b48e74e8e82e",
         "component": "metrics-server",
         "phase": "prepare"
       },
       {
         "type": "component.prepare.completed",
-        "timestamp": "2026-07-01T23:17:10.222Z",
-        "transactionId": "shadow-83a082f7-79ab-4e9b-a144-9fe4701f4ad8",
-        "generationId": "shadow-candidate-6bc71002c57f",
+        "timestamp": "2026-07-03T01:19:10.278Z",
+        "transactionId": "shadow-48572128-ed77-4253-8d69-3cb14e4961ff",
+        "generationId": "shadow-candidate-b48e74e8e82e",
         "component": "metrics-server",
         "phase": "prepare",
         "durationMs": 0
       },
       {
         "type": "transaction.phase.completed",
-        "timestamp": "2026-07-01T23:17:10.222Z",
-        "transactionId": "shadow-83a082f7-79ab-4e9b-a144-9fe4701f4ad8",
-        "generationId": "shadow-candidate-6bc71002c57f",
+        "timestamp": "2026-07-03T01:19:10.278Z",
+        "transactionId": "shadow-48572128-ed77-4253-8d69-3cb14e4961ff",
+        "generationId": "shadow-candidate-b48e74e8e82e",
         "phase": "prepare",
         "durationMs": 0
       },
       {
         "type": "transaction.phase.started",
-        "timestamp": "2026-07-01T23:17:10.222Z",
-        "transactionId": "shadow-83a082f7-79ab-4e9b-a144-9fe4701f4ad8",
-        "generationId": "shadow-candidate-6bc71002c57f",
+        "timestamp": "2026-07-03T01:19:10.278Z",
+        "transactionId": "shadow-48572128-ed77-4253-8d69-3cb14e4961ff",
+        "generationId": "shadow-candidate-b48e74e8e82e",
         "phase": "health"
       },
       {
         "type": "transaction.phase.completed",
-        "timestamp": "2026-07-01T23:17:10.222Z",
-        "transactionId": "shadow-83a082f7-79ab-4e9b-a144-9fe4701f4ad8",
-        "generationId": "shadow-candidate-6bc71002c57f",
+        "timestamp": "2026-07-03T01:19:10.278Z",
+        "transactionId": "shadow-48572128-ed77-4253-8d69-3cb14e4961ff",
+        "generationId": "shadow-candidate-b48e74e8e82e",
         "phase": "health",
         "durationMs": 0
       },
       {
         "type": "transaction.phase.started",
-        "timestamp": "2026-07-01T23:17:10.222Z",
-        "transactionId": "shadow-83a082f7-79ab-4e9b-a144-9fe4701f4ad8",
-        "generationId": "shadow-candidate-6bc71002c57f",
+        "timestamp": "2026-07-03T01:19:10.278Z",
+        "transactionId": "shadow-48572128-ed77-4253-8d69-3cb14e4961ff",
+        "generationId": "shadow-candidate-b48e74e8e82e",
         "phase": "commit"
       },
       {
         "type": "component.commit.started",
-        "timestamp": "2026-07-01T23:17:10.222Z",
-        "transactionId": "shadow-83a082f7-79ab-4e9b-a144-9fe4701f4ad8",
-        "generationId": "shadow-candidate-6bc71002c57f",
+        "timestamp": "2026-07-03T01:19:10.278Z",
+        "transactionId": "shadow-48572128-ed77-4253-8d69-3cb14e4961ff",
+        "generationId": "shadow-candidate-b48e74e8e82e",
         "component": "router",
         "phase": "commit"
       },
       {
         "type": "component.commit.completed",
-        "timestamp": "2026-07-01T23:17:10.222Z",
-        "transactionId": "shadow-83a082f7-79ab-4e9b-a144-9fe4701f4ad8",
-        "generationId": "shadow-candidate-6bc71002c57f",
+        "timestamp": "2026-07-03T01:19:10.278Z",
+        "transactionId": "shadow-48572128-ed77-4253-8d69-3cb14e4961ff",
+        "generationId": "shadow-candidate-b48e74e8e82e",
         "component": "router",
         "phase": "commit",
         "durationMs": 0
       },
       {
         "type": "component.commit.started",
-        "timestamp": "2026-07-01T23:17:10.222Z",
-        "transactionId": "shadow-83a082f7-79ab-4e9b-a144-9fe4701f4ad8",
-        "generationId": "shadow-candidate-6bc71002c57f",
+        "timestamp": "2026-07-03T01:19:10.278Z",
+        "transactionId": "shadow-48572128-ed77-4253-8d69-3cb14e4961ff",
+        "generationId": "shadow-candidate-b48e74e8e82e",
         "component": "policy-prober",
         "phase": "commit"
       },
       {
         "type": "component.commit.completed",
-        "timestamp": "2026-07-01T23:17:10.222Z",
-        "transactionId": "shadow-83a082f7-79ab-4e9b-a144-9fe4701f4ad8",
-        "generationId": "shadow-candidate-6bc71002c57f",
+        "timestamp": "2026-07-03T01:19:10.278Z",
+        "transactionId": "shadow-48572128-ed77-4253-8d69-3cb14e4961ff",
+        "generationId": "shadow-candidate-b48e74e8e82e",
         "component": "policy-prober",
         "phase": "commit",
         "durationMs": 0
       },
       {
         "type": "component.commit.started",
-        "timestamp": "2026-07-01T23:17:10.222Z",
-        "transactionId": "shadow-83a082f7-79ab-4e9b-a144-9fe4701f4ad8",
-        "generationId": "shadow-candidate-6bc71002c57f",
+        "timestamp": "2026-07-03T01:19:10.278Z",
+        "transactionId": "shadow-48572128-ed77-4253-8d69-3cb14e4961ff",
+        "generationId": "shadow-candidate-b48e74e8e82e",
         "component": "metrics-server",
         "phase": "commit"
       },
       {
         "type": "component.commit.completed",
-        "timestamp": "2026-07-01T23:17:10.222Z",
-        "transactionId": "shadow-83a082f7-79ab-4e9b-a144-9fe4701f4ad8",
-        "generationId": "shadow-candidate-6bc71002c57f",
+        "timestamp": "2026-07-03T01:19:10.278Z",
+        "transactionId": "shadow-48572128-ed77-4253-8d69-3cb14e4961ff",
+        "generationId": "shadow-candidate-b48e74e8e82e",
         "component": "metrics-server",
         "phase": "commit",
         "durationMs": 0
       },
       {
         "type": "transaction.phase.completed",
-        "timestamp": "2026-07-01T23:17:10.222Z",
-        "transactionId": "shadow-83a082f7-79ab-4e9b-a144-9fe4701f4ad8",
-        "generationId": "shadow-candidate-6bc71002c57f",
+        "timestamp": "2026-07-03T01:19:10.278Z",
+        "transactionId": "shadow-48572128-ed77-4253-8d69-3cb14e4961ff",
+        "generationId": "shadow-candidate-b48e74e8e82e",
         "phase": "commit",
         "durationMs": 0
       },
       {
         "type": "transaction.committed",
-        "timestamp": "2026-07-01T23:17:10.222Z",
-        "transactionId": "shadow-83a082f7-79ab-4e9b-a144-9fe4701f4ad8",
-        "generationId": "shadow-candidate-6bc71002c57f"
+        "timestamp": "2026-07-03T01:19:10.278Z",
+        "transactionId": "shadow-48572128-ed77-4253-8d69-3cb14e4961ff",
+        "generationId": "shadow-candidate-b48e74e8e82e"
       },
       {
         "type": "transaction.phase.started",
-        "timestamp": "2026-07-01T23:17:10.222Z",
-        "transactionId": "shadow-83a082f7-79ab-4e9b-a144-9fe4701f4ad8",
-        "generationId": "shadow-candidate-6bc71002c57f",
+        "timestamp": "2026-07-03T01:19:10.278Z",
+        "transactionId": "shadow-48572128-ed77-4253-8d69-3cb14e4961ff",
+        "generationId": "shadow-candidate-b48e74e8e82e",
         "phase": "cleanup"
       },
       {
         "type": "transaction.phase.completed",
-        "timestamp": "2026-07-01T23:17:10.222Z",
-        "transactionId": "shadow-83a082f7-79ab-4e9b-a144-9fe4701f4ad8",
-        "generationId": "shadow-candidate-6bc71002c57f",
+        "timestamp": "2026-07-03T01:19:10.278Z",
+        "transactionId": "shadow-48572128-ed77-4253-8d69-3cb14e4961ff",
+        "generationId": "shadow-candidate-b48e74e8e82e",
         "phase": "cleanup",
         "durationMs": 0
       },
       {
         "type": "transaction.cleaned_up",
-        "timestamp": "2026-07-01T23:17:10.222Z",
-        "transactionId": "shadow-83a082f7-79ab-4e9b-a144-9fe4701f4ad8",
-        "generationId": "shadow-candidate-6bc71002c57f"
+        "timestamp": "2026-07-03T01:19:10.278Z",
+        "transactionId": "shadow-48572128-ed77-4253-8d69-3cb14e4961ff",
+        "generationId": "shadow-candidate-b48e74e8e82e"
       }
     ],
     "metrics": {
@@ -376,6 +376,9 @@
       "failure": 0,
       "rollback": 0,
       "componentRollback": {},
+      "transactionDurations": [
+        1
+      ],
       "prepareDurations": [
         {
           "component": "router",
@@ -404,7 +407,7 @@
           "durationMs": 0
         }
       ],
-      "currentGeneration": "shadow-candidate-6bc71002c57f"
+      "currentGeneration": "shadow-candidate-b48e74e8e82e"
     }
   },
   "adapterBoundaries": [

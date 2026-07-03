@@ -3,6 +3,7 @@ import net from "node:net";
 import type {
   DashboardConfig,
   MetricsServerConfig,
+  RoutingPolicyConfig,
   SepigsConfig,
   TransactionalReloadComponent
 } from "../../src/config/types.js";
@@ -15,6 +16,8 @@ export interface RuntimeConfigOptions {
   readonly mode?: "legacy" | "transactional-experimental";
   readonly enabledComponents?: readonly TransactionalReloadComponent[];
   readonly routeSuffix?: string;
+  readonly defaultOutbound?: string;
+  readonly policies?: readonly RoutingPolicyConfig[];
 }
 
 export const runtimeConfig = (options: RuntimeConfigOptions = {}): SepigsConfig =>
@@ -54,10 +57,11 @@ export const runtimeConfig = (options: RuntimeConfigOptions = {}): SepigsConfig 
       { type: "block", tag: "block" }
     ],
     route: {
-      defaultOutbound: "direct",
+      defaultOutbound: options.defaultOutbound ?? "direct",
       rules: options.routeSuffix === undefined
         ? []
-        : [{ domainSuffix: [options.routeSuffix], outboundTag: "block" }]
+        : [{ domainSuffix: [options.routeSuffix], outboundTag: "block" }],
+      policies: options.policies ?? []
     }
   });
 

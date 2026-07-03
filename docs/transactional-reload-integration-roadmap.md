@@ -1,10 +1,11 @@
 # Transactional Reload Integration Roadmap
 
-Status: M6 planning only. No M7-M11 component is enabled by this document.
+Status: M7 Router/Policy runtime integration is implemented behind the
+explicit experimental allow-list. M8-M11 remain unimplemented plans.
 
 ## M7: Router And Policy Decisions
 
-Allow-list proposal:
+Implemented allow-list:
 
 - router;
 - policy graph;
@@ -15,10 +16,10 @@ Prohibited:
 - DNS, fake-IP, outbound object replacement, inbound listeners, UDP sessions,
   connection manager, plugins, WASM, and plugin RPC.
 
-Rollback must retain one old immutable router/policy generation and restore it
+Rollback retains one old immutable router/policy generation and restores it
 with one pointer publication. Existing connections must not be migrated or
-closed. Smoke must prove a new connection uses a candidate route while an
-established stream remains alive. Soak must run mixed route changes and
+closed. The M7 smoke proves a new connection uses a candidate route while an
+established stream remains alive. A future soak must run mixed route changes and
 injected invalid candidates under continuous HTTP/SOCKS traffic. The
 compatibility gate must remain at least 44 verified and zero failed.
 
@@ -131,5 +132,6 @@ Every stage requires:
    checks;
 7. updated reality check and no production-stable claim.
 
-M6 authorizes planning only. The next allow-list change requires explicit M7
-authorization and must not be inferred from a green shadow report.
+M7 authorizes only Router, Policy, and read-only health carry-over. The next
+allow-list change requires explicit M8 authorization and must not be inferred
+from a green M7 smoke report.

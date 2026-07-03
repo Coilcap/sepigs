@@ -11,6 +11,10 @@ export interface MetricsSnapshot {
   readonly gc: GcSnapshot;
   readonly memory: NodeJS.MemoryUsage;
   readonly reload?: ReloadMetricsSnapshot;
+  readonly routingGenerations?: {
+    readonly router: number;
+    readonly policy: number;
+  };
 }
 
 const metric = (name: string, value: number, help: string): string => {
@@ -22,7 +26,7 @@ const counter = (name: string, value: number, help: string): string => {
 };
 
 export const renderPrometheusMetrics = (snapshot: MetricsSnapshot): string => {
-  const { stats, leaks, eventLoop, gc, memory, reload } = snapshot;
+  const { stats, leaks, eventLoop, gc, memory, reload, routingGenerations } = snapshot;
   const metrics = [
     metric("sepigs_uptime_seconds", stats.uptimeMs / 1_000, "Sepigs process uptime in seconds."),
     counter("sepigs_connections_total", stats.totalConnections, "Total accepted connections."),
@@ -54,6 +58,20 @@ export const renderPrometheusMetrics = (snapshot: MetricsSnapshot): string => {
     counter("sepigs_gc_duration_ms_total", gc.totalDurationMs, "Total observed GC duration in milliseconds.")
   ];
   if (reload !== undefined) metrics.push(...renderReloadMetrics(reload));
+  if (routingGenerations !== undefined) {
+    metrics.push(
+      metric(
+        "sepigs_reload_active_router_generation_id",
+        routingGenerations.router,
+        "Active experimental router generation sequence."
+      ),
+      metric(
+        "sepigs_reload_active_policy_generation_id",
+        routingGenerations.policy,
+        "Active experimental policy generation sequence."
+      )
+    );
+  }
   return metrics.join("\n\n") + "\n";
 };
 

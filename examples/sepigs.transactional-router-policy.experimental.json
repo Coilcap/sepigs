@@ -1,0 +1,63 @@
+{
+  "configVersion": 1,
+  "log": {
+    "level": "info"
+  },
+  "reload": {
+    "mode": "transactional-experimental",
+    "transactional": {
+      "enabledComponents": ["router", "policy"],
+      "timeoutMs": 5000,
+      "shadowBeforeCommit": true,
+      "rollbackOnFailure": true
+    }
+  },
+  "observability": {
+    "metrics": {
+      "enabled": true,
+      "listen": "127.0.0.1",
+      "port": 0,
+      "path": "/metrics"
+    }
+  },
+  "dashboard": {
+    "enabled": false,
+    "listen": "127.0.0.1",
+    "port": 0,
+    "token": "change-me",
+    "rateLimitPerMinute": 120,
+    "cors": false
+  },
+  "inbounds": [
+    {
+      "type": "http",
+      "tag": "http-in",
+      "listen": "127.0.0.1",
+      "port": 0
+    }
+  ],
+  "outbounds": [
+    {
+      "type": "direct",
+      "tag": "direct"
+    },
+    {
+      "type": "block",
+      "tag": "block"
+    }
+  ],
+  "route": {
+    "defaultOutbound": "block",
+    "rules": [],
+    "policies": [
+      {
+        "tag": "automatic",
+        "type": "loadBalance",
+        "outbounds": ["direct", "block"],
+        "strategy": "leastLatency",
+        "unhealthyAfterFailures": 3,
+        "recoverAfterMs": 30000
+      }
+    ]
+  }
+}

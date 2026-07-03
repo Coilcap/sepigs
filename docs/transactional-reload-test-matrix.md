@@ -1,7 +1,7 @@
 # Transactional Reload Test Matrix
 
-Status: M6 gate definition for M7-M11. No row is evidence that the component is
-currently enabled.
+Status: M7 Router/Policy unit, rollback, runtime, metrics, and loopback smoke
+evidence is implemented. M8-M11 rows remain future gates.
 
 ## Required Evidence By Component
 
@@ -35,7 +35,8 @@ Required scenarios:
 
 Minimum soak: one hour of mixed valid/invalid reloads with continuous
 HTTP/SOCKS connections, policy selection, and probes. Error and resource
-budgets must be specified before execution.
+budgets must be specified before execution. This soak is not part of the M7
+runtime smoke claim and has not been recorded as completed.
 
 ## M8 DNS And Fake-IP Shadow
 

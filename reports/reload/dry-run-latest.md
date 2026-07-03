@@ -1,10 +1,10 @@
 # Reload Dry-Run Plan
 
-- Generated: 2026-07-01T17:24:33.362Z
+- Generated: 2026-07-03T01:19:02.386Z
 - Current config: `examples/sepigs.json`
 - Candidate config: `examples/sepigs.safe.json`
-- Current hash: `160dc87551519ee89bf8c67be7f08ce096a21b9219f9eda2a46ea47980435d7b`
-- Candidate hash: `a670e69df0b2b02abb45754bc2ae0f44df1f990e62ee7543f6761966d74854b0`
+- Current hash: `eae5f653cec03a46c1ab87e190ad5412bea9a0311df0b57550a3052b2757dede`
+- Candidate hash: `e4b040605dbed8ab75fddccacc2088180d50a3fdd82bcd9be92c8a895d531c29`
 - Hash scope: run-local keyed HMAC; values are not comparable across runs
 - Changed components: router, policy-prober, metrics-server
 - Runtime mutated: no

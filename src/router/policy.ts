@@ -44,7 +44,19 @@ export class RoutingPolicyManager {
   private readonly health = new Map<string, OutboundHealth>();
   private readonly roundRobinIndex = new Map<string, number>();
 
-  public constructor(policies: readonly RoutingPolicyConfig[]) {
+  public constructor(
+    policies: readonly RoutingPolicyConfig[],
+    initialHealth: readonly OutboundHealthSnapshot[] = []
+  ) {
+    for (const snapshot of initialHealth) {
+      this.health.set(snapshot.tag, {
+        tag: snapshot.tag,
+        failures: snapshot.failures,
+        lastFailureAt: snapshot.lastFailureAt,
+        latencyEwmaMs: snapshot.latencyEwmaMs,
+        successes: snapshot.successes
+      });
+    }
     this.reload(policies);
   }
 

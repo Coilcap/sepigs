@@ -6,14 +6,22 @@ import type { Logger } from "../logger/logger.js";
 import { ConfigError } from "../utils/errors.js";
 import { DashboardRuntimeAdapter, type DashboardRuntimeHost } from "./adapters/dashboardRuntimeAdapter.js";
 import { MetricsRuntimeAdapter, type MetricsRuntimeHost } from "./adapters/metricsRuntimeAdapter.js";
+import { PolicyRuntimeAdapter } from "./adapters/policyRuntimeAdapter.js";
+import {
+  RouterRuntimeAdapter,
+  type RouterPolicyRuntimeHost
+} from "./adapters/routerRuntimeAdapter.js";
 import { createDashboardReloadAdapter } from "./adapters/dashboardAdapter.js";
 import { createMetricsReloadAdapter } from "./adapters/metricsAdapter.js";
+import { createProberReloadAdapter } from "./adapters/proberAdapter.js";
+import { createRouterReloadAdapter } from "./adapters/routerAdapter.js";
 import type { ReloadableComponent } from "./contract.js";
 import { ReloadExecutor, type ReloadExecutionResult } from "./executor.js";
 import { createReloadGeneration } from "./generation.js";
 import { ReloadMetrics, type ReloadMetricsSnapshot } from "./metrics.js";
 
-export interface RuntimeReloadHost extends MetricsRuntimeHost, DashboardRuntimeHost {
+export interface RuntimeReloadHost
+  extends MetricsRuntimeHost, DashboardRuntimeHost, RouterPolicyRuntimeHost {
   commitRuntimeConfig(config: SepigsConfig): void;
 }
 
@@ -24,10 +32,17 @@ export interface RuntimeReloadOutcome {
   readonly execution: ReloadExecutionResult;
   readonly shadowExecution?: ReloadExecutionResult;
   readonly runtimeSideEffects: {
-    readonly dataPlaneMutated: false;
+    readonly dataPlaneMutated: boolean;
+    readonly routingDecisionChanged: boolean;
     readonly legacyFallbackUsed: false;
     readonly metricsChanged: boolean;
     readonly dashboardChanged: boolean;
+    readonly routerChanged: boolean;
+    readonly policyChanged: boolean;
+    readonly connectionsClosed: 0;
+    readonly listenersChanged: 0;
+    readonly dnsChanged: false;
+    readonly fakeIpChanged: false;
   };
   readonly resourceCleanup: {
     readonly completed: boolean;
@@ -49,8 +64,8 @@ export class RuntimeReloadIntegration {
     if (candidate.reload.mode !== "transactional-experimental") {
       throw new ConfigError("runtime transactional integration requires transactional-experimental mode");
     }
-    assertControlPlaneOnlyChange(previous, candidate);
-    const changedComponents = changedControlPlaneComponents(previous, candidate);
+    assertM7SupportedChange(previous, candidate);
+    const changedComponents = changedRuntimeComponents(previous, candidate);
     const enabledComponents = new Set(candidate.reload.transactional.enabledComponents);
     for (const component of changedComponents) {
       if (!enabledComponents.has(component)) {
@@ -105,10 +120,19 @@ export class RuntimeReloadIntegration {
       execution,
       ...(shadowExecution === undefined ? {} : { shadowExecution }),
       runtimeSideEffects: {
-        dataPlaneMutated: false,
+        dataPlaneMutated:
+          changedComponents.includes("router") || changedComponents.includes("policy"),
+        routingDecisionChanged:
+          changedComponents.includes("router") || changedComponents.includes("policy"),
         legacyFallbackUsed: false,
         metricsChanged: changedComponents.includes("metrics"),
-        dashboardChanged: changedComponents.includes("dashboard")
+        dashboardChanged: changedComponents.includes("dashboard"),
+        routerChanged: changedComponents.includes("router"),
+        policyChanged: changedComponents.includes("policy"),
+        connectionsClosed: 0,
+        listenersChanged: 0,
+        dnsChanged: false,
+        fakeIpChanged: false
       },
       resourceCleanup: {
         completed: execution.events.at(-1)?.type === "transaction.cleaned_up",
@@ -152,6 +176,16 @@ const createRuntimeComponents = (
   const components: ReloadableComponent[] = [];
   if (changed.includes("metrics")) components.push(new MetricsRuntimeAdapter(host));
   if (changed.includes("dashboard")) components.push(new DashboardRuntimeAdapter(host));
+  const expectedRoutingComponents = changed.filter(
+    (component): component is "router" | "policy" =>
+      component === "router" || component === "policy"
+  );
+  if (changed.includes("router")) {
+    components.push(new RouterRuntimeAdapter(host, expectedRoutingComponents));
+  }
+  if (changed.includes("policy")) {
+    components.push(new PolicyRuntimeAdapter(host, expectedRoutingComponents));
+  }
   return components;
 };
 
@@ -161,10 +195,12 @@ const createShadowComponents = (
   const components: ReloadableComponent[] = [];
   if (changed.includes("metrics")) components.push(createMetricsReloadAdapter());
   if (changed.includes("dashboard")) components.push(createDashboardReloadAdapter());
+  if (changed.includes("router")) components.push(createRouterReloadAdapter());
+  if (changed.includes("policy")) components.push(createProberReloadAdapter());
   return components;
 };
 
-const changedControlPlaneComponents = (
+const changedRuntimeComponents = (
   previous: SepigsConfig,
   candidate: SepigsConfig
 ): readonly TransactionalReloadComponent[] => {
@@ -175,29 +211,43 @@ const changedControlPlaneComponents = (
   if (stableJson(previous.dashboard) !== stableJson(candidate.dashboard)) {
     changed.push("dashboard");
   }
+  if (stableJson(routerConfigView(previous)) !== stableJson(routerConfigView(candidate))) {
+    changed.push("router");
+  }
+  if (stableJson(previous.route.policies) !== stableJson(candidate.route.policies)) {
+    changed.push("policy");
+  }
   return changed;
 };
 
-const assertControlPlaneOnlyChange = (previous: SepigsConfig, candidate: SepigsConfig): void => {
-  if (stableJson(withoutControlPlane(previous)) !== stableJson(withoutControlPlane(candidate))) {
+const assertM7SupportedChange = (previous: SepigsConfig, candidate: SepigsConfig): void => {
+  if (stableJson(withoutM7Components(previous)) !== stableJson(withoutM7Components(candidate))) {
     throw new ConfigError(
-      "transactional-experimental M5 only supports metrics/dashboard changes; use legacy mode for data-plane changes"
+      "transactional-experimental M7 only supports metrics/dashboard/router/policy changes; use legacy mode for other changes"
     );
   }
 };
 
-const withoutControlPlane = (config: SepigsConfig): unknown => {
+const withoutM7Components = (config: SepigsConfig): unknown => {
   const {
     observability,
     dashboard,
     reload,
-    ...dataPlane
+    route,
+    ...unsupported
   } = config;
   void observability;
   void dashboard;
   void reload;
-  return dataPlane;
+  void route;
+  return unsupported;
 };
+
+const routerConfigView = (config: SepigsConfig): unknown => ({
+  defaultOutbound: config.route.defaultOutbound,
+  rules: config.route.rules,
+  ruleSetFiles: config.route.ruleSetFiles
+});
 
 const stableJson = (value: unknown): string => JSON.stringify(sortValue(value));
 

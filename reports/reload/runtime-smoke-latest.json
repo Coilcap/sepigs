@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-07-02T22:07:26.196Z",
+  "generatedAt": "2026-07-03T01:19:29.286Z",
   "mode": "transactional-experimental",
   "enabledComponents": [
     "metrics",
     "dashboard"
   ],
-  "transactionId": "runtime-reload-1783030046187-1",
+  "transactionId": "runtime-reload-1783041569277-1",
   "oldGeneration": "runtime-control-0",
   "newGeneration": "runtime-control-1",
   "componentResults": [
@@ -28,17 +28,24 @@
   },
   "runtimeSideEffects": {
     "dataPlaneMutated": false,
+    "routingDecisionChanged": false,
     "legacyFallbackUsed": false,
     "metricsChanged": true,
-    "dashboardChanged": true
+    "dashboardChanged": true,
+    "routerChanged": false,
+    "policyChanged": false,
+    "connectionsClosed": 0,
+    "listenersChanged": 0,
+    "dnsChanged": false,
+    "fakeIpChanged": false
   },
   "endpointChecks": {
     "metrics": "passed",
     "dashboard": "passed"
   },
   "finalControlPlane": {
-    "metricsAddress": "127.0.0.1:50693",
-    "dashboardAddress": "127.0.0.1:50694"
+    "metricsAddress": "127.0.0.1:56219",
+    "dashboardAddress": "127.0.0.1:56220"
   },
   "resourceCleanup": {
     "transactionCleanupCompleted": true,

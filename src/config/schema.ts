@@ -178,7 +178,12 @@ const SHADOWSOCKS_METHODS = new Set<ShadowsocksOutboundConfig["method"]>([
 const ROUTING_POLICY_TYPES = new Set<RoutingPolicyType>(["loadBalance", "failover"]);
 const LOAD_BALANCE_STRATEGIES = new Set<LoadBalanceStrategy>(["roundRobin", "leastLatency", "random"]);
 const PUBLIC_LISTEN_ADDRESSES = new Set(["0.0.0.0", "::", "[::]"]);
-const TRANSACTIONAL_RELOAD_COMPONENTS = new Set<TransactionalReloadComponent>(["metrics", "dashboard"]);
+const TRANSACTIONAL_RELOAD_COMPONENTS = new Set<TransactionalReloadComponent>([
+  "metrics",
+  "dashboard",
+  "router",
+  "policy"
+]);
 
 const isRecord = (value: unknown): value is Record<string, unknown> => {
   return typeof value === "object" && value !== null && !Array.isArray(value);

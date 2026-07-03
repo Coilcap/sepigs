@@ -21,8 +21,11 @@ import { createOutboundFromRegistry, registerOutboundFactory, unregisterOutbound
 import { PluginManager } from "../plugin/plugin.js";
 import { WasmExtensionManager, type WasmExtensionSnapshot } from "../plugin/wasm.js";
 import type { ProxyRequest, TcpOutboundConnection, UdpOutboundPacket } from "../protocol/types.js";
-import { RoutingPolicyManager, type OutboundHealthSnapshot, type RoutingPolicySnapshot } from "../router/policy.js";
-import { Router } from "../router/router.js";
+import type { OutboundHealthSnapshot, RoutingPolicySnapshot } from "../router/policy.js";
+import {
+  RoutingGenerationRuntime,
+  createRoutingGenerationPair
+} from "../router/generation.js";
 import { UnavailableQuicTransport } from "../transport/quic.js";
 import { ConfigError, errorMessage } from "../utils/errors.js";
 import { WorkerPool } from "../workers/workerPool.js";
@@ -43,9 +46,8 @@ import {
 export class Engine {
   private config: SepigsConfig;
   private readonly logger: Logger;
-  private router: Router;
   private dnsResolver: SystemDnsResolver;
-  private policyManager: RoutingPolicyManager;
+  private readonly routingRuntime: RoutingGenerationRuntime;
   private connectionPool: TcpConnectionPool;
   private quicTransport: UnavailableQuicTransport;
   private readonly outbounds = new Map<string, Outbound>();
@@ -75,9 +77,13 @@ export class Engine {
   public constructor(config: SepigsConfig, logger = new Logger(config.log.level)) {
     this.config = config;
     this.logger = logger.child("engine");
-    this.router = new Router(config.route);
     this.dnsResolver = new SystemDnsResolver(config.dns, this.logger.child("dns"), this.stats);
-    this.policyManager = new RoutingPolicyManager(config.route.policies);
+    this.routingRuntime = new RoutingGenerationRuntime(createRoutingGenerationPair({
+      idPrefix: "runtime-routing-0",
+      sequence: 0,
+      route: config.route,
+      outboundTags: new Set(config.outbounds.map((outbound) => outbound.tag))
+    }));
     this.connectionPool = new TcpConnectionPool(config.connectionPool, this.logger.child("pool"));
     this.quicTransport = new UnavailableQuicTransport(config.transport.quic, this.logger.child("quic"));
     this.leakDetector = new LeakDetector(this.logger.child("leaks"));
@@ -120,6 +126,8 @@ export class Engine {
         replaceDashboardServer: (server) => {
           this.dashboardServer = server;
         },
+        routingRuntime: () => this.routingRuntime,
+        outboundTags: () => new Set(this.config.outbounds.map((outbound) => outbound.tag)),
         runtimeStarted: () => this.started,
         commitRuntimeConfig: (nextConfig) => {
           this.config = nextConfig;
@@ -230,11 +238,21 @@ export class Engine {
   }
 
   public getRoutingPolicies(): readonly RoutingPolicySnapshot[] {
-    return this.policyManager.getPolicySnapshots();
+    return this.routingRuntime.active().policyManager.getPolicySnapshots();
   }
 
   public getOutboundHealth(): readonly OutboundHealthSnapshot[] {
-    return this.policyManager.getHealthSnapshots();
+    return this.routingRuntime.active().policyManager.getHealthSnapshots();
+  }
+
+  public getActiveRouterGeneration(): { readonly id: string; readonly sequence: number } {
+    const generation = this.routingRuntime.active().router;
+    return { id: generation.id, sequence: generation.sequence };
+  }
+
+  public getActivePolicyGeneration(): { readonly id: string; readonly sequence: number } {
+    const generation = this.routingRuntime.active().policy;
+    return { id: generation.id, sequence: generation.sequence };
   }
 
   public getWasmExtensions(): readonly WasmExtensionSnapshot[] {
@@ -283,15 +301,25 @@ export class Engine {
       reloadedInbounds = result.inbounds;
     }
 
+    const activeRouting = this.routingRuntime.active();
+    const routingSequence = Math.max(
+      activeRouting.router.sequence,
+      activeRouting.policy.sequence
+    ) + 1;
+    this.routingRuntime.replaceLegacy(createRoutingGenerationPair({
+      idPrefix: `runtime-routing-${String(routingSequence)}`,
+      sequence: routingSequence,
+      route: config.route,
+      outboundTags: new Set(config.outbounds.map((outbound) => outbound.tag)),
+      healthSnapshot: activeRouting.policyManager.getHealthSnapshots()
+    }));
     this.config = config;
-    this.router = new Router(config.route);
     this.dnsResolver = new SystemDnsResolver(
       config.dns,
       this.logger.child("dns"),
       this.stats,
       this.dnsResolver.fakeIpForReload(config.dns)
     );
-    this.policyManager.reload(config.route.policies);
     this.connectionPool.closeAll();
     this.connectionPool = new TcpConnectionPool(config.connectionPool, this.logger.child("pool"));
     this.quicTransport = new UnavailableQuicTransport(config.transport.quic, this.logger.child("quic"));
@@ -332,17 +360,20 @@ export class Engine {
   }
 
   private async openTcp(request: ProxyRequest): Promise<TcpOutboundConnection> {
+    const routingHandle = this.routingRuntime.acquire();
+    const routing = routingHandle.generation;
+    try {
     const routedRequest = this.restoreFakeIpDestination(request);
-    const route = this.router.match(routedRequest);
+    const route = routing.router.match(routedRequest);
     this.stats.recordRouteMatch();
-    const selection = this.policyManager.select(route.outboundTag);
+    const selection = routing.policyManager.select(route.outboundTag);
     let lastError: unknown;
 
     for (const outboundTag of selection.candidates) {
       const outbound = this.outbounds.get(outboundTag);
       if (outbound === undefined) {
         lastError = new ConfigError(`route selected missing outbound "${outboundTag}"`);
-        this.policyManager.recordFailure(outboundTag);
+        routing.policyManager.recordFailure(outboundTag);
         this.stats.recordOutboundFailure();
         continue;
       }
@@ -351,7 +382,7 @@ export class Engine {
         const startedAt = performance.now();
         const established = await outbound.connect(routedRequest);
         const latencyMs = performance.now() - startedAt;
-        this.policyManager.recordSuccess(outboundTag, latencyMs);
+        routing.policyManager.recordSuccess(outboundTag, latencyMs);
         this.logger.debug("route selected", {
           connectionId: request.id,
           destination: `${request.destination.host}:${request.destination.port}`,
@@ -365,7 +396,7 @@ export class Engine {
         return established;
       } catch (error) {
         lastError = error;
-        this.policyManager.recordFailure(outboundTag);
+        routing.policyManager.recordFailure(outboundTag);
         this.stats.recordOutboundFailure();
         this.logger.debug("outbound candidate failed", {
           connectionId: request.id,
@@ -376,27 +407,33 @@ export class Engine {
       }
     }
 
-    throw lastError instanceof Error ? lastError : new ConfigError(`route selected no usable outbound for "${route.outboundTag}"`);
+      throw lastError instanceof Error ? lastError : new ConfigError(`route selected no usable outbound for "${route.outboundTag}"`);
+    } finally {
+      routingHandle.release();
+    }
   }
 
   private async sendUdp(request: ProxyRequest, payload: Buffer): Promise<UdpOutboundPacket | undefined> {
+    const routingHandle = this.routingRuntime.acquire();
+    const routing = routingHandle.generation;
+    try {
     const routedRequest = this.restoreFakeIpDestination(request);
-    const route = this.router.match(routedRequest);
+    const route = routing.router.match(routedRequest);
     this.stats.recordRouteMatch();
-    const selection = this.policyManager.select(route.outboundTag);
+    const selection = routing.policyManager.select(route.outboundTag);
     let lastError: unknown;
 
     for (const outboundTag of selection.candidates) {
       const outbound = this.outbounds.get(outboundTag);
       if (outbound === undefined) {
         lastError = new ConfigError(`route selected missing outbound "${outboundTag}"`);
-        this.policyManager.recordFailure(outboundTag);
+        routing.policyManager.recordFailure(outboundTag);
         this.stats.recordOutboundFailure();
         continue;
       }
       if (outbound.sendUdp === undefined) {
         lastError = new ConfigError(`outbound "${outbound.tag}" does not support UDP`);
-        this.policyManager.recordFailure(outboundTag);
+        routing.policyManager.recordFailure(outboundTag);
         this.stats.recordOutboundFailure();
         continue;
       }
@@ -404,7 +441,7 @@ export class Engine {
       const startedAt = performance.now();
       try {
         const response = await outbound.sendUdp(routedRequest, payload);
-        this.policyManager.recordSuccess(outboundTag, performance.now() - startedAt);
+        routing.policyManager.recordSuccess(outboundTag, performance.now() - startedAt);
         this.logger.debug("udp route selected", {
           connectionId: request.id,
           destination: `${request.destination.host}:${request.destination.port}`,
@@ -417,12 +454,15 @@ export class Engine {
         return response;
       } catch (error) {
         lastError = error;
-        this.policyManager.recordFailure(outboundTag);
+        routing.policyManager.recordFailure(outboundTag);
         this.stats.recordOutboundFailure();
       }
     }
 
-    throw lastError instanceof Error ? lastError : new ConfigError(`route selected no usable UDP outbound for "${route.outboundTag}"`);
+      throw lastError instanceof Error ? lastError : new ConfigError(`route selected no usable UDP outbound for "${route.outboundTag}"`);
+    } finally {
+      routingHandle.release();
+    }
   }
 
   private async ensureRuntimeLoaded(): Promise<void> {
@@ -519,7 +559,13 @@ export class Engine {
           gc: this.gcMonitor.snapshot(),
           memory: process.memoryUsage(),
           ...(this.config.reload.mode === "transactional-experimental"
-            ? { reload: this.reloadMetrics.snapshot() }
+            ? {
+                reload: this.reloadMetrics.snapshot(),
+                routingGenerations: {
+                  router: this.routingRuntime.active().router.sequence,
+                  policy: this.routingRuntime.active().policy.sequence
+                }
+              }
             : {})
         }),
       this.logger.child("metrics")
@@ -534,7 +580,13 @@ export class Engine {
       gc: this.gcMonitor.snapshot(),
       memory: process.memoryUsage(),
       ...(this.config.reload.mode === "transactional-experimental"
-        ? { reload: this.reloadMetrics.snapshot() }
+        ? {
+            reload: this.reloadMetrics.snapshot(),
+            routingGenerations: {
+              router: this.routingRuntime.active().router.sequence,
+              policy: this.routingRuntime.active().policy.sequence
+            }
+          }
         : {})
     });
   }
@@ -553,7 +605,10 @@ export class Engine {
         connections: () => this.connectionManager.listActive(),
         closeConnection: (id) => this.connectionManager.closeConnection(id, "dashboard request"),
         metrics: () => this.metricsText(),
-        outbounds: () => ({ policies: this.policyManager.getPolicySnapshots(), health: this.policyManager.getHealthSnapshots() }),
+        outbounds: () => ({
+          policies: this.routingRuntime.active().policyManager.getPolicySnapshots(),
+          health: this.routingRuntime.active().policyManager.getHealthSnapshots()
+        }),
         config: () => this.config,
         logs: () => this.logger.records(),
         reload: async () => {

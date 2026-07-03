@@ -1,5 +1,40 @@
 # SELF REVIEW
 
+## Stage 23 - Phase 18 M7 Router/Policy Runtime Integration
+
+Completed:
+- Added immutable Router and Policy generation models with atomic paired
+  publication, rollback, usage tracking, and read-only health/latency carry-over.
+- Added real runtime adapters and expanded the experimental allow-list without
+  admitting DNS, fake-IP, inbound, outbound, UDP, connections, or plugins.
+- Added experimental generation metrics and a loopback M7 smoke that keeps an
+  established CONNECT tunnel alive while a new connection follows the new route.
+
+Found:
+- Publishing Router before Policy could expose a mixed generation if adapters
+  switched independent pointers.
+- A typed config can still be constructed outside the schema, so runtime
+  strategy and target validation cannot rely on TypeScript alone.
+- Local listener tests require execution outside the restricted sandbox even
+  though they bind only `127.0.0.1:0`.
+
+Fixed:
+- Both adapters stage into one routing transaction; publication occurs only
+  after every expected routing component commits.
+- Generation constructors validate runtime values and clone/freeze config and
+  health state before publication.
+- Listener tests and smoke use loopback/random ports and were rerun with local
+  listener permission.
+
+Remaining risk:
+- Concurrent reload serialization, active prober lifecycle ownership, and the
+  one-hour mixed M7 soak remain open.
+- DNS/fake-IP and all M8+ components remain outside transactional runtime.
+
+Next:
+- Review M7 evidence before authorizing M8 DNS transactional reload design.
+  Do not begin M8 implementation automatically.
+
 ## Phase 8.5 - Validation Gap Closure
 
 Completed: added loopback-only test host/port parsing, IPv4 forcing, a bind probe, and a no-listen fallback. Benchmark completed 6,600/6,600 connections, soak matrix verified 7/7 scenarios, and the ten-minute soak completed 19,064/19,064 requests with zero errors and final tracked resources at zero.

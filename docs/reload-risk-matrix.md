@@ -54,3 +54,24 @@ runtime commit, and concurrent reload risks remain open for M5 and later.
 
 Open M5 risks include the prepare-to-commit port race, whole-runtime atomicity,
 reload serialization, and every non-control-plane component.
+
+## M7 Evidence
+
+- Router rules/defaults and policy graphs are immutable generation objects.
+- Router and policy adapters stage independently but publish one active pair
+  only after every changed routing component commits.
+- Missing targets and invalid policy values fail before publication; rollback
+  keeps or restores the old pair.
+- Health and latency state carry over by value. No active probe is started,
+  stopped, or mutated.
+- A real loopback CONNECT stream survives Router/Policy publication and
+  continues echoing; the first new connection follows the candidate block
+  route.
+- Runtime smoke records zero reload-driven connection closes, zero listener
+  changes, no DNS/fake-IP changes, and final tracked resources at `0/0/0`.
+- Active generation metrics are numeric gauges without route values, target
+  domains, secrets, or generation strings as labels.
+
+Open M7 risks include concurrent reload serialization, extended mixed reload
+soak, rule-set file reloading through already-expanded config, active prober
+lifecycle ownership, and every M8+ component.

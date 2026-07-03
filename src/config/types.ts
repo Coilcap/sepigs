@@ -154,7 +154,7 @@ export interface HotReloadConfig {
   readonly debounceMs: number;
 }
 
-export type TransactionalReloadComponent = "metrics" | "dashboard";
+export type TransactionalReloadComponent = "metrics" | "dashboard" | "router" | "policy";
 
 export interface TransactionalReloadConfig {
   readonly enabledComponents: readonly TransactionalReloadComponent[];
