@@ -1,7 +1,7 @@
 # Outbound And Inbound Reload Implementation Plan
 
-Status: M10 outbound generation prototype implemented. Runtime stages remain
-separately authorized.
+Status: M10 outbound generation prototype and M11 limited outbound runtime
+integration implemented. Inbound remains a separately authorized prototype.
 
 ## Principles
 
@@ -42,14 +42,17 @@ review only; it does not authorize runtime publication.
 
 ## M11: Limited Outbound Runtime Integration
 
-Scope:
+Implementation status: complete for the explicitly enabled experimental TCP
+path.
+
+Implemented:
 
 - direct, block, and TCP relay only;
 - one composite Router/Policy/Outbound publication;
-- pending setup references and old generation drain;
+- connection setup references and old generation drain;
 - invalid candidate and partial-commit rollback;
 - experimental generation/ref/cleanup/degraded metrics;
-- loopback runtime smoke and repeated reload soak.
+- loopback runtime smoke.
 
 Prohibited:
 
@@ -60,7 +63,8 @@ Prohibited:
 
 Exit: old long streams survive, new streams use the candidate, removed
 outbounds drain safely, final resources are clean, and compatibility remains
-at least 44 verified/zero failed.
+at least 44 verified/zero failed. The loopback exit evidence is complete;
+extended repeated-reload soak remains a promotion gate.
 
 ## M12: HTTP/SOCKS TCP Inbound Prototype
 

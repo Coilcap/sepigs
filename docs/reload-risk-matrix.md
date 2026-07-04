@@ -75,3 +75,24 @@ reload serialization, and every non-control-plane component.
 Open M7 risks include concurrent reload serialization, extended mixed reload
 soak, rule-set file reloading through already-expanded config, active prober
 lifecycle ownership, and every M8+ component.
+
+## M11 Limited Outbound Evidence
+
+- Direct, block, and TCP relay candidate objects are built without connecting
+  sockets; medium/high-risk types reject before publication.
+- The runtime registry switches one active generation pointer and keeps old
+  objects draining while setup/connection references remain.
+- Router and Policy candidates do not publish until the Outbound component
+  commits when all three change in one transaction.
+- Commit failure self-restores the old registry because the executor cannot
+  compensate the component whose commit threw.
+- Rollback and cleanup are idempotent; candidate and old objects stop only when
+  unused, with no forced connection close.
+- A loopback smoke keeps an established direct tunnel on its old target while
+  a new tunnel uses the candidate TCP relay target.
+- Registry snapshots, metrics, error messages, and reports contain no
+  credential-bearing config fields.
+
+Remaining risks are concurrent reload serialization, extended mixed outbound
+soak, UDP ownership, protocol-specific lifecycle, inbound listeners, plugins,
+and the prepare-to-commit target availability window.

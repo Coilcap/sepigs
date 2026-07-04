@@ -1,7 +1,7 @@
 # M7 Router / Policy Runtime Smoke
 
-- Generated: 2026-07-03T08:12:24.177Z
-- Transaction: runtime-reload-1783066344170-1
+- Generated: 2026-07-04T17:49:02.915Z
+- Transaction: runtime-reload-1783187342908-1
 - State: committed
 - Router generation switched: yes
 - Policy generation switched: yes

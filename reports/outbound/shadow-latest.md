@@ -1,6 +1,6 @@
 # Outbound Generation Shadow Report
 
-- Generated: 2026-07-03T16:05:53.416Z
+- Generated: 2026-07-04T17:48:16.133Z
 - Candidate accepted: yes
 - Old connection outbound: `direct`
 - Old connection generation: `outbound-shadow-current-0`

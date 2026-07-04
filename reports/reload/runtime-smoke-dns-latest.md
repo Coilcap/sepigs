@@ -1,6 +1,6 @@
 # M8.5 DNS Runtime Smoke
 
-- Generated: 2026-07-03T08:11:56.355Z
+- Generated: 2026-07-04T17:49:15.311Z
 - Transaction state: committed
 - DNS generation switched: yes
 - Old in-flight answer: 192.0.2.10

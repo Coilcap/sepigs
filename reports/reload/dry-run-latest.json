@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-07-03T08:12:06.426Z",
+  "generatedAt": "2026-07-04T17:48:27.010Z",
   "currentConfigPath": "examples/sepigs.json",
   "candidateConfigPath": "examples/sepigs.safe.json",
-  "currentConfigHash": "1ed675fada72fe9a0bd59f69e285bca9ac306d42ecb08eab7e233a7b8ac45a46",
-  "candidateConfigHash": "3756cc70756135430fba331ef844e8751aa143aec8e9df80d0c93c28783bc432",
+  "currentConfigHash": "a1575b54486a51257da3e9aad5fdd44b19d403d6f5a1315de2fb3ab1a9a66f84",
+  "candidateConfigHash": "85af07556cf84461232449584a49fca8e78ae2f0d1641a33a0cdbbb1c7e23466",
   "configHashScope": "run-local-hmac",
   "changedComponents": [
     "router",

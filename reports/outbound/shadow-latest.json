@@ -1,14 +1,14 @@
 {
-  "generatedAt": "2026-07-03T16:05:53.416Z",
+  "generatedAt": "2026-07-04T17:48:16.133Z",
   "mode": "outbound-generation-prototype-shadow",
   "dryRun": {
-    "generatedAt": "2026-07-03T16:05:53.417Z",
+    "generatedAt": "2026-07-04T17:48:16.134Z",
     "mode": "outbound-generation-prototype-dry-run",
     "currentConfigPath": "examples/sepigs.json",
     "candidateConfigPath": "examples/sepigs.safe.json",
     "currentGeneration": {
       "id": "outbound-current-0",
-      "configHash": "f2d72e80621b65ea5c65893cffa067b60144f952a8d317bb941afab8ac1b0fc6",
+      "configHash": "d001c99fcaf92b47a3a0b6d5c422b5ed39fef2fd82df882e68a17626d6e28568",
       "state": "active",
       "entryCount": 2,
       "referenceCount": 0,
@@ -16,7 +16,7 @@
         {
           "tag": "direct",
           "type": "direct",
-          "configHash": "26ef680e04f551a3069a568c11f51161f82b7f535d7731a5ae6a11328bf6b461",
+          "configHash": "aeaac927ced1bf61fe4952d206416d8acda8c122e2029b67706616b93d52dd79",
           "riskLevel": "low",
           "experimental": false,
           "capabilities": {
@@ -32,7 +32,7 @@
         {
           "tag": "block",
           "type": "block",
-          "configHash": "a4aa48129513d77dda6acfdbf311be3e8a7ec709d60e8ba5995b4d1633e49dc3",
+          "configHash": "0293b43b608b0c95293a7e12552426b1760528b779e8fcb67a0427a0b7547d83",
           "riskLevel": "low",
           "experimental": false,
           "capabilities": {
@@ -48,7 +48,7 @@
     },
     "candidateGeneration": {
       "id": "outbound-candidate-1",
-      "configHash": "52949d832e17154b3d0111d2dca06c09dfc094edbd9066ee3dbfff69458a04b8",
+      "configHash": "925f282ef1e747308ca6dd671ac551958316beb237b77bbc95bd691bf51d4abb",
       "state": "candidate",
       "parentGenerationId": "outbound-current-0",
       "entryCount": 2,
@@ -57,7 +57,7 @@
         {
           "tag": "direct",
           "type": "direct",
-          "configHash": "26ef680e04f551a3069a568c11f51161f82b7f535d7731a5ae6a11328bf6b461",
+          "configHash": "aeaac927ced1bf61fe4952d206416d8acda8c122e2029b67706616b93d52dd79",
           "riskLevel": "low",
           "experimental": false,
           "capabilities": {
@@ -73,7 +73,7 @@
         {
           "tag": "block",
           "type": "block",
-          "configHash": "a4aa48129513d77dda6acfdbf311be3e8a7ec709d60e8ba5995b4d1633e49dc3",
+          "configHash": "0293b43b608b0c95293a7e12552426b1760528b779e8fcb67a0427a0b7547d83",
           "riskLevel": "low",
           "experimental": false,
           "capabilities": {
@@ -138,7 +138,7 @@
   },
   "currentGeneration": {
     "id": "outbound-shadow-current-0",
-    "configHash": "f2d72e80621b65ea5c65893cffa067b60144f952a8d317bb941afab8ac1b0fc6",
+    "configHash": "d001c99fcaf92b47a3a0b6d5c422b5ed39fef2fd82df882e68a17626d6e28568",
     "state": "active",
     "entryCount": 2,
     "referenceCount": 1,
@@ -146,7 +146,7 @@
       {
         "tag": "direct",
         "type": "direct",
-        "configHash": "26ef680e04f551a3069a568c11f51161f82b7f535d7731a5ae6a11328bf6b461",
+        "configHash": "aeaac927ced1bf61fe4952d206416d8acda8c122e2029b67706616b93d52dd79",
         "riskLevel": "low",
         "experimental": false,
         "capabilities": {
@@ -162,7 +162,7 @@
       {
         "tag": "block",
         "type": "block",
-        "configHash": "a4aa48129513d77dda6acfdbf311be3e8a7ec709d60e8ba5995b4d1633e49dc3",
+        "configHash": "0293b43b608b0c95293a7e12552426b1760528b779e8fcb67a0427a0b7547d83",
         "riskLevel": "low",
         "experimental": false,
         "capabilities": {
@@ -178,7 +178,7 @@
   },
   "candidateGeneration": {
     "id": "outbound-shadow-candidate-1",
-    "configHash": "52949d832e17154b3d0111d2dca06c09dfc094edbd9066ee3dbfff69458a04b8",
+    "configHash": "925f282ef1e747308ca6dd671ac551958316beb237b77bbc95bd691bf51d4abb",
     "state": "candidate",
     "parentGenerationId": "outbound-shadow-current-0",
     "entryCount": 2,
@@ -187,7 +187,7 @@
       {
         "tag": "direct",
         "type": "direct",
-        "configHash": "26ef680e04f551a3069a568c11f51161f82b7f535d7731a5ae6a11328bf6b461",
+        "configHash": "aeaac927ced1bf61fe4952d206416d8acda8c122e2029b67706616b93d52dd79",
         "riskLevel": "low",
         "experimental": false,
         "capabilities": {
@@ -203,7 +203,7 @@
       {
         "tag": "block",
         "type": "block",
-        "configHash": "a4aa48129513d77dda6acfdbf311be3e8a7ec709d60e8ba5995b4d1633e49dc3",
+        "configHash": "0293b43b608b0c95293a7e12552426b1760528b779e8fcb67a0427a0b7547d83",
         "riskLevel": "low",
         "experimental": false,
         "capabilities": {

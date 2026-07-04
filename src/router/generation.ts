@@ -4,7 +4,7 @@ import { PolicyGeneration } from "./policyGeneration.js";
 import type { RoutingPolicyManager } from "./policy.js";
 import { RouterGeneration } from "./routerGeneration.js";
 
-export type RoutingComponent = "router" | "policy";
+export type RoutingComponent = "router" | "policy" | "outbound";
 
 export interface RoutingGenerationPair {
   readonly router: RouterGeneration;

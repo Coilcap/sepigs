@@ -14,7 +14,7 @@ import type {
 
 export interface RouterPolicyRuntimeHost {
   routingRuntime(): RoutingGenerationRuntime;
-  outboundTags(): ReadonlySet<string>;
+  outboundTags(config?: SepigsConfig): ReadonlySet<string>;
 }
 
 interface RouterRuntimePrepared {
@@ -47,7 +47,7 @@ export class RouterRuntimeAdapter implements ReloadableComponent<RouterRuntimePr
       sequence: oldGeneration.sequence + 1,
       config: config.route,
       allowedTargets: new Set([
-        ...this.host.outboundTags(),
+        ...this.host.outboundTags(config),
         ...config.route.policies.map((policy) => policy.tag)
       ])
     });

@@ -159,7 +159,8 @@ export type TransactionalReloadComponent =
   | "dashboard"
   | "router"
   | "policy"
-  | "dns";
+  | "dns"
+  | "outbound";
 
 export interface TransactionalReloadConfig {
   readonly enabledComponents: readonly TransactionalReloadComponent[];

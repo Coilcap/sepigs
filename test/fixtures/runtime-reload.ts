@@ -4,6 +4,7 @@ import type {
   DashboardConfig,
   DnsConfig,
   MetricsServerConfig,
+  OutboundConfig,
   RoutingPolicyConfig,
   SepigsConfig,
   TransactionalReloadComponent
@@ -18,6 +19,7 @@ export interface RuntimeConfigOptions {
   readonly enabledComponents?: readonly TransactionalReloadComponent[];
   readonly routeSuffix?: string;
   readonly defaultOutbound?: string;
+  readonly outbounds?: readonly OutboundConfig[];
   readonly policies?: readonly RoutingPolicyConfig[];
   readonly dns?: Partial<Omit<DnsConfig, "fakeIp" | "doh">> & {
     readonly fakeIp?: Partial<DnsConfig["fakeIp"]>;
@@ -73,7 +75,7 @@ export const runtimeConfig = (options: RuntimeConfigOptions = {}): SepigsConfig 
       }
     },
     inbounds: [{ type: "http", tag: "http", listen: "127.0.0.1", port: 0 }],
-    outbounds: [
+    outbounds: options.outbounds ?? [
       { type: "direct", tag: "direct" },
       { type: "block", tag: "block" }
     ],

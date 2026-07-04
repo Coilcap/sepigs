@@ -18,7 +18,13 @@ import { GcMonitor } from "../observability/gc.js";
 import { renderPrometheusMetrics } from "../observability/metrics.js";
 import { PrometheusMetricsServer } from "../observability/prometheus.js";
 import type { Outbound } from "../outbound/outbound.js";
+import { OutboundGeneration } from "../outbound/generation.js";
 import { createOutboundFromRegistry, registerOutboundFactory, unregisterOutboundFactory } from "../outbound/registry.js";
+import {
+  OutboundRuntimeRegistry,
+  type OutboundRuntimeReference,
+  type OutboundRuntimeRegistrySnapshot
+} from "../outbound/runtimeRegistry.js";
 import { PluginManager } from "../plugin/plugin.js";
 import { WasmExtensionManager, type WasmExtensionSnapshot } from "../plugin/wasm.js";
 import type { ProxyRequest, TcpOutboundConnection, UdpOutboundPacket } from "../protocol/types.js";
@@ -52,6 +58,7 @@ export class Engine {
   private connectionPool: TcpConnectionPool;
   private quicTransport: UnavailableQuicTransport;
   private readonly outbounds = new Map<string, Outbound>();
+  private outboundRegistry: OutboundRuntimeRegistry | undefined;
   private readonly inbounds = new Map<string, Inbound>();
   private readonly lifecycle = new LifecycleManager();
   private readonly stats = new StatsTracker();
@@ -128,7 +135,15 @@ export class Engine {
           this.dashboardServer = server;
         },
         routingRuntime: () => this.routingRuntime,
-        outboundTags: () => new Set(this.config.outbounds.map((outbound) => outbound.tag)),
+        outboundTags: (candidate) => new Set(
+          (candidate?.outbounds ?? this.config.outbounds).map((outbound) => outbound.tag)
+        ),
+        outboundRuntimeRegistry: () => this.requireOutboundRegistry(),
+        currentOutboundConfigs: () => this.config.outbounds,
+        currentOutboundHealthSnapshot: () =>
+          this.routingRuntime.active().policyManager.getHealthSnapshots(),
+        createRuntimeOutbound: (outboundConfig, candidate) =>
+          this.createOutbound(outboundConfig, candidate),
         dnsGenerationStore: () => this.dnsResolver.generationStore(),
         dnsFailureCountersSnapshot: () => {
           const stats = this.stats.snapshot();
@@ -185,6 +200,8 @@ export class Engine {
     await this.metricsServer.stop();
     this.eventLoopMonitor.stop();
     this.gcMonitor.stop();
+    await this.outboundRegistry?.stopAll();
+    this.outboundRegistry = undefined;
     await this.lifecycle.stopAll(this.config.limits.shutdownTimeoutMs);
     this.connectionPool.closeAll();
     this.dnsResolver.stop();
@@ -291,6 +308,23 @@ export class Engine {
 
   public getDnsReloadMetricsSnapshot(): DNSGenerationStoreMetrics {
     return this.dnsResolver.generationStore().metrics();
+  }
+
+  public getOutboundRuntimeSnapshot(): OutboundRuntimeRegistrySnapshot {
+    return this.requireOutboundRegistry().snapshot();
+  }
+
+  public acquireOutboundRuntimeRef(
+    tag: string,
+    generationId?: string
+  ): OutboundRuntimeReference | undefined {
+    return this.requireOutboundRegistry().acquireOutboundRef(tag, generationId);
+  }
+
+  public async releaseOutboundRuntimeRef(
+    reference: OutboundRuntimeReference
+  ): Promise<void> {
+    await this.requireOutboundRegistry().releaseOutboundRef(reference);
   }
 
   public getWasmExtensions(): readonly WasmExtensionSnapshot[] {
@@ -408,7 +442,8 @@ export class Engine {
     let lastError: unknown;
 
     for (const outboundTag of selection.candidates) {
-      const outbound = this.outbounds.get(outboundTag);
+      const outboundReference = this.outboundRegistry?.acquireOutboundRef(outboundTag);
+      const outbound = outboundReference?.outbound ?? this.outbounds.get(outboundTag);
       if (outbound === undefined) {
         lastError = new ConfigError(`route selected missing outbound "${outboundTag}"`);
         routing.policyManager.recordFailure(outboundTag);
@@ -419,6 +454,9 @@ export class Engine {
       try {
         const startedAt = performance.now();
         const established = await outbound.connect(routedRequest);
+        if (outboundReference !== undefined) {
+          this.bindOutboundReference(established, outboundReference);
+        }
         const latencyMs = performance.now() - startedAt;
         routing.policyManager.recordSuccess(outboundTag, latencyMs);
         this.logger.debug("route selected", {
@@ -433,6 +471,9 @@ export class Engine {
         });
         return established;
       } catch (error) {
+        if (outboundReference !== undefined) {
+          await this.outboundRegistry?.releaseOutboundRef(outboundReference);
+        }
         lastError = error;
         routing.policyManager.recordFailure(outboundTag);
         this.stats.recordOutboundFailure();
@@ -522,6 +563,10 @@ export class Engine {
       this.outbounds.set(outbound.tag, outbound);
       this.lifecycle.register(outbound);
     }
+    this.outboundRegistry = this.createOutboundRuntimeRegistry(
+      this.config,
+      this.outbounds
+    );
 
     const inboundContext = this.createInboundContext(this.config);
     for (const inboundConfig of this.config.inbounds) {
@@ -533,18 +578,27 @@ export class Engine {
   }
 
   private async reloadOutbounds(): Promise<void> {
-    await Promise.all(
-      [...this.outbounds.values()].map(async (outbound) => {
-        await outbound.stop();
-        this.lifecycle.unregister(outbound);
-      })
-    );
+    if (this.outboundRegistry !== undefined) {
+      await this.outboundRegistry.stopAll();
+      this.outboundRegistry = undefined;
+    } else {
+      await Promise.all(
+        [...this.outbounds.values()].map(async (outbound) => {
+          await outbound.stop();
+          this.lifecycle.unregister(outbound);
+        })
+      );
+    }
     this.outbounds.clear();
     for (const outboundConfig of this.config.outbounds) {
       const outbound = this.createOutbound(outboundConfig);
       this.outbounds.set(outbound.tag, outbound);
       this.lifecycle.register(outbound);
     }
+    this.outboundRegistry = this.createOutboundRuntimeRegistry(
+      this.config,
+      this.outbounds
+    );
   }
 
   private createInboundContext(config: SepigsConfig): InboundContext {
@@ -574,9 +628,62 @@ export class Engine {
     return createInboundFromRegistry(config, context, this.logger.child(`inbound:${config.tag}`));
   }
 
-  private createOutbound(config: OutboundConfig): Outbound {
+  private bindOutboundReference(
+    connection: TcpOutboundConnection,
+    reference: OutboundRuntimeReference
+  ): void {
+    const registry = this.requireOutboundRegistry();
+    let released = false;
+    const release = (): void => {
+      if (released) return;
+      released = true;
+      void registry.releaseOutboundRef(reference).catch((error: unknown) => {
+        this.logger.warn("failed to release outbound generation reference", {
+          generationId: reference.generationId,
+          tag: reference.tag,
+          error: errorMessage(error)
+        });
+      });
+    };
+    connection.socket.once("close", release);
+    if (connection.socket.destroyed) queueMicrotask(release);
+  }
+
+  private createOutboundRuntimeRegistry(
+    config: SepigsConfig,
+    outbounds: ReadonlyMap<string, Outbound>
+  ): OutboundRuntimeRegistry {
+    const generation = new OutboundGeneration({
+      id: "runtime-outbound-0",
+      outbounds: config.outbounds,
+      defaultOutbound: config.route.defaultOutbound,
+      policies: config.route.policies,
+      healthSnapshot: this.routingRuntime.active().policyManager.getHealthSnapshots(),
+      state: "active"
+    });
+    return new OutboundRuntimeRegistry(generation, outbounds, {
+      onActivate: (outbound) => {
+        this.lifecycle.register(outbound);
+      },
+      onRetire: (outbound) => {
+        this.lifecycle.unregister(outbound);
+      }
+    });
+  }
+
+  private requireOutboundRegistry(): OutboundRuntimeRegistry {
+    if (this.outboundRegistry === undefined) {
+      throw new ConfigError("outbound runtime registry is unavailable before Engine start");
+    }
+    return this.outboundRegistry;
+  }
+
+  private createOutbound(
+    config: OutboundConfig,
+    sourceConfig: SepigsConfig = this.config
+  ): Outbound {
     return createOutboundFromRegistry(config, {
-      limits: this.config.limits,
+      limits: sourceConfig.limits,
       logger: this.logger.child(`outbound:${config.tag}`),
       dnsResolver: this.dnsResolver
     });
@@ -603,7 +710,10 @@ export class Engine {
                   router: this.routingRuntime.active().router.sequence,
                   policy: this.routingRuntime.active().policy.sequence
                 },
-                dnsGenerations: this.dnsResolver.generationStore().metrics()
+                dnsGenerations: this.dnsResolver.generationStore().metrics(),
+                ...(this.outboundRegistry === undefined
+                  ? {}
+                  : { outboundGenerations: this.outboundRegistry.snapshot() })
               }
             : {})
         }),
@@ -625,7 +735,10 @@ export class Engine {
               router: this.routingRuntime.active().router.sequence,
               policy: this.routingRuntime.active().policy.sequence
             },
-            dnsGenerations: this.dnsResolver.generationStore().metrics()
+            dnsGenerations: this.dnsResolver.generationStore().metrics(),
+            ...(this.outboundRegistry === undefined
+              ? {}
+              : { outboundGenerations: this.outboundRegistry.snapshot() })
           }
         : {})
     });

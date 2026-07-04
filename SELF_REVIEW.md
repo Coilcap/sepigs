@@ -751,3 +751,37 @@ Remaining risk:
 Next:
 - Review M5 evidence before an M6 design decision. Do not broaden runtime
   integration automatically.
+
+## Stage 23 - Phase 21 M11 Limited Outbound Runtime Integration
+
+Completed:
+- Added a generation-aware runtime registry for direct, block, and TCP relay.
+- Added transactional prepare, health, commit, rollback, cleanup, routing
+  coordination, Prometheus metrics, and local runtime smoke.
+- Bound successful TCP streams to their acquired outbound generation until
+  socket close.
+
+Found:
+- The M10 validator incorrectly rejected a default route that referenced a
+  valid policy tag.
+- The first smoke waited for old-generation retirement while deliberately
+  keeping its old tunnel open.
+- A failed adapter commit could cause candidate `stop()` to be called twice
+  during later executor cleanup.
+
+Fixed:
+- Default routing targets now validate against outbound and policy tags.
+- Smoke records that reload killed zero connections, then explicitly closes
+  the old tunnel before checking generation retirement.
+- Prepared state records disposal so cleanup is idempotent.
+
+Remaining risk:
+- UDP, protocol-specific outbounds, inbound listeners, plugins, fake-IP, and
+  connection-manager are not generation-integrated.
+- Concurrent reload serialization and repeated-reload soak remain open.
+- Candidate TCP relay shape is validated without opening a readiness
+  connection.
+
+Next:
+- Review M11 evidence before authorizing M12 HTTP/SOCKS TCP inbound prototype
+  work. Do not infer inbound authorization from a green outbound smoke.

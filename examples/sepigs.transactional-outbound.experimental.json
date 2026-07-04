@@ -1,0 +1,63 @@
+{
+  "configVersion": 1,
+  "log": {
+    "level": "info"
+  },
+  "reload": {
+    "mode": "transactional-experimental",
+    "transactional": {
+      "enabledComponents": ["outbound", "router"],
+      "timeoutMs": 5000,
+      "shadowBeforeCommit": true,
+      "rollbackOnFailure": true
+    }
+  },
+  "observability": {
+    "metrics": {
+      "enabled": true,
+      "listen": "127.0.0.1",
+      "port": 0,
+      "path": "/metrics"
+    }
+  },
+  "dashboard": {
+    "enabled": false,
+    "listen": "127.0.0.1",
+    "port": 0,
+    "token": "change-me",
+    "rateLimitPerMinute": 120,
+    "cors": false
+  },
+  "inbounds": [
+    {
+      "type": "http",
+      "tag": "http-in",
+      "listen": "127.0.0.1",
+      "port": 0
+    }
+  ],
+  "outbounds": [
+    {
+      "type": "direct",
+      "tag": "direct",
+      "connectTimeoutMs": 1500
+    },
+    {
+      "type": "block",
+      "tag": "block",
+      "reason": "M11 candidate block"
+    },
+    {
+      "type": "tcpRelay",
+      "tag": "relay",
+      "targetHost": "127.0.0.1",
+      "targetPort": 9,
+      "connectTimeoutMs": 1000
+    }
+  ],
+  "route": {
+    "defaultOutbound": "relay",
+    "rules": [],
+    "policies": []
+  }
+}

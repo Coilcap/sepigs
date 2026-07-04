@@ -15,7 +15,8 @@ const files = await walk([
   "examples",
   "verification/manual-pack",
   "reports/compat",
-  "reports/outbound"
+  "reports/outbound",
+  "reports/reload"
 ]);
 for (const file of files) {
   const text = await readFile(file, "utf8");
@@ -46,6 +47,13 @@ for (const file of files.filter((item) => item.startsWith("reports/outbound/")))
   }
   if (file.endsWith(".json") && !/"status"\s*:\s*"passed"/u.test(text)) {
     findings.push(`outbound JSON report redaction proof did not pass: ${file}`);
+  }
+}
+
+for (const file of files.filter((item) => /reports\/reload\/runtime-smoke-m11/u.test(item))) {
+  const text = await readFile(file, "utf8");
+  if (/test-only-redacted|password|privateKey|token/iu.test(text)) {
+    findings.push(`M11 outbound smoke report contains credential material: ${file}`);
   }
 }
 

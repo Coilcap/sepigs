@@ -90,6 +90,26 @@ Minimum soak: long-lived and short-lived TCP traffic through repeated
 successful/failed registry changes. Inbound remains prototype-only until real
 client reconnect evidence exists.
 
+## M11 Limited Outbound Runtime
+
+Implemented cases:
+
+- direct, block, and TCP relay candidate construction and publication;
+- combined Router/Policy/Outbound atomic publication;
+- Shadowsocks, Trojan, and experimental WireGuard rejection;
+- missing policy target rejection with the old generation retained;
+- active removed-tag warning;
+- old reference stability and new active-generation lookup;
+- manual rollback restoration and candidate cleanup;
+- legacy-path regression;
+- Prometheus prepare/commit/rollback, generation, draining, and rejection
+  metrics with secret-redaction assertions;
+- real loopback old/new tunnel split with no reload-driven close, no listener
+  or DNS change, and final resources at `0/0/0`.
+
+Pending promotion evidence: repeated successful/failed reload soak with
+long-lived TCP streams. UDP and protocol-specific outbounds are outside M11.
+
 ## M14 UDP And Fake-IP Runtime
 
 Required scenarios:
@@ -108,7 +128,7 @@ Required scenarios:
 Minimum soak: six-hour resumable mixed UDP/DNS/fake-IP run before beta-ready
 consideration.
 
-## M11 Plugins
+## Future Plugin Runtime
 
 Required scenarios:
 

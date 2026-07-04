@@ -183,7 +183,8 @@ const TRANSACTIONAL_RELOAD_COMPONENTS = new Set<TransactionalReloadComponent>([
   "dashboard",
   "router",
   "policy",
-  "dns"
+  "dns",
+  "outbound"
 ]);
 
 const isRecord = (value: unknown): value is Record<string, unknown> => {

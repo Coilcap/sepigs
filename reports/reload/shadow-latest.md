@@ -1,6 +1,6 @@
 # Transactional Reload Shadow Report
 
-- Generated: 2026-07-03T08:12:09.812Z
+- Generated: 2026-07-04T17:48:35.332Z
 - Result: committed in shadow
 - Transaction state: committed
 - Changed components: router, policy-prober, metrics-server
@@ -20,32 +20,32 @@
 
 ## Event Summary
 
-- 2026-07-03T08:12:09.811Z `transaction.started`
-- 2026-07-03T08:12:09.811Z `transaction.phase.started`
-- 2026-07-03T08:12:09.811Z `transaction.phase.completed`
-- 2026-07-03T08:12:09.811Z `transaction.phase.started`
-- 2026-07-03T08:12:09.811Z `transaction.phase.completed`
-- 2026-07-03T08:12:09.811Z `transaction.phase.started`
-- 2026-07-03T08:12:09.811Z `component.prepare.started` (router)
-- 2026-07-03T08:12:09.812Z `component.prepare.completed` (router)
-- 2026-07-03T08:12:09.812Z `component.prepare.started` (policy-prober)
-- 2026-07-03T08:12:09.812Z `component.prepare.completed` (policy-prober)
-- 2026-07-03T08:12:09.812Z `component.prepare.started` (metrics-server)
-- 2026-07-03T08:12:09.812Z `component.prepare.completed` (metrics-server)
-- 2026-07-03T08:12:09.812Z `transaction.phase.completed`
-- 2026-07-03T08:12:09.812Z `transaction.phase.started`
-- 2026-07-03T08:12:09.812Z `transaction.phase.completed`
-- 2026-07-03T08:12:09.812Z `transaction.phase.started`
-- 2026-07-03T08:12:09.812Z `component.commit.started` (router)
-- 2026-07-03T08:12:09.812Z `component.commit.completed` (router)
-- 2026-07-03T08:12:09.812Z `component.commit.started` (policy-prober)
-- 2026-07-03T08:12:09.812Z `component.commit.completed` (policy-prober)
-- 2026-07-03T08:12:09.812Z `component.commit.started` (metrics-server)
-- 2026-07-03T08:12:09.812Z `component.commit.completed` (metrics-server)
-- 2026-07-03T08:12:09.812Z `transaction.phase.completed`
-- 2026-07-03T08:12:09.812Z `transaction.committed`
-- 2026-07-03T08:12:09.812Z `transaction.phase.started`
-- 2026-07-03T08:12:09.812Z `transaction.phase.completed`
-- 2026-07-03T08:12:09.812Z `transaction.cleaned_up`
+- 2026-07-04T17:48:35.331Z `transaction.started`
+- 2026-07-04T17:48:35.331Z `transaction.phase.started`
+- 2026-07-04T17:48:35.332Z `transaction.phase.completed`
+- 2026-07-04T17:48:35.332Z `transaction.phase.started`
+- 2026-07-04T17:48:35.332Z `transaction.phase.completed`
+- 2026-07-04T17:48:35.332Z `transaction.phase.started`
+- 2026-07-04T17:48:35.332Z `component.prepare.started` (router)
+- 2026-07-04T17:48:35.332Z `component.prepare.completed` (router)
+- 2026-07-04T17:48:35.332Z `component.prepare.started` (policy-prober)
+- 2026-07-04T17:48:35.332Z `component.prepare.completed` (policy-prober)
+- 2026-07-04T17:48:35.332Z `component.prepare.started` (metrics-server)
+- 2026-07-04T17:48:35.332Z `component.prepare.completed` (metrics-server)
+- 2026-07-04T17:48:35.332Z `transaction.phase.completed`
+- 2026-07-04T17:48:35.332Z `transaction.phase.started`
+- 2026-07-04T17:48:35.332Z `transaction.phase.completed`
+- 2026-07-04T17:48:35.332Z `transaction.phase.started`
+- 2026-07-04T17:48:35.332Z `component.commit.started` (router)
+- 2026-07-04T17:48:35.332Z `component.commit.completed` (router)
+- 2026-07-04T17:48:35.332Z `component.commit.started` (policy-prober)
+- 2026-07-04T17:48:35.332Z `component.commit.completed` (policy-prober)
+- 2026-07-04T17:48:35.332Z `component.commit.started` (metrics-server)
+- 2026-07-04T17:48:35.332Z `component.commit.completed` (metrics-server)
+- 2026-07-04T17:48:35.332Z `transaction.phase.completed`
+- 2026-07-04T17:48:35.332Z `transaction.committed`
+- 2026-07-04T17:48:35.332Z `transaction.phase.started`
+- 2026-07-04T17:48:35.332Z `transaction.phase.completed`
+- 2026-07-04T17:48:35.332Z `transaction.cleaned_up`
 
 This is an isolated prototype. A shadow commit does not publish a runtime generation.

@@ -1,8 +1,9 @@
 # Transactional Reload Integration Roadmap
 
-Status: M8.5 DNS runtime integration is implemented behind the explicit
-experimental allow-list. M9 design and M10 Outbound generation prototype are
-complete; M11-M14 remain separately authorized future work.
+Status: M8.5 DNS runtime integration, M9 design, M10 Outbound generation
+prototype, and M11 limited Outbound runtime integration are complete behind
+the explicit experimental allow-list. M12-M14 remain separately authorized
+future work.
 
 ## M7: Router And Policy Decisions
 
@@ -96,11 +97,13 @@ Engine registry, and does not add `outbound` to the runtime allow-list.
 
 ## M11: Limited Outbound Runtime
 
-After separate authorization, M11 may admit direct, block, and TCP relay only.
-Router/Policy/Outbound must publish as one compatible snapshot. Shadowsocks,
-Trojan, UDP, plugins, WireGuard, and active connection migration remain
-excluded. Runtime smoke, fault injection, compatibility, and soak gates are
-mandatory.
+Implemented under explicit `transactional-experimental` opt-in for direct,
+block, and TCP relay only. Router/Policy/Outbound publish as one compatible
+snapshot when changed together. Existing TCP streams retain the old outbound
+generation until socket close; new setup uses the active generation.
+Shadowsocks, Trojan, UDP, plugins, WireGuard, and active connection migration
+remain excluded. Runtime smoke, fault injection, compatibility, and security
+gates pass; extended soak remains a promotion gate.
 
 ## M12: HTTP/SOCKS TCP Inbound Prototype
 
@@ -136,5 +139,6 @@ Every stage requires:
 7. updated reality check and no production-stable claim.
 
 The current allow-list is
-`metrics/dashboard/router/policy/dns`. Any further allow-list change requires
+`metrics/dashboard/router/policy/dns/outbound`. The outbound adapter admits
+only direct, block, and TCP relay. Any further allow-list change requires
 separate authorization and must not be inferred from green M8.5 evidence.

@@ -51,6 +51,7 @@
     "reload:runtime-smoke": "node --import tsx src/reload/runtimeSmoke.ts",
     "reload:runtime-smoke:m7": "node --import tsx src/reload/runtimeSmokeM7.ts",
     "reload:runtime-smoke:dns": "node --import tsx src/reload/runtimeSmokeDns.ts",
+    "reload:runtime-smoke:m11": "node --import tsx src/reload/runtimeSmokeM11.ts",
     "outbound:dry-run": "node --import tsx src/outbound/dryRun.ts",
     "outbound:shadow": "node --import tsx src/outbound/shadow.ts",
     "docs:check": "node --import tsx tools/docs/check.ts",

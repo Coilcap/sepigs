@@ -1,6 +1,6 @@
 # Outbound Generation Dry-Run
 
-- Generated: 2026-07-03T16:05:53.249Z
+- Generated: 2026-07-04T17:48:11.591Z
 - Current config: `examples/sepigs.json`
 - Candidate config: `examples/sepigs.safe.json`
 - Current generation: `outbound-current-0` (2 entries)

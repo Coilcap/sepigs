@@ -7,6 +7,10 @@ import { ConfigError } from "../utils/errors.js";
 import { DashboardRuntimeAdapter, type DashboardRuntimeHost } from "./adapters/dashboardRuntimeAdapter.js";
 import { DnsRuntimeAdapter, type DnsRuntimeHost } from "./adapters/dnsRuntimeAdapter.js";
 import { MetricsRuntimeAdapter, type MetricsRuntimeHost } from "./adapters/metricsRuntimeAdapter.js";
+import {
+  OutboundRuntimeAdapter,
+  type OutboundRuntimeHost
+} from "./adapters/outboundRuntimeAdapter.js";
 import { PolicyRuntimeAdapter } from "./adapters/policyRuntimeAdapter.js";
 import {
   RouterRuntimeAdapter,
@@ -15,6 +19,7 @@ import {
 import { createDashboardReloadAdapter } from "./adapters/dashboardAdapter.js";
 import { createDnsReloadAdapter } from "./adapters/dnsAdapter.js";
 import { createMetricsReloadAdapter } from "./adapters/metricsAdapter.js";
+import { createOutboundReloadAdapter } from "./adapters/outboundAdapter.js";
 import { createProberReloadAdapter } from "./adapters/proberAdapter.js";
 import { createRouterReloadAdapter } from "./adapters/routerAdapter.js";
 import type { ReloadableComponent } from "./contract.js";
@@ -26,7 +31,8 @@ export interface RuntimeReloadHost
   extends MetricsRuntimeHost,
     DashboardRuntimeHost,
     RouterPolicyRuntimeHost,
-    DnsRuntimeHost {
+    DnsRuntimeHost,
+    OutboundRuntimeHost {
   commitRuntimeConfig(config: SepigsConfig): void;
 }
 
@@ -44,6 +50,7 @@ export interface RuntimeReloadOutcome {
     readonly dashboardChanged: boolean;
     readonly routerChanged: boolean;
     readonly policyChanged: boolean;
+    readonly outboundChanged: boolean;
     readonly connectionsClosed: 0;
     readonly listenersChanged: 0;
     readonly dnsChanged: boolean;
@@ -69,7 +76,7 @@ export class RuntimeReloadIntegration {
     if (candidate.reload.mode !== "transactional-experimental") {
       throw new ConfigError("runtime transactional integration requires transactional-experimental mode");
     }
-    assertM85SupportedChange(previous, candidate, this.host);
+    assertM11SupportedChange(previous, candidate, this.host);
     const changedComponents = changedRuntimeComponents(previous, candidate);
     const enabledComponents = new Set(candidate.reload.transactional.enabledComponents);
     for (const component of changedComponents) {
@@ -128,7 +135,8 @@ export class RuntimeReloadIntegration {
         dataPlaneMutated:
           changedComponents.includes("router") ||
           changedComponents.includes("policy") ||
-          changedComponents.includes("dns"),
+          changedComponents.includes("dns") ||
+          changedComponents.includes("outbound"),
         routingDecisionChanged:
           changedComponents.includes("router") || changedComponents.includes("policy"),
         legacyFallbackUsed: false,
@@ -136,6 +144,7 @@ export class RuntimeReloadIntegration {
         dashboardChanged: changedComponents.includes("dashboard"),
         routerChanged: changedComponents.includes("router"),
         policyChanged: changedComponents.includes("policy"),
+        outboundChanged: changedComponents.includes("outbound"),
         connectionsClosed: 0,
         listenersChanged: 0,
         dnsChanged: changedComponents.includes("dns"),
@@ -183,15 +192,24 @@ const createRuntimeComponents = (
   const components: ReloadableComponent[] = [];
   if (changed.includes("metrics")) components.push(new MetricsRuntimeAdapter(host));
   if (changed.includes("dashboard")) components.push(new DashboardRuntimeAdapter(host));
-  const expectedRoutingComponents = changed.filter(
+  const changedRoutingComponents = changed.filter(
     (component): component is "router" | "policy" =>
       component === "router" || component === "policy"
   );
+  const expectedRoutingComponents = [
+    ...changedRoutingComponents,
+    ...(changed.includes("outbound") && changedRoutingComponents.length > 0
+      ? ["outbound" as const]
+      : [])
+  ];
   if (changed.includes("router")) {
     components.push(new RouterRuntimeAdapter(host, expectedRoutingComponents));
   }
   if (changed.includes("policy")) {
     components.push(new PolicyRuntimeAdapter(host, expectedRoutingComponents));
+  }
+  if (changed.includes("outbound")) {
+    components.push(new OutboundRuntimeAdapter(host, expectedRoutingComponents));
   }
   // Publish DNS last so its committed carry-over counters cannot outlive a
   // later router or policy commit failure.
@@ -208,6 +226,7 @@ const createShadowComponents = (
   if (changed.includes("dns")) components.push(createDnsReloadAdapter());
   if (changed.includes("router")) components.push(createRouterReloadAdapter());
   if (changed.includes("policy")) components.push(createProberReloadAdapter());
+  if (changed.includes("outbound")) components.push(createOutboundReloadAdapter());
   return components;
 };
 
@@ -228,13 +247,16 @@ const changedRuntimeComponents = (
   if (stableJson(previous.route.policies) !== stableJson(candidate.route.policies)) {
     changed.push("policy");
   }
+  if (stableJson(previous.outbounds) !== stableJson(candidate.outbounds)) {
+    changed.push("outbound");
+  }
   if (stableJson(dnsConfigView(previous)) !== stableJson(dnsConfigView(candidate))) {
     changed.push("dns");
   }
   return changed;
 };
 
-const assertM85SupportedChange = (
+const assertM11SupportedChange = (
   previous: SepigsConfig,
   candidate: SepigsConfig,
   host: DnsRuntimeHost
@@ -245,20 +267,21 @@ const assertM85SupportedChange = (
       "transactional-experimental DNS reload rejected unsupported high-risk fake-IP configuration change"
     );
   }
-  if (stableJson(withoutM85Components(previous)) !== stableJson(withoutM85Components(candidate))) {
+  if (stableJson(withoutM11Components(previous)) !== stableJson(withoutM11Components(candidate))) {
     throw new ConfigError(
-      "transactional-experimental M8.5 only supports metrics/dashboard/router/policy/dns changes; use legacy mode for other changes"
+      "transactional-experimental M11 only supports metrics/dashboard/router/policy/dns/outbound changes; use legacy mode for other changes"
     );
   }
 };
 
-const withoutM85Components = (config: SepigsConfig): unknown => {
+const withoutM11Components = (config: SepigsConfig): unknown => {
   const {
     observability,
     dashboard,
     reload,
     route,
     dns,
+    outbounds,
     ...unsupported
   } = config;
   void observability;
@@ -266,6 +289,7 @@ const withoutM85Components = (config: SepigsConfig): unknown => {
   void reload;
   void route;
   void dns;
+  void outbounds;
   return unsupported;
 };
 

@@ -52,10 +52,11 @@ export const validateOutboundGeneration = (
     validateFields(outbound, errors, warnings);
   }
 
-  if (!tags.has(options.defaultOutbound)) {
+  const policyTags = new Set(options.policies.map((policy) => policy.tag));
+  if (!tags.has(options.defaultOutbound) && !policyTags.has(options.defaultOutbound)) {
     errors.push({
       code: "missing-default-outbound",
-      message: `default outbound "${options.defaultOutbound}" is missing`
+      message: `default outbound or policy "${options.defaultOutbound}" is missing`
     });
   }
   validatePolicies(options.policies, tags, errors);

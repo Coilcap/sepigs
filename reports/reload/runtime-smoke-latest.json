@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-07-03T08:12:17.690Z",
+  "generatedAt": "2026-07-04T17:48:52.061Z",
   "mode": "transactional-experimental",
   "enabledComponents": [
     "metrics",
     "dashboard"
   ],
-  "transactionId": "runtime-reload-1783066337681-1",
+  "transactionId": "runtime-reload-1783187332053-1",
   "oldGeneration": "runtime-control-0",
   "newGeneration": "runtime-control-1",
   "componentResults": [
@@ -34,6 +34,7 @@
     "dashboardChanged": true,
     "routerChanged": false,
     "policyChanged": false,
+    "outboundChanged": false,
     "connectionsClosed": 0,
     "listenersChanged": 0,
     "dnsChanged": false,
@@ -44,8 +45,8 @@
     "dashboard": "passed"
   },
   "finalControlPlane": {
-    "metricsAddress": "127.0.0.1:50006",
-    "dashboardAddress": "127.0.0.1:50007"
+    "metricsAddress": "127.0.0.1:63856",
+    "dashboardAddress": "127.0.0.1:63857"
   },
   "resourceCleanup": {
     "transactionCleanupCompleted": true,

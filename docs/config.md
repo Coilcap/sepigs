@@ -110,7 +110,7 @@ sepigs supports JSON and YAML config.
 `reload.mode` defaults to `legacy`, including when the `reload` object is
 absent. `transactional-experimental` must be explicitly selected.
 
-M8.5 accepts `metrics`, `dashboard`, `router`, `policy`, and `dns` in
+M11 accepts `metrics`, `dashboard`, `router`, `policy`, `dns`, and `outbound` in
 `reload.transactional.enabledComponents`. Every changed component must be
 listed explicitly. `rollbackOnFailure` must be `true`.
 `shadowBeforeCommit` runs a prototype-only preflight before real adapters.
@@ -123,6 +123,12 @@ copied by value with shortened TTL; negative, sensitive, synthetic, expired,
 upstream-changed, or mode-changed entries are dropped. Any fake-IP config
 difference rejects the transaction as unsupported/high-risk.
 
+Transactional outbound reload accepts only `direct`, `block`, and `tcpRelay`.
+Shadowsocks, Trojan, WireGuard, plugin, and unknown outbound types are
+rejected before publication. TCP connections keep the outbound generation
+acquired during setup until their socket closes. UDP remains on the legacy
+path and is not switched by M11.
+
 The runnable local-only example is
 `examples/sepigs.transactional-reload.experimental.json`. It uses loopback and
 ephemeral ports. Dashboard remains disabled with a placeholder token in the
@@ -134,6 +140,13 @@ The DNS-specific local-only example is
 ```bash
 npm run reload:runtime-smoke:dns -- \
   --config examples/sepigs.transactional-dns.experimental.json
+```
+
+The M11 outbound example and loopback smoke are:
+
+```bash
+npm run reload:runtime-smoke:m11 -- \
+  --config examples/sepigs.transactional-outbound.experimental.json
 ```
 
 ```json

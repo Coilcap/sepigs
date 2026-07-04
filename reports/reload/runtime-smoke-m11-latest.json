@@ -1,0 +1,48 @@
+{
+  "generatedAt": "2026-07-04T17:49:39.929Z",
+  "mode": "transactional-experimental",
+  "transactionId": "runtime-reload-1783187379907-1",
+  "transactionState": "committed",
+  "generation": {
+    "old": "runtime-outbound-0",
+    "active": "runtime-control-1-outbound",
+    "switched": true,
+    "oldReferenceReadable": true,
+    "oldDrainedAfterRelease": true
+  },
+  "supportedTypes": {
+    "direct": true,
+    "block": true,
+    "tcpRelay": true
+  },
+  "connectionChecks": {
+    "establishedConnectionSurvived": true,
+    "oldConnectionResponse": "old:after",
+    "newConnectionResponse": "new:request",
+    "connectionsClosedByReload": 0
+  },
+  "rejectionChecks": {
+    "shadowsocks": true,
+    "trojan": true,
+    "activeGenerationUnchanged": true
+  },
+  "sideEffects": {
+    "listenersChanged": 0,
+    "dnsGenerationChanged": false,
+    "fakeIpChanged": false
+  },
+  "metricsChecks": {
+    "prepareDuration": true,
+    "commitDuration": true,
+    "activeGeneration": true,
+    "rejectedUnsupported": true
+  },
+  "resourceCleanup": {
+    "transactionCleanupCompleted": true,
+    "cleanupErrors": 0,
+    "activeConnections": 0,
+    "activeSockets": 0,
+    "activeTimers": 0,
+    "activeListeners": 0
+  }
+}

@@ -173,7 +173,7 @@ void test("transactional mode rejects unsupported data-plane changes", async () 
         ...candidate.limits,
         connectTimeoutMs: candidate.limits.connectTimeoutMs + 1
       }
-    }), /only supports metrics\/dashboard\/router\/policy\/dns changes/u);
+    }), /only supports metrics\/dashboard\/router\/policy\/dns\/outbound changes/u);
     assert.equal(engine.getMetricsAddress(), null);
   } finally {
     await engine.stop();

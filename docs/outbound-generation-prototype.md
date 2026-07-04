@@ -165,12 +165,15 @@ dry-run/shadow remain mandatory.
 
 ## Known Limits
 
-- Generation state transitions are modeled but not connected to Engine.
-- Usage markers are simulation-only and not connected to `ManagedConnection`.
+- M11 connects generation state and references to Engine TCP connection setup
+  for direct, block, and TCP relay only.
+- Existing TCP streams retain their acquired outbound object until socket
+  close; UDP still uses the legacy registry and is not generation-aware.
 - Health is snapshotted; no ActiveProber lifecycle is owned.
 - The prototype validates parsed config, not raw unknown fields removed by the
   config loader.
-- M11 composite Router/Policy/Outbound publication, rollback, draining, metrics,
-  runtime smoke, and soak are not implemented.
+- Composite Router/Policy/Outbound publication, rollback, draining, metrics,
+  and loopback runtime smoke are implemented. Extended repeated-reload soak is
+  still required before promotion beyond experimental.
 - Shadowsocks/Trojan runtime reload remains deferred until M13 compatibility
   admission.

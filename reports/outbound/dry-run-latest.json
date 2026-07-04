@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-07-03T16:05:53.249Z",
+  "generatedAt": "2026-07-04T17:48:11.591Z",
   "mode": "outbound-generation-prototype-dry-run",
   "currentConfigPath": "examples/sepigs.json",
   "candidateConfigPath": "examples/sepigs.safe.json",
   "currentGeneration": {
     "id": "outbound-current-0",
-    "configHash": "fde4a6f200672472415922a2664375550377d205a8d436b95c1b00558aaff5a1",
+    "configHash": "6b47957bda3ce33d6c1d71de8553f7d32aea1de8be7206190179f9d5de839caa",
     "state": "active",
     "entryCount": 2,
     "referenceCount": 0,
@@ -13,7 +13,7 @@
       {
         "tag": "direct",
         "type": "direct",
-        "configHash": "0e36a6fdc81da19fb07420e4265493fe3451528c3601c6adb009e66e57a47ca3",
+        "configHash": "2f1e0bcf32231dd6987ab68f974653b8c8d987ebdcd04545569652027a335537",
         "riskLevel": "low",
         "experimental": false,
         "capabilities": {
@@ -29,7 +29,7 @@
       {
         "tag": "block",
         "type": "block",
-        "configHash": "00af70c288325bcfb7cafdd4f0c92d1f7e5390cafbad703000d30bb8d6ae4c33",
+        "configHash": "0f6746f51d53cfe94b194daca253aca87fc36846247abbfcd4c6b1eaa66cf595",
         "riskLevel": "low",
         "experimental": false,
         "capabilities": {
@@ -45,7 +45,7 @@
   },
   "candidateGeneration": {
     "id": "outbound-candidate-1",
-    "configHash": "c5b171303c7db6f0e53a7a87a05d3c09b9b1ecdfed44a35dc6e30944f2fc29af",
+    "configHash": "64768069cfded4fd038af47e6d69710fcc47e0a690234d1aa6708892c9c28210",
     "state": "candidate",
     "parentGenerationId": "outbound-current-0",
     "entryCount": 2,
@@ -54,7 +54,7 @@
       {
         "tag": "direct",
         "type": "direct",
-        "configHash": "0e36a6fdc81da19fb07420e4265493fe3451528c3601c6adb009e66e57a47ca3",
+        "configHash": "2f1e0bcf32231dd6987ab68f974653b8c8d987ebdcd04545569652027a335537",
         "riskLevel": "low",
         "experimental": false,
         "capabilities": {
@@ -70,7 +70,7 @@
       {
         "tag": "block",
         "type": "block",
-        "configHash": "00af70c288325bcfb7cafdd4f0c92d1f7e5390cafbad703000d30bb8d6ae4c33",
+        "configHash": "0f6746f51d53cfe94b194daca253aca87fc36846247abbfcd4c6b1eaa66cf595",
         "riskLevel": "low",
         "experimental": false,
         "capabilities": {

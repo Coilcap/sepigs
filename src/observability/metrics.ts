@@ -4,6 +4,7 @@ import type { EventLoopDelaySnapshot } from "./eventLoop.js";
 import type { GcSnapshot } from "./gc.js";
 import type { ReloadMetricsSnapshot } from "../reload/metrics.js";
 import type { DNSGenerationStoreMetrics } from "../dns/generationStore.js";
+import type { OutboundRuntimeRegistrySnapshot } from "../outbound/runtimeRegistry.js";
 
 export interface MetricsSnapshot {
   readonly stats: StatsSnapshot;
@@ -17,6 +18,7 @@ export interface MetricsSnapshot {
     readonly policy: number;
   };
   readonly dnsGenerations?: DNSGenerationStoreMetrics;
+  readonly outboundGenerations?: OutboundRuntimeRegistrySnapshot;
 }
 
 const metric = (name: string, value: number, help: string): string => {
@@ -36,7 +38,8 @@ export const renderPrometheusMetrics = (snapshot: MetricsSnapshot): string => {
     memory,
     reload,
     routingGenerations,
-    dnsGenerations
+    dnsGenerations,
+    outboundGenerations
   } = snapshot;
   const metrics = [
     metric("sepigs_uptime_seconds", stats.uptimeMs / 1_000, "Sepigs process uptime in seconds."),
@@ -112,6 +115,25 @@ export const renderPrometheusMetrics = (snapshot: MetricsSnapshot): string => {
       )
     );
   }
+  if (outboundGenerations !== undefined) {
+    metrics.push(
+      metric(
+        "sepigs_reload_active_outbound_generation_id",
+        outboundGenerations.activeGenerationSequence,
+        "Active experimental outbound generation sequence."
+      ),
+      metric(
+        "sepigs_reload_outbound_generation_draining",
+        outboundGenerations.drainingGenerations,
+        "Draining experimental outbound generations."
+      ),
+      counter(
+        "sepigs_reload_outbound_rejected_unsupported_total",
+        outboundGenerations.rejectedUnsupported,
+        "Outbound transactional reloads rejected for unsupported types."
+      )
+    );
+  }
   return metrics.join("\n\n") + "\n";
 };
 
@@ -157,7 +179,8 @@ const componentRollbackValues = (
     "dashboard-server",
     "router",
     "policy-prober",
-    "dns"
+    "dns",
+    "outbound-registry"
   ]) {
     if (!values.has(component)) values.set(component, 0);
   }

@@ -38,7 +38,7 @@ export class PolicyRuntimeAdapter implements ReloadableComponent<PolicyRuntimePr
       id: `${context.candidateGenerationId}-policy`,
       sequence: oldGeneration.sequence + 1,
       policies: config.route.policies,
-      outboundTags: this.host.outboundTags(),
+      outboundTags: this.host.outboundTags(config),
       healthSnapshot: active.policyManager.getHealthSnapshots()
     });
     runtime.begin(context.transactionId, this.expectedRoutingComponents);
